@@ -1,7 +1,5 @@
 package viewers;
 
-import record.RecordViewer;
-
 import viewers.*;
 import viewerclients.*;
 import viewers.LevelViewer;
@@ -417,13 +415,6 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				CreditEditor editor = new CreditEditor(itself);
-			}
-		});
-		JMenuItem recordEditButton = new JMenu("View Records");
-		recordEditButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				RecordViewer viewer = new RecordViewer(rom);
-				viewer.setVisible(true);
 			}
 		});
 		miscMenu.add(miscMusicButton);
