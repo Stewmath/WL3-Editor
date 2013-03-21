@@ -1,0 +1,23 @@
+; Text is compressed with RLE (Run-length encryption).
+
+; It's not standard ascii; textTable.txt tells what
+; values correspond to what letters.
+
+; Also, these values aren't the addresses of the 
+; text. They're the addresses of the pointers to
+; the text, so if the new text is bigger than the
+; old text, it can be moved.
+; If only one number is provided, it's assumed to
+; be the address of the actual text.
+
+; The first number is the address of the pointer,
+; the second is the address of the bank number.
+
+adf31	adf2c	Are you aware?
+acc4b	acc4e	Head For...
+acc22	acc25	Wonderful work
+aefe3	aefe6	Thank You!
+
+;0b37f9	The Hidden Figure Explains
+;0b211a	Head For...
+;15e225	Thank you!

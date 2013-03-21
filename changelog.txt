@@ -1,0 +1,29 @@
+CHANGELOG
+
+0.1: June 17th 2012
+
+- initial release
+
+0.2: August 26th 2012
+
+- Can change music for levels, overworld and other areas
+- Improved management for each level's 8 versions
+- Tileset editing
+- Various bugfixes & UI tweaks
+
+0.3: October 2nd 2012
+
+This release doesn't have many new features, as it was released sooner than
+anticipated to fix some embarassing bugs. But it should be more stable.
+
+- Feature: Text Editing
+- Feature: Credit Editing
+- Bugfix: Tileset properties now save properly.
+- Bugfix: Regions can no longer be added over existing regions.
+- Various fixes & tweaks
+
+0.4: March 21st 2013
+
+- Feature: Enemy set editing
+- You are warned when data is being shifted
+- Probably there are some bugfixes I've forgotten about by now

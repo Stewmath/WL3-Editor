@@ -1,0 +1,61 @@
+; Starting at 0101 are sound effects. Listing them would only clutter things up.
+
+0000	Nothing
+0001	Out of the Woods D
+0002	Out of the Woods N
+0003	Forest of Fear
+0004	Warped Void
+0005	Desert Ruins
+0006	The Frigid Sea
+0007	Peaceful Village D
+0008	Peaceful Village N
+0009	Above the Clouds D
+000a	Above the Clouds N
+000b	Volcano's Base N
+000c	Volcano's Base D
+000d	East Crater
+000e	Vast Plain D
+000f	Vast Plain N
+0010	The Big Bridge
+0011	The Tidal Coast
+0012	Cave of Flames
+0013	Pool of Rain D
+0014	Pool of Rain N
+0015	Credits
+0016	On Fire
+0017	Fat
+0018	Bouncy
+0019	Zombie
+001a	Flattened
+001b	Dizzy
+001c	Invisible
+001d	Snowman
+001e	Riding owl
+001f	Ball of Yarn
+0020	Vampire Wario
+0021	Overworld D
+0022	Overworld N
+0023	Level Results
+0024	Get Chest
+0025	Pause Screen
+0026	Golf Minigame
+0027	Boss Music
+0028	Level Results 2
+0029	Boss Defeated
+002a	Golf lost
+002b	Golf won
+002c	Music box quintet
+002d	About to face boss
+002e	Power demo
+002f	Golf entrance
+0030	Game Over
+0031	Flashing music box
+0032	Mysterious figure
+0033	Titlescreen
+0034	Intro
+0035	Final Boss
+0036	Perfect!
+0037	View treasure
+0038	Ending
+0039	Rudy appears
+003a	Rudy is mad

@@ -1,0 +1,7 @@
+; These fill in the values for the region's "Scroll" field. See the readme for
+; details.
+
+0	V Norm
+1	H, V Norm
+8	H, V segscrl
+c	V segscrl

@@ -1,0 +1,41 @@
+; The credits use different mappings
+; for their letters than the other text...
+
+50	A
+51	B
+52	C
+53	D
+54	E
+55	F
+56	G
+57	H
+58	I
+59	J
+5a	K
+5b	L
+5c	M
+5d	N
+5e	O
+5f	P
+60	Q
+61	R
+62	S
+63	T
+64	U
+65	V
+66	W
+67	X
+68	Y
+69	Z
+6a	1
+6b	2
+6c	3
+6d	4
+6e	5
+6f	6
+70	7
+71	8
+72	9
+73	0
+7e	 
+; 7f is the newline, handled as a special case.

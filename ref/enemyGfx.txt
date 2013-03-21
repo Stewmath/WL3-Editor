@@ -1,0 +1,119 @@
+; Names were taken from the Super Mario Wiki.
+; I took the liberty of naming those which weren't listed.
+
+[68]
+4000	Spearhead
+45a5	Spitting Fish
+490d	Silky
+43be	Unused Flower
+4c59	Fire Snake
+4ff4	Prince Froggy
+53a5	Scienstein/EyeWall
+5754	Mr. Sun A
+5b1c	Mr. Moon A
+5eac	Robo-Mouse A
+624a	Haridama
+650e	Owl
+68ae	Stool
+69f4	Water Spark
+
+[69]
+4000	Webber
+4327	Richtertoffen
+4637	Paragoom
+4956	Tree Bug
+4c53	Blue/Red Bird
+4e29	Appleby
+514c	Hammer-bot
+547a	Pneumo
+578c	Mr. Sun B
+5b1f	Mr. Moon B
+5de3	Robo-Mouse B
+6133	Golf Block
+
+[6a]
+4000	Platform Frog
+4327	Roof Slime
+45b3	Doughnuteer
+4909	Falling leaf
+4a8a	Zombie
+4dc2	Spear-bot
+518a	Squasher
+545b	Kobats
+567b	Sand Hand
+599f	Bubble
+5b78	Cart
+5d9b	Pulley
+5e74	Fire Block
+61bc	Golf Block
+62cc	Jumping Fish
+6502	Stone
+65ac	Bonfire
+695f	Cyclone
+
+[6b]
+4000	Fire
+4234	Fire Robota
+4610	Beam Robota
+49ec	Box/Platform
+4c00	Leaf Platform
+4c7d	Electric Spark
+4ee3	Teru-Teru
+521f	Grab-bot
+5861	Spikey Carpet
+54ea	Brrr Bear
+5a06	Falling Snow
+5cd5	Platform
+5d44	Water Drop
+5dec	Pinhead
+5f31	Golf Block
+6041	Octahon
+6398	Spark
+
+[6c]
+4000	Anonster A
+42f8	Doll Boy A
+46d6	Wormwould A
+4a9e	Yellow Belly A
+4e12	Pesce A
+5164	Scowler A
+549d	Jamano A
+5874	Muddee A
+5bf4	Wolfenboss A
+5f97	Shoot A
+
+[6d]
+4000	Anonster B
+42e7	Doll Boy B
+46be	Wormwould B
+4a3a	Yellow Belly B
+4d8a	Pesce B
+5127	Scowler B
+5438	Jamano B
+5744	Muddee B
+5a94	Wolfenboss B
+5e26	Shoot B
+
+[6e]
+4000	Anonster C
+434a	Doll Boy C
+473d	Wormwould C
+4ad4	Yellow Belly C
+4e59	Pesce C
+51e3	Scowler C
+5511	Jamano C
+5849	Muddee C
+5bc8	Wolfenboss C
+5f28	Shoot C
+
+[6f]
+4000	Anonster D
+42fc	Doll Boy D
+465e	Wormwould D
+498e	Yellow Belly D
+4cb5	Pesce D
+5003	Scowler D
+52d8	Jamano D
+569f	Muddee D
+594f	Wolfenboss D
+5cb2	Shoot D

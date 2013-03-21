@@ -1,0 +1,13 @@
+; Each of these numbers is a pointer to
+; data in bank 0x19 which describes an item
+; set - that is, keys, chests, and music coins.
+; I haven't looked into its structure yet,
+; given that the game only seems to use the
+; first 4 values listed here.
+; You shouldn't edit this.
+
+4fc3	Grey
+4fd1	Red
+4fdf	Green
+4fed	Blue
+4ffb	Pinkish?

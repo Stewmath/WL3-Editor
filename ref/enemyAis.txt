@@ -1,0 +1,118 @@
+43c3	None
+4413	Spearhead
+441b	Platform Frog
+4423	Webber
+442b	Fire
+4433	Fire (no emissions)
+443b	Unlit Torch
+; Fire Block is used only in the Tower of Revival as the first puzzle.
+4443	Fire Block
+444b	Stool
+4453	Unused Flower
+445b	Richtertoffen
+4463	Roof Slime
+446b	Paragoom
+4473	Doughnuteer
+447b	Grab-bot
+; I don't see any difference between squashers A and B except that wario doesn't
+; stand on top of squasher A properly... so I'd recommend B.
+4483	Squasher A
+448b	Squasher B
+
+4493	Up/Down Tree Bug
+449b	Left/Right Tree Bug
+44a3	Spitting Fish
+44ab	Falling Leaf
+44b3	Leaf Platform
+44bb	Silky
+44c3	Red Bird
+44cb	Blue Bird
+44d3	Fire Snake
+44db	Appleby
+44e3	Falling Platform
+44eb	Box
+44f3	Stone
+44fb	Trapped Froggy
+4503	Resting Froggy
+450b	Hammer-bot
+4513	Teru-Teru
+451b	Mad Scienstein
+4523	Eye Wall
+452b	Pneumo
+4533	Electric Spark Maker
+453b	Zombie
+4543	Fire Robota
+454b	Spear-bot
+4553	Beam Robota
+455b	Mr. Sun
+4563	Mr. Moon
+456b	Kobats
+4573	Sand Hand
+457b	Bubble Maker
+4583	Brrr Bear
+458b	Cart A Leftward
+4593	Cart A Rightward
+459b	Cart B Leftward
+45a3	Cart B Rightward
+45ab	Robo-Mouse
+45b3	Spikey Carpet
+45bb	Haridama
+45c3	Owl
+45cb	Pulley (Right)
+45d3	Pulley (Up-Right)
+45db	Pulley (Up-Left)
+45e3	Pulley (Down-Left)
+45eb	Pulley (Down-Right)
+45f3	Anonster
+45fb	Anonster's Platform
+4603	Falling Snow
+460b	Doll Boy
+4613	?Doll Boy's Platform?
+461b	Doll Boy's Block 1
+4623	Doll Boy's Block 2
+462b	Doll Boy's Block 3
+4633	Wormwould
+463b	?Wormwould's Platform?
+4643	Pool Platform A
+464b	Pool Platform B
+4653	Pool Platform C
+465b	Water Drop Maker
+4663	Yellow Belly
+466b	Yellow Belly's Platform
+4673	Pinhead (extends left)
+467b	Pinhead (extends right)
+; The golf block can be put in one of 3 gfx slots,
+; unlike most other things which require specific slots.
+4683	Golf Block (Slot 1)
+468b	Golf Block (Slot 2)
+4693	Golf Block (Slot 3)
+
+469b	Pesce
+46a3	Pesce's Firefly
+46ab	Pesce's Food
+46b3	?Pesce?
+46bb	?Pesce?
+46c3	Jumping Fish
+46cb	Water Spark
+46d3	Octahon A
+46db	Octahon B
+46e3	Spark (left/right)
+46eb	Spark (up/down)
+46f3	Scowler
+46fb	?Scowler?
+4703	Bonfire
+470b	Jamano
+4713	?Jamano?
+471b	?Jamano?
+4723	Muddee
+472b	Muddee's Turtle
+4733	?Muddee?
+473b	Wolfenboss
+4743	Wolfenboss's Platform
+474b	Shoot
+4753	?Shoot?
+475b	?Shoot?
+4763	?Shoot?
+476b	?Shoot?
+4773	Cyclone A
+477b	Cyclone B

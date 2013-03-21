@@ -1,0 +1,103 @@
+; This is a list of tile effects. It is not complete but it covers the basics.
+
+; Every number in here is a pointer to code in bank 6 executed when wario
+; or an enemy collide with a tile of that type.
+
+4020	Empty
+4032	Solid
+409f	Above left slope
+40b5	Under left slope
+40d9	Leftward slope
+4129	Above right slope
+413f	Under right slope
+4163	Rightward slope
+41ac	Water
+41c8	Rightward current
+41d8	Upward current
+41e8	Leftward current
+41f8	Downward current
+4208	Platform
+423f	Underwater platform
+4262	Enemy-only platform
+428c	Switch
+42c3	Ladder body
+42e5	Ladder top
+42fe	Ladder warp tile
+4336	Spike
+439c	Spike (more rigid)
+4402	Underwater spike
+442a	Up-facing pipe (L)
+4461	Up-facing pipe (R)
+44fc	Down-facing pipe (L)
+4533	Down-facing pipe (R)
+45cb	Door
+45fa	Golf door
+46f9	Underwater door
+477e	Exit door
+47b0	Warp tile
+47de	Water warp tile
+4821	Light/Garlic
+484c	Quicksand
+48ba	Impassable by enemies
+48e0	Fire
+4934	Rope/Vine
+4997	Slippery
+49ae	Slippery platform
+49fb	Breaks to T 78 w/ coin
+49ff	Breaks to T 79 w/ coin
+4a03	Breaks to T 7a w/ coin
+4a07	Breaks to T 7b w/ coin
+4a0b	Breaks to T 7c w/ coin
+4a0f	Breaks to T 7d w/ coin
+4a13	Breaks to T 7e w/ coin
+4a17	Breaks to T 7f w/ coin
+4cb4	Breaks to tile 78
+4cb8	Breaks to tile 79
+4cbc	Breaks to tile 7a
+4cc0	Breaks to tile 7b
+4cc4	Breaks to tile 7c
+4cc8	Breaks to tile 7d
+4ccc	Breaks to tile 7e
+4cd0	Breaks to tile 7f
+4d60	Hard breaks to T 78
+4d64	Hard breaks to T 79
+4d68	Hard breaks to T 7a
+4d6c	Hard breaks to T 7b
+4d70	Hard breaks to T 7c
+4d74	Hard breaks to T 7d
+4d78	Hard breaks to T 7e
+4d7c	Hard breaks to T 7f
+4e2a	2x2 breaks to T 78 (BL)
+4ebe	2x2 breaks to T 78 (BR)
+4f5f	2x2 breaks to T 79 (TR)
+4f7b	2x2 breaks to T 78 (TR)
+4ff3	2x2 breaks to T 79 (TL)
+500f	2x2 breaks to T 78 (TL)
+50e8	H. 2x2 breaks to T 7b (BL)
+519d	H. 2x2 breaks to T 7b (BR)
+527b	H. 2x2 breaks to T 7b (TR)
+5330	H. 2x2 breaks to T 7b (TL)
+53fb	Throw breaks to T 78
+53ff	Throw breaks to T 79
+5403	Throw breaks to T 7a
+5407	Throw breaks to T 7b
+540b	Throw breaks to T 7c
+540f	Throw breaks to T 7d
+5413	Throw breaks to T 7e
+5417	Throw breaks to T 7f
+544b	Fire breaks to T 78
+544f	Fire breaks to T 79
+5453	Fire breaks to T 7a
+5457	Fire breaks to T 7b
+545b	Fire breaks to T 7c
+545f	Fire breaks to T 7d
+5463	Fire breaks to T 7e
+5467	Fire breaks to T 7f
+5497	Fat breaks to T 78
+549b	Fat breaks to T 79
+549f	Fat breaks to T 7a
+54a3	Fat breaks to T 7b
+54a7	Fat breaks to T 7c
+54ab	Fat breaks to T 7d
+54af	Fat breaks to T 7e
+54b3	Fat breaks to T 7f

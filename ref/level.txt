@@ -1,0 +1,201 @@
+00	Out of the Woods D1
+01	Out of the Woods D2
+02	Out of the Woods D3
+03	Out of the Woods D4
+04	Out of the Woods N1
+05	Out of the Woods N2
+06	Out of the Woods N3
+07	Out of the Woods N4
+08	Peaceful Village D1
+09	Peaceful Village D2
+0a	Peaceful Village D3
+0b	Peaceful Village D4
+0c	Peaceful Village N1
+0d	Peaceful Village N2
+0e	Peaceful Village N3
+0f	Peaceful Village N4
+10	The Vast Plain D1
+11	The Vast Plain D2
+12	The Vast Plain D3
+13	The Vast Plain D4
+14	The Vast Plain N1
+15	The Vast Plain N2
+16	The Vast Plain N3
+17	The Vast Plain N4
+18	Bank of Wild River D1
+19	Bank of Wild River D2
+1a	Bank of Wild River D3
+1b	Bank of Wild River D4
+1c	Bank of Wild River N1
+1d	Bank of Wild River N2
+1e	Bank of Wild River N3
+1f	Bank of Wild River N4
+20	The Tidal Coast D1
+21	The Tidal Coast D2
+22	The Tidal Coast D3
+23	The Tidal Coast D4
+24	The Tidal Coast N1
+25	The Tidal Coast N2
+26	The Tidal Coast N3
+27	The Tidal Coast N4
+28	Sea Turtle Rocks D1
+29	Sea Turtle Rocks D2
+2a	Sea Turtle Rocks D3
+2b	Sea Turtle Rocks D4
+2c	Sea Turtle Rocks N1
+2d	Sea Turtle Rocks N2
+2e	Sea Turtle Rocks N3
+2f	Sea Turtle Rocks N4
+30	Desert Ruins D1
+31	Desert Ruins D2
+32	Desert Ruins D3
+33	Desert Ruins D4
+34	Desert Ruins N1
+35	Desert Ruins N2
+36	Desert Ruins N3
+37	Desert Ruins N4
+38	The Volcano Base D1
+39	The Volcano Base D2
+3a	The Volcano Base D3
+3b	The Volcano Base D4
+3c	The Volcano Base N1
+3d	The Volcano Base N2
+3e	The Volcano Base N3
+3f	The Volcano Base N4
+40	The Pool of Rain D1
+41	The Pool of Rain D2
+42	The Pool of Rain D3
+43	The Pool of Rain D4
+44	The Pool of Rain N1
+45	The Pool of Rain N2
+46	The Pool of Rain N3
+47	The Pool of Rain N4
+48	A Town in Chaos D1
+49	A Town in Chaos D2
+4a	A Town in Chaos D3
+4b	A Town in Chaos D4
+4c	A Town in Chaos N1
+4d	A Town in Chaos N2
+4e	A Town in Chaos N3
+4f	A Town in Chaos N4
+50	Beneath the Waves D1
+51	Beneath the Waves D2
+52	Beneath the Waves D3
+53	Beneath the Waves D4
+54	Beneath the Waves N1
+55	Beneath the Waves N2
+56	Beneath the Waves N3
+57	Beneath the Waves N4
+58	The West Crater D1
+59	The West Crater D2
+5a	The West Crater D3
+5b	The West Crater D4
+5c	The West Crater N1
+5d	The West Crater N2
+5e	The West Crater N3
+5f	The West Crater N4
+60	The Grasslands D1
+61	The Grasslands D2
+62	The Grasslands D3
+63	The Grasslands D4
+64	The Grasslands N1
+65	The Grasslands N2
+66	The Grasslands N3
+67	The Grasslands N4
+68	The Big Bridge D1
+69	The Big Bridge D2
+6a	The Big Bridge D3
+6b	The Big Bridge D4
+6c	The Big Bridge N1
+6d	The Big Bridge N2
+6e	The Big Bridge N3
+6f	The Big Bridge N4
+70	Tower of Revival D1
+71	Tower of Revival D2
+72	Tower of Revival D3
+73	Tower of Revival D4
+74	Tower of Revival N1
+75	Tower of Revival N2
+76	Tower of Revival N3
+77	Tower of Revival N4
+78	The Steep Canyon D1
+79	The Steep Canyon D2
+7a	The Steep Canyon D3
+7b	The Steep Canyon D4
+7c	The Steep Canyon N1
+7d	The Steep Canyon N2
+7e	The Steep Canyon N3
+7f	The Steep Canyon N4
+80	Cave of Flames D1
+81	Cave of Flames D2
+82	Cave of Flames D3
+83	Cave of Flames D4
+84	Cave of Flames N1
+85	Cave of Flames N2
+86	Cave of Flames N3
+87	Cave of Flames N4
+88	Above the Clouds D1
+89	Above the Clouds D2
+8a	Above the Clouds D3
+8b	Above the Clouds D4
+8c	Above the Clouds N1
+8d	Above the Clouds N2
+8e	Above the Clouds N3
+8f	Above the Clouds N4
+90	Stagnant Swamp D1
+91	Stagnant Swamp D2
+92	Stagnant Swamp D3
+93	Stagnant Swamp D4
+94	Stagnant Swamp N1
+95	Stagnant Swamp N2
+96	Stagnant Swamp N3
+97	Stagnant Swamp N4
+98	The Frigid Sea D1
+99	The Frigid Sea D2
+9a	The Frigid Sea D3
+9b	The Frigid Sea D4
+9c	The Frigid Sea N1
+9d	The Frigid Sea N2
+9e	The Frigid Sea N3
+9f	The Frigid Sea N4
+a0	Castle of Illusions D1
+a1	Castle of Illusions D2
+a2	Castle of Illusions D3
+a3	Castle of Illusions D4
+a4	Castle of Illusions N1
+a5	Castle of Illusions N2
+a6	Castle of Illusions N3
+a7	Castle of Illusions N4
+a8	The Colossal Hole D1
+a9	The Colossal Hole D2
+aa	The Colossal Hole D3
+ab	The Colossal Hole D4
+ac	The Colossal Hole N1
+ad	The Colossal Hole N2
+ae	The Colossal Hole N3
+af	The Colossal Hole N4
+b0	The Warped Void D1
+b1	The Warped Void D2
+b2	The Warped Void D3
+b3	The Warped Void D4
+b4	The Warped Void N1
+b5	The Warped Void N2
+b6	The Warped Void N3
+b7	The Warped Void N4
+b8	The East Crater D1
+b9	The East Crater D2
+ba	The East Crater D3
+bb	The East Crater D4
+bc	The East Crater N1
+bd	The East Crater N2
+be	The East Crater N3
+bf	The East Crater N4
+c0	Forest of Fear D1
+c1	Forest of Fear D2
+c2	Forest of Fear D3
+c3	Forest of Fear D4
+c4	Forest of Fear N1
+c5	Forest of Fear N2
+c6	Forest of Fear N3
+c7	Forest of Fear N4
+c8	Final Boss
