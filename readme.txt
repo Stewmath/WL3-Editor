@@ -16,8 +16,9 @@ TABLE OF CONTENTS
 
 ABOUT
 
-	This is an editor for Wario Land 3, written by Drenn (aka ITMash on 
-youtube). This is version 0.4. Enjoy.
+	This is an editor for Wario Land 3, written by Drenn. This is version 0.4. 
+	Source code is on github:
+		https://github.com/Drienn/WL3-Editor
 
 USING THE LEVEL EDITOR
 
@@ -239,4 +240,5 @@ semicolon.
 CONTACT ME
 
 	If you have something to say you can send an email to 
-stewartmatthew6@gmail.com, or send a message to ITmash on youtube.
+stewartmatthew6@gmail.com. However I have no plans to continue with this editor
+at the moment.
