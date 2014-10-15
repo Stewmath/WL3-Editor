@@ -103,11 +103,13 @@ public class MoveableDataRecord extends Record
 		}
 	}
 
+	// Use sparingly... currently this overrides free space checks.
 	public void moveAddr(int newAddr)
 	{
 		addr = newAddr;
 		modified = true;
 	}
+
 	public int getSize() {
 		if (type == RECORD_COMPRESSED) {
 			compressedData = rom.convertToRLE(decompressedData);

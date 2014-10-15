@@ -18,7 +18,7 @@ ABOUT
 
 	This is an editor for Wario Land 3, written by Drenn. This is version 0.4. 
 	Source code is on github:
-		https://github.com/Drienn/WL3-Editor
+		https://github.com/Drenn1/WL3-Editor
 
 USING THE LEVEL EDITOR
 

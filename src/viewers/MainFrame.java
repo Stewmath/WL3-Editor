@@ -682,10 +682,11 @@ public class MainFrame extends JFrame
 		TileSet.rom = rom;
 		RomReader.rom = rom;
 		
-		Level.reloadLevels();
 		ObjectSet.reloadObjectSets();
 		TileSet.reloadTileSets();
 		RegionRecord.reloadRecords();
+
+		Level.reloadLevels();
 		
 		setLevel(Level.getLevel(0));
 		contentPane.repaint();
