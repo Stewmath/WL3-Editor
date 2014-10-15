@@ -62,7 +62,7 @@ public class TileGridViewer extends JPanel {
 					cursorPos.x = -1;
 					repaint();
 					if (client != null)
-					client.tileHoverChanged(-1);
+						client.tileHoverChanged(-1);
 				}
 			});
 			addMouseMotionListener(new MouseMotionAdapter() {

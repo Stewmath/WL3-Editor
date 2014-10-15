@@ -62,7 +62,7 @@ public class Level {
 	public static void reloadLevels()
 	{
 		for (int i=0; i<=lastLevel; i++)
-			levels[i] = null;
+			levels[i] = new Level(RomReader.rom, i);
 	}
 	public static void saveLevels()
 	{

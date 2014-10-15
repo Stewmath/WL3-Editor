@@ -19,6 +19,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import record.RomReader;
+import record.RegionRecord;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -684,6 +685,7 @@ public class MainFrame extends JFrame
 		Level.reloadLevels();
 		ObjectSet.reloadObjectSets();
 		TileSet.reloadTileSets();
+		RegionRecord.reloadRecords();
 		
 		setLevel(Level.getLevel(0));
 		contentPane.repaint();

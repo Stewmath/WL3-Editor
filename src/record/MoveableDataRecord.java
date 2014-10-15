@@ -21,11 +21,12 @@ public class MoveableDataRecord extends Record
 	// At least, for the purposes of saving.
 	public boolean belongsToJoinedRecord=false;
 
+	// isMoveable: if true, we won't attempt to move this record around when it's time to save.
+	// However, even if false, invoking "moveAddr" will force it to move to the specified address.
 	public boolean isMoveable=true;
 
 	RomReader rom;
-	int firstAddr=-1;
-	boolean deleteFirstAddr=false;
+	int originalAddr=-1;
 	
 	int requiredBank=-1;
 	int originalSize;
@@ -40,7 +41,7 @@ public class MoveableDataRecord extends Record
 		modified = false;
 		rom = RomReader.rom;
 		this.addr = addr;
-		firstAddr = addr;
+		originalAddr = addr;
 		this.ptrs = new ArrayList<RomPointer>(pointers);
 		if (compressed)
 			this.type = RECORD_COMPRESSED;
@@ -73,7 +74,7 @@ public class MoveableDataRecord extends Record
 
 		rom = RomReader.rom;
 		addr = -1;
-		firstAddr = addr;
+		originalAddr = addr;
 		ptrs = new ArrayList<RomPointer>(pointers);
 		requiredBank = b;
 		if (compressed)
@@ -104,38 +105,8 @@ public class MoveableDataRecord extends Record
 
 	public void moveAddr(int newAddr)
 	{
-		if (firstAddr == addr)
-		{
-			deleteFirstAddr = true;
-		}
 		addr = newAddr;
 		modified = true;
-	}
-	public void reload()
-	{
-		if (addr < 0) {
-			return;
-		}
-		modified = true;
-		if (type == RECORD_COMPRESSED)
-		{
-			decompressedData = rom.readRLE(addr);
-			compressedData = rom.readRawRLE(addr);
-			originalSize = compressedData.size();
-		}
-		else
-		{
-			int size = decompressedData.size();
-			decompressedData = new ArrayList<Byte>();
-			for (int i=0; i<size; i++)
-			{
-				if (addr > 0)
-					decompressedData.add((byte)rom.read(addr+i));
-				else if (firstAddr > 0)
-					decompressedData.add((byte)rom.read(firstAddr+i));
-			}
-			originalSize = decompressedData.size();
-		}
 	}
 	public int getSize() {
 		if (type == RECORD_COMPRESSED) {
@@ -159,10 +130,10 @@ public class MoveableDataRecord extends Record
 	}
 	public boolean fitsInOriginalSpace()
 	{
-		if (firstAddr < 0)
+		if (originalAddr < 0)
 			return false;
 
-		int originalSlotSize = originalSize+rom.getFreeSpaceLength(firstAddr+originalSize);
+		int originalSlotSize = originalSize+rom.getFreeSpaceLength(originalAddr+originalSize);
 		if (type != RECORD_COMPRESSED) {
 			return decompressedData.size() <= originalSlotSize;
 		}
@@ -172,12 +143,14 @@ public class MoveableDataRecord extends Record
 			return compressedData.size() <= originalSlotSize;
 		}
 	}
+	// Read u8
 	public int read(int i)
 	{
 		if (i >= decompressedData.size())
 			return -1;
 		return decompressedData.get(i)&0xff;
 	}
+	// Read u16
 	public int read16(int i)
 	{
 		if (i >= decompressedData.size())
@@ -186,6 +159,7 @@ public class MoveableDataRecord extends Record
 			return read(i);
 		return (decompressedData.get(i)&0xff)+((decompressedData.get(i+1)&0xff)<<8);
 	}
+	// Read u16 and convert it to a rom address for the given bank
 	public int read16(int i, int bank) {
 		int val = read16(i);
 		if (val < 0)
@@ -225,31 +199,34 @@ public class MoveableDataRecord extends Record
 	}
 	public void write(int i, byte val)
 	{
-		modified = true;
-		if (i < decompressedData.size())
+		if (i < decompressedData.size()) {
+			modified = true;
 			decompressedData.set(i, val);
+		}
 	}
 	// No affiliation with member "ptrs", this simply writes
 	// a 16-bit gameboy style pointer to index i.
 	public void writePtr(int i, int val)
 	{
-		modified = true;
 		int newVal = (val%0x4000)+0x4000;
 		
 		if (i+1 < decompressedData.size())
 		{
+			modified = true;
 			write(i, (byte)(newVal&0xff));
 			write(i+1, (byte)(newVal>>8));
 		}
 	}
 	public void write16(int i, int val) {
-		modified = true;
 		if (i+1 < decompressedData.size()) {
+			modified = true;
 			write(i, (byte)(val&0xff));
 			write(i+1, (byte)(val>>8));
 		}
 	}
 	public void write(int i, byte[] data) {
+		if (data.length != 0 && i < getDataSize())
+			modified = true;
 		for (int j=0; j<data.length && j+i < getDataSize(); j++) {
 			decompressedData.set(j+i, data[i]);
 		}
@@ -285,11 +262,14 @@ public class MoveableDataRecord extends Record
 		if (type == RECORD_COMPRESSED)
 			compressedData = rom.convertToRLE(decompressedData);
 		
-		if (addr < 0 || !fitsInOriginalSpace() || (addr/0x4000 != requiredBank && requiredBank >= 0)) {
+		// Condition for moving data
+		// If addr != originalAddr (someone called moveAddr), we assume it's okay to write there?
+		if (addr < 0 || (addr == originalAddr && !fitsInOriginalSpace()) ||
+				(addr/0x4000 != requiredBank && requiredBank >= 0)) {
 			if (!isMoveable) {
 				JOptionPane.showMessageDialog(null,
 						"Un-moveable data was changed in size and is too big." +
-						"Data was originally stored at 0x" + RomReader.toHexString(firstAddr) + ".\n" +
+						"Data was originally stored at 0x" + RomReader.toHexString(originalAddr) + ".\n" +
 						(description != "" ? "Data description: \"" + description + "\"\n" : "Data has no description.\n") +
 						"\nThe rom will not be saved. Try decreasing the data size and try again.",
 						"Error",
@@ -297,6 +277,11 @@ public class MoveableDataRecord extends Record
 				rom.saveFail = true;
 				return;
 			}
+			// Clear location of original data
+			if (originalAddr > 0) {
+				rom.clear(originalAddr, originalSize);
+			}
+			// Find a new spot for the data
 			if (requiredBank >= 0)
 				addr = rom.findFreeSpace(getSize(), requiredBank, true);
 			else
@@ -304,7 +289,7 @@ public class MoveableDataRecord extends Record
 			if (addr < 0) {
 				JOptionPane.showMessageDialog(null,
 						"There was an error allocating space in the rom for data.\n" +
-						"Data was originally stored at 0x" + RomReader.toHexString(firstAddr) + ".\n" +
+						"Data was originally stored at 0x" + RomReader.toHexString(originalAddr) + ".\n" +
 						(description != "" ? "Data description: \"" + description + "\"\n" : "Data has no description.\n") +
 						"\nThe rom will not be saved.",
 						"Error",
@@ -312,13 +297,12 @@ public class MoveableDataRecord extends Record
 				rom.saveFail = true;
 				return;
 			}
-			deleteFirstAddr = true;
 
 			String moveInfoString;
-			if (firstAddr == -1)
+			if (originalAddr == -1)
 				moveInfoString = "New data will be inserted to address 0x" + RomReader.toHexString(addr) + ".\n";
 			else
-				moveInfoString = "Data will be moved from 0x" + RomReader.toHexString(firstAddr) + " to 0x" + RomReader.toHexString(addr) + ".\n";
+				moveInfoString = "Data will be moved from 0x" + RomReader.toHexString(originalAddr) + " to 0x" + RomReader.toHexString(addr) + ".\n";
 			if (description == null || description == "")
 				moveInfoString += "Data has no description.\n";
 			else
@@ -327,11 +311,6 @@ public class MoveableDataRecord extends Record
 					moveInfoString,
 					"Warning",
 					JOptionPane.WARNING_MESSAGE);
-		}
-		
-		// If data has been moved, its previous location should probably be deleted.
-		if (firstAddr != addr && firstAddr > 0 && deleteFirstAddr) {
-			rom.clear(firstAddr, originalSize);
 		}
 		
 		savePtrs();
@@ -345,8 +324,7 @@ public class MoveableDataRecord extends Record
 			else
 				rom.write(addr, decompressedData);
 		}
-		firstAddr = addr;
-		deleteFirstAddr = false;
+		originalAddr = addr;
 		originalSize = getSize();
 		modified = false;
 	}

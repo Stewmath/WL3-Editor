@@ -26,9 +26,14 @@ public class RegionRecord extends Record
 	// This function makes a copy of a regionRecord.
 	public static RegionRecord getCopy(RegionRecord copy, RomPointer ptr) {
 		RegionRecord r = new RegionRecord(copy);
+		r.ptrs = new ArrayList<RomPointer>(); // Remove old pointers
 		r.addPtr(ptr);
 		regionRecords.add(r);
 		return r;
+	}
+
+	public static void reloadRecords() {
+		regionRecords = new ArrayList<RegionRecord>();
 	}
 
 	RomReader rom;
@@ -37,10 +42,15 @@ public class RegionRecord extends Record
 	int warpDataBank;
 
 	public ArrayList<Region> regions;
-	// This is a table for the warpRecords.
+	// tableRecord - the table containing pointers to each warpRecord.
 	MoveableDataRecord tableRecord;
+	// warpRecords - 0xa*0x3 entries, one for each warp.
 	MoveableDataRecord[] warpRecords;
+	// sectorDestinations - warp destination for each sector.
 	public int[] sectorDestinations;
+	// null warps - sectors which don't warp to anywhere.
+	// To save space, most levels will share their "null warps" with each other.
+	// For this reason and others, all levels should probably be loaded right as the rom is opened.
 	boolean[] nullWarp;
 	MoveableDataRecord nullWarpDataRecord;
 
@@ -50,8 +60,8 @@ public class RegionRecord extends Record
 		modified = false;
 		addr = _tblAddr;
 		warpDataBank = addr/0x4000;
-		// The pointer to tableRecord would be the same as the pointer to this 
-		// record.
+		// The pointer to tableRecord would be the same as the pointer to this record.
+		// See the save() function.
 		tableRecord = rom.getMoveableDataRecord(addr, null, false, 0xa*3*2);
 		// Generate regions
 		regions = new ArrayList<Region>();
@@ -115,6 +125,7 @@ public class RegionRecord extends Record
 		// Suppose multiple levels use the same warpdata for one warp. The only one they share is the nullWarp.
 		// If I make nullWarpDataRecord one that is not the shared warp, the nullwarp used by other levels may be freed,
 		// and classified as free space!
+		// Note, this could only happen if not all levels were loaded. Otherwise the other nullwarp pointers would be loaded.
 		if (nullWarpDataRecord == null)
 		{
 		//	System.out.println("Madenull");
@@ -193,17 +204,19 @@ public class RegionRecord extends Record
 					if (nullWarp[i] == false)
 					{
 						nullWarp[i] = true;
+						warpRecords[i].removePtr(warpDataPointer);
+
+						warpRecords[i] = nullWarpDataRecord;
+						warpRecords[i].addPtr(warpDataPointer);
 					}
-					warpRecords[i].removePtr(warpDataPointer);
-					nullWarpDataRecord.addPtr(warpDataPointer);
-					warpRecords[i] = nullWarpDataRecord;
 				}
 				else
 				{
 					if (nullWarp[i] == true)
 					{
 						nullWarp[i] = false;
-						nullWarpDataRecord.removePtr(warpDataPointer);
+						warpRecords[i].removePtr(warpDataPointer);
+
 						warpRecords[i] = rom.getMoveableDataRecord(rom.findFreeSpace(8, warpDataBank, true),
 								warpDataPointer, false, 8);
 					}
