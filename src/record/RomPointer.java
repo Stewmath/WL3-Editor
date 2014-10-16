@@ -161,6 +161,9 @@ public class RomPointer {
             return p.ptrAddr1 == ptrAddr1 && p.ptrAddr2 == ptrAddr2;
         else
 			return p.ptrRecord == ptrRecord && p.ptrIndex == ptrIndex;
+		// I'm not checking the banks because, seriously... if 2 pointers have the same values for
+		// the address but not for the bank... something's kinda wrong.
+		// Unless maybe one pointer just doesn't have the bank set...?
 	}
 	
 }

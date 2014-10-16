@@ -242,17 +242,13 @@ public class RomReader {
 		while (n != 0)
 		{
 			if ((n&0x80) == 0)
-			{
 				addr++;
-			}
 			else
-			{
 				addr += (n&0x7f);
-			}
 			n = data[addr++];
 		}
 		int size = addr-startAddr;
-		for (int i=addr; i<addr+size; i++)
+		for (int i=startAddr; i<addr; i++)
 			output.add(data[i]);
 		return output;
 	}

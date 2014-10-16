@@ -50,7 +50,7 @@ public class MoveableDataRecord extends Record
 		
 		deleteWithNoPtr = false;
 		
-		// if compressed==true, parameter size is ignored.
+		// if compressed==true, parameter 'size' is ignored.
 		if (compressed)
 		{
 			decompressedData = rom.readRLE(addr);
@@ -74,7 +74,8 @@ public class MoveableDataRecord extends Record
 
 		rom = RomReader.rom;
 		addr = -1;
-		originalAddr = addr;
+		originalAddr = -1;
+		originalSize = -1;
 		ptrs = new ArrayList<RomPointer>(pointers);
 		requiredBank = b;
 		if (compressed)
@@ -90,7 +91,6 @@ public class MoveableDataRecord extends Record
 			for (int i=0; i<data.length; i++)
 				decompressedData.add(data[i]);
 			compressedData = rom.convertToRLE(decompressedData);
-			originalSize = compressedData.size();
 		}
 		else
 		{
@@ -99,7 +99,6 @@ public class MoveableDataRecord extends Record
 			for (int i=0; i<data.length; i++)
 				decompressedData.add(data[i]);
 			compressedData = null;
-			originalSize = decompressedData.size();
 		}
 	}
 
@@ -125,6 +124,9 @@ public class MoveableDataRecord extends Record
 		return decompressedData.size();
 	}
 	public void setDataSize(int size) {
+		// modified is not set here... hmmm...
+		// I do kinda prefer it this way, since certain sprite graphics are resized, and
+		// I'd rather not rewrite them unless they're edited...
 		while (decompressedData.size() < size)
 			decompressedData.add((byte)0);
 		while (decompressedData.size() > size)
@@ -264,6 +266,11 @@ public class MoveableDataRecord extends Record
 		if (type == RECORD_COMPRESSED)
 			compressedData = rom.convertToRLE(decompressedData);
 		
+		// Clear location of original data
+		if (originalAddr >= 0) {
+			rom.clear(originalAddr, originalSize);
+		}
+
 		// Condition for moving data
 		// If addr != originalAddr (someone called moveAddr), we assume it's okay to write there?
 		if (addr < 0 || (addr == originalAddr && !fitsInOriginalSpace()) ||
@@ -278,10 +285,6 @@ public class MoveableDataRecord extends Record
 						JOptionPane.ERROR_MESSAGE);
 				rom.saveFail = true;
 				return;
-			}
-			// Clear location of original data
-			if (originalAddr > 0) {
-				rom.clear(originalAddr, originalSize);
 			}
 			// Find a new spot for the data
 			if (requiredBank >= 0)
