@@ -1,6 +1,5 @@
 package base;
 
-import graphics.ComboBoxFromFile;
 import record.*;
 
 public class ObjectSet {
@@ -24,8 +23,6 @@ public class ObjectSet {
 		for (int i=0; i<=lastObjectSet; i++) {
 			objectSets[i] = new ObjectSet(i);
 		}
-	}
-	public static void saveObjectSets() {
 	}
 	
 
@@ -62,7 +59,7 @@ public class ObjectSet {
 		if (itemSetRecord != null)
 			itemSetRecord.removePtr(itemSetPointer);
 		itemSetRecord = rom.getMoveableDataRecord(RomReader.BANK(addr, 0x19), itemSetPointer, false, 4);
-		itemSetRecord.setDescription("'" + ComboBoxFromFile.itemSetFile.getAssociate(itemSetRecord.getAddr()) + "' item set");
+		itemSetRecord.setDescription("'" + ValueFileParser.getItemSetFile().getAssociate(itemSetRecord.getAddr()) + "' item set");
 //		itemSetRecord.deleteWithNoPtr = false;
 	}
 	

@@ -95,6 +95,7 @@ public class MainFrame extends JFrame
 	 * Create the frame.
 	 */
 	public MainFrame() {
+		ValueFileParser.reloadValueFiles(); // These are used for some combo boxes
 
 		JPanel tileSetViewerPanel = new JPanel();
 		tileSetViewerPanel.setLayout(new BoxLayout(tileSetViewerPanel, BoxLayout.Y_AXIS));
@@ -158,7 +159,7 @@ public class MainFrame extends JFrame
 		regionSectorField = new JTextField("");
 		regionWidthField = new JTextField("");
 		regionHeightField = new JTextField("");
-		regionScrollModeField = new ComboBoxFromFile(this, ComboBoxFromFile.scrollFile);
+		regionScrollModeField = new ComboBoxFromFile(this, ValueFileParser.getScrollFile());
 		regionObjectSetField = new JTextField();
 		regionTileSetField = new JTextField();
 		regionByte5Field = new JTextField();
@@ -369,7 +370,7 @@ public class MainFrame extends JFrame
 		mntm_compare.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
-				ComboBoxFromFile levelBox = new ComboBoxFromFile(itself, ComboBoxFromFile.levelFile);
+				ComboBoxFromFile levelBox = new ComboBoxFromFile(itself, ValueFileParser.getLevelFile());
 				levelBox.setSelected(levelViewer.level.getId());
 				JComponent[] inputs = {new JLabel("Select a level to compare with level " + RomReader.toHexString(levelViewer.level.getId(), 2) + ":"),
 					levelBox};
@@ -476,7 +477,7 @@ public class MainFrame extends JFrame
 		modeGroup.add(warpEditButton);
 		
 		leftPanel = new JPanel();
-		levelField = new ComboBoxFromFile(this, ComboBoxFromFile.levelFile);
+		levelField = new ComboBoxFromFile(this, ValueFileParser.getLevelFile());
 		levelField.setMaximumSize(levelField.getPreferredSize());
 //		levelField.setMaximumSize(new Dimension(200, levelField.getPreferredSize().height));
 //		levelField.setPreferredSize(levelField.getMaximumSize());
@@ -492,7 +493,7 @@ public class MainFrame extends JFrame
 				}
 			}
 		});
-		musicField = new ComboBoxFromFile(this, ComboBoxFromFile.musicFile);
+		musicField = new ComboBoxFromFile(this, ValueFileParser.getMusicFile());
 		musicField.setMaximumSize(new Dimension(200, 30));
 		musicField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
@@ -574,10 +575,10 @@ public class MainFrame extends JFrame
 			{
 				if (e.getButton() == MouseEvent.BUTTON1)
 				{
-					writeRegionFields();
-					ObjectSet.saveObjectSets();
-					Level.saveLevels();
-					levelViewer.level.rom.save();
+					rom.save();
+					if (rom.savedSuccessfully()) {
+						ValueFileParser.saveMetadataFile();
+					}
 				}
 			}
 		});
@@ -681,8 +682,19 @@ public class MainFrame extends JFrame
 		rom = new RomReader(f);
 		TileSet.rom = rom;
 		RomReader.rom = rom;
+
+		String filename = f.getAbsolutePath();
+		String metadataFilename = filename.substring(0, filename.lastIndexOf('.'));
+		metadataFilename = metadataFilename + ".mtd";
 		
 		// Mind the order
+		ValueFileParser.reloadMetadataFile(metadataFilename);
+		if (!ValueFileParser.getMetadataFile().isOpened()) {
+			disableFields();
+			return;
+		}
+
+		ValueFileParser.reloadValueFiles();
 		EnemySet.reloadEnemySets();
 		ObjectSet.reloadObjectSets();
 		TileSet.reloadTileSets();

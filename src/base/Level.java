@@ -64,12 +64,6 @@ public class Level {
 		for (int i=0; i<=lastLevel; i++)
 			levels[i] = new Level(RomReader.rom, i);
 	}
-	public static void saveLevels()
-	{
-		for (int i=0; i<=lastLevel; i++)
-			if (levels[i] != null)
-				levels[i].save();
-	}
 	
 	Level(RomReader _rom, int index)
 	{
@@ -248,31 +242,6 @@ public class Level {
 	public void setMusicId(int id) {
 		musicRecord.write(0, (byte)(id&0xff));
 		musicRecord.write(1, (byte)(id>>8));
-	}
-	
-	// Everything migrated away...
-	public void save() {
-/*		if (tileDataRecordRLE.size() > tileDataRecordLastSize || objectDataRecordRLE.size() > objectDataRecordLastSize)
-		{
-			tileDataRecordPtr = rom.findFreeSpace(tileDataRecordRLE.size() + objectDataRecordRLE.size());
-			objectDataRecordPtr = tileDataRecordPtr + tileDataRecordRLE.size();
-			bank = tileDataRecordPtr/0x4000;
-		}
-		*/
-		
-		
-	//	layoutRecord.save();
-	//	System.out.println(Integer.toHexString(tileDataRecord.getAddr()));
-	//	System.out.println(new Level(rom, 8).tileDataRecord.getAddr());
-	//	musicRecord.save();
-
-		/*
-		reloadLevels();
-		levels[levelIndex] = this;
-		for (int i=levelIndex/8*8; i<levelIndex/8*8+8; i++)
-			if (i != levelIndex)
-				levels[i] = new Level(RomReader.rom, i);
-		*/
 	}
 	
 	public BufferedImage getImage() {

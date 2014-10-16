@@ -21,7 +21,7 @@ public class MoveableDataRecord extends Record
 	// At least, for the purposes of saving.
 	public boolean belongsToJoinedRecord=false;
 
-	// isMoveable: if true, we won't attempt to move this record around when it's time to save.
+	// isMoveable: if false, we won't attempt to move this record around when it's time to save.
 	// However, even if false, invoking "moveAddr" will force it to move to the specified address.
 	public boolean isMoveable=true;
 

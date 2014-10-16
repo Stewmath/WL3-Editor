@@ -168,7 +168,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 
 		JPanel metaTileEffectPanel = new JPanel();
 		metaTileEffectPanel.setBorder(BorderFactory.createTitledBorder("Tile Effect"));
-		metaTileEffectBox = new ComboBoxFromFile(this, ComboBoxFromFile.tileEffectFile);
+		metaTileEffectBox = new ComboBoxFromFile(this, ValueFileParser.getTileEffectFile());
 		metaTileEffectBox.setMaximumSize(metaTileEffectBox.getPreferredSize());
 		metaTileEffectBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

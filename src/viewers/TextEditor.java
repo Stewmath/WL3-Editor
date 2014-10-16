@@ -22,7 +22,7 @@ public class TextEditor extends JDialog {
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new GridBagLayout());
 
-		comboBox = new ComboBoxFromFile(this, ComboBoxFromFile.textLocationFile, false);
+		comboBox = new ComboBoxFromFile(this, ValueFileParser.getTextLocationFile(), false);
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetTextParser();

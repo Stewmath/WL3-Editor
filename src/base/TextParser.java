@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import viewers.CreditEditor;
 
 public class TextParser {
-	public static ValueFileParser normalTableParser = new ValueFileParser("textTable.txt");
-	public static ValueFileParser creditTableParser = new ValueFileParser("creditTextTable.txt");
+	public static ValueFileParser normalTableParser = new ValueFileParser("ref/textTable.txt");
+	public static ValueFileParser creditTableParser = new ValueFileParser("ref/creditTextTable.txt");
 
 	boolean creditText;
 

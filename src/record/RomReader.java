@@ -362,6 +362,8 @@ public class RomReader {
 	
 	public void save()
 	{
+		saveFail = false;
+
 		checkNullRecords();
 		// Check RegionRecords
 		for (int i=0; i<RegionRecord.regionRecords.size(); i++) {
@@ -386,10 +388,8 @@ public class RomReader {
 		}
 		
 		if (saveFail) {
-			saveFail = false;
 			return;
 		}
-		saveFail = false;
 		fixRomChecksum();
 		try {
 			FileOutputStream out = new FileOutputStream(file);
@@ -398,6 +398,10 @@ public class RomReader {
 		catch(FileNotFoundException e) {}
 		catch(IOException e){}
 	}
+
+	public boolean savedSuccessfully() {
+		return saveFail == false;
+	}
 	
 	public int getRomChecksum() {
 		int sum=0;
@@ -405,7 +409,7 @@ public class RomReader {
 			if (i != 0x14e && i != 0x14f)
 				sum += data[i]&0xff;
 		}
-		return sum;
+		return sum&0xffff;
 	}
 	void fixRomChecksum() {
 		int sum = getRomChecksum();

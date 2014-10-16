@@ -2,7 +2,6 @@ package base;
 
 import java.util.ArrayList;
 
-import graphics.ComboBoxFromFile;
 import record.*;
 
 public class EnemySet {
@@ -27,7 +26,7 @@ public class EnemySet {
 	public static void reloadEnemySets() {
 		enemySets = new ArrayList<EnemySet>();
 
-		ValueFileParser file = ComboBoxFromFile.enemySetFile;
+		ValueFileParser file = ValueFileParser.getEnemySetFile();
 		int entries = file.getNumEntries();
 		for (int i=0; i<entries; i++) {
 			int addr = file.indexToValue(i);
@@ -57,7 +56,7 @@ public class EnemySet {
 			recordEnd+=2;
 
 		enemySetRecord = rom.getMoveableDataRecord(recordStart, null, false, recordEnd-recordStart+1+0x20);
-		enemySetRecord.setDescription("Enemy set '" + ComboBoxFromFile.enemySetFile.getAssociate(enemySetRecord.getAddr()) + "'");
+		enemySetRecord.setDescription("Enemy set '" + ValueFileParser.getEnemySetFile().getAssociate(enemySetRecord.getAddr()) + "'");
 
 		loadGfxRecords();
 	}
@@ -175,7 +174,7 @@ public class EnemySet {
 					gfxDataRecords[i].setRequiredBank(getBaseGfxBank()+i);
 					gfxDataRecords[i].isMoveable = true;
 
-					String name = ComboBoxFromFile.enemyGfxFile.getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getAssociate(RomReader.toGbPtr(gfxDataRecords[i].getAddr()));
+					String name = ValueFileParser.getEnemyGfxFile().getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getAssociate(RomReader.toGbPtr(gfxDataRecords[i].getAddr()));
 
 					gfxDataRecords[i].setDescription("Gfx for enemy '" + name + "'");
 

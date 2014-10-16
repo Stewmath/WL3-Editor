@@ -1,13 +1,13 @@
 package dialogs;
 
 import graphics.ComboBoxFromFile;
+import base.ValueFileParser;
 
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.*;
 
@@ -74,7 +74,7 @@ public class MiscMusicDialog extends JDialog {
 		dataRecord2[numEntries] = rom.getMoveableDataRecord(addr2, null, false, 1);
 		
 		JPanel panel = new JPanel();
-		comboBoxes[numEntries] = new ComboBoxFromFile(this, ComboBoxFromFile.musicFile);
+		comboBoxes[numEntries] = new ComboBoxFromFile(this, ValueFileParser.getMusicFile());
 		comboBoxes[numEntries].setSelected(((dataRecord1[numEntries].read(0)&0xff)<<8)|(dataRecord2[numEntries].read(0)&0xff));
 		comboBoxes[numEntries].setActionCommand(""+numEntries);
 		comboBoxes[numEntries].addActionListener(new ActionListener() {

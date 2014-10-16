@@ -4,8 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
-import base.ObjectSet;
-import base.EnemySet;
+import base.*;
 import record.*;
 
 import graphics.*;
@@ -64,7 +63,7 @@ public class ObjectSetEditor extends JDialog {
 			}
 		});
 		
-		itemSetBox = new ComboBoxFromFile(this, ComboBoxFromFile.itemSetFile);
+		itemSetBox = new ComboBoxFromFile(this, ValueFileParser.getItemSetFile());
 		itemSetBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!disableListeners) {
@@ -75,7 +74,7 @@ public class ObjectSetEditor extends JDialog {
 		});
 		itemSetBox.setPreferredSize(new Dimension(130, 20));
 		
-		enemySetBox = new ComboBoxFromFile(this, ComboBoxFromFile.enemySetFile);
+		enemySetBox = new ComboBoxFromFile(this, ValueFileParser.getEnemySetFile());
 		enemySetBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!disableListeners) {
@@ -174,7 +173,7 @@ public class ObjectSetEditor extends JDialog {
 				row = new JPanel();
 			}
 			JPanel objectPanel = new JPanel();
-			objectFields[i] = new ComboBoxFromFile(this, ComboBoxFromFile.enemyAiFile, true);
+			objectFields[i] = new ComboBoxFromFile(this, ValueFileParser.getEnemyAiFile(), true);
 			objectFields[i].addActionListener(objectListener);
 			objectFields[i].setPreferredSize(new Dimension(200, objectFields[i].getPreferredSize().height));
 			objectFields[i].setMaximumSize(objectFields[i].getPreferredSize());
@@ -244,7 +243,7 @@ public class ObjectSetEditor extends JDialog {
 			gfxSlotPanels[i].removeAll();
 			gfxSlotPanels[i].setLayout(new BoxLayout(gfxSlotPanels[i], BoxLayout.Y_AXIS));
 
-			gfxSlotFields[i] = new ComboBoxFromFile(this, ComboBoxFromFile.enemyGfxFile.getSection(""+Integer.toHexString(enemySet.getBaseGfxBank()+i)));
+			gfxSlotFields[i] = new ComboBoxFromFile(this, ValueFileParser.getEnemyGfxFile().getSection(""+Integer.toHexString(enemySet.getBaseGfxBank()+i)));
 			gfxSlotFields[i].addActionListener(gfxSlotListener);
 			gfxSlotFields[i].setSelected(enemySet.getGfxPtr(i));
 			gfxSlotPanels[i].add(gfxSlotFields[i]);

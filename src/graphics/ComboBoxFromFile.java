@@ -18,16 +18,6 @@ import javax.swing.JOptionPane;
 
 public class ComboBoxFromFile extends JComboBox {
 
-	public static ValueFileParser musicFile = new ValueFileParser("music.txt");
-	public static ValueFileParser scrollFile = new ValueFileParser("scrollModes.txt");
-	public static ValueFileParser levelFile = new ValueFileParser("level.txt");
-	public static ValueFileParser tileEffectFile = new ValueFileParser("tileEffects.txt");
-	public static ValueFileParser itemSetFile = new ValueFileParser("itemSet.txt");
-	public static ValueFileParser enemySetFile = new ValueFileParser("enemySet.txt");
-	public static ValueFileParser textLocationFile = new ValueFileParser("textLocations.txt");
-	public static ValueFileParser enemyAiFile = new ValueFileParser("enemyAis.txt");
-	public static ValueFileParser enemyGfxFile = new ValueFileParser("enemyGfx.txt");
-
 	static String next(Scanner in)
 	{
 		String s="";
