@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 import base.ObjectSet;
+import base.EnemySet;
 import record.*;
 
 import graphics.*;
@@ -25,6 +26,7 @@ import javax.swing.*;
 public class ObjectSetEditor extends JDialog {
 
 	ObjectSet objectSet;
+	EnemySet enemySet;
 	
 	PaletteEditorPanel palettePanel;
 	JTextField objectSetField;
@@ -45,6 +47,7 @@ public class ObjectSetEditor extends JDialog {
 		JPanel contentPane = new JPanel();
 		
 		objectSet = o;
+		enemySet = objectSet.getEnemySet();
 		
 
 		JPanel topPanel = new JPanel();
@@ -55,6 +58,7 @@ public class ObjectSetEditor extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (!disableListeners) {
 					objectSet = ObjectSet.getObjectSet(Integer.parseInt(e.getActionCommand(), 16));
+					enemySet = objectSet.getEnemySet();
 					refreshAll();
 				}
 			}
@@ -64,7 +68,7 @@ public class ObjectSetEditor extends JDialog {
 		itemSetBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!disableListeners) {
-					objectSet.setItemSetPtr(itemSetBox.getAddr());
+					objectSet.setItemSetAddr(itemSetBox.getAddr());
 					refreshItemSet();
 				}
 			}
@@ -75,7 +79,8 @@ public class ObjectSetEditor extends JDialog {
 		enemySetBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!disableListeners) {
-					objectSet.setEnemySetPtr(enemySetBox.getAddr());
+					objectSet.setEnemySetAddr(enemySetBox.getAddr());
+					enemySet = objectSet.getEnemySet();
 					refreshEnemySet();
 				}
 			}
@@ -125,7 +130,7 @@ public class ObjectSetEditor extends JDialog {
 								JOptionPane.ERROR_MESSAGE);
 						}
 						else {
-							objectSet.setEnemySetBaseBank(n);
+							enemySet.setBaseGfxBank(n);
 						}
 					} catch(NumberFormatException ex){}
 					refreshEnemySet();
@@ -158,7 +163,7 @@ public class ObjectSetEditor extends JDialog {
 				while (objectFields[i] != e.getSource()) {
 					i++;
 				}
-				objectSet.enemySetRecord.writePtr(9+i*2, objectFields[i].getAddr());
+				enemySet.setEnemy(i, objectFields[i].getAddr());
 				objectFields[i].setSelected(objectFields[i].getAddr());
 			}
 		};
@@ -180,9 +185,9 @@ public class ObjectSetEditor extends JDialog {
 		}
 		enemySetPanel.add(row);
 
-		palettePanel = new PaletteEditorPanel(objectSet.getEnemySetPalettes(), false, new PaletteEditorClient() {
+		palettePanel = new PaletteEditorPanel(enemySet.getPalettes(), false, new PaletteEditorClient() {
 			public void setPalettes(int[][] palettes) {
-				objectSet.setEnemySetPalettes(palettes);
+				enemySet.setPalettes(palettes);
 			}
 		});
 		palettePanel.setOrientation(true);
@@ -217,12 +222,12 @@ public class ObjectSetEditor extends JDialog {
 	}
 
 	void refreshItemSet() {
-		itemSetBox.setSelected(objectSet.getItemSetPtr());
+		itemSetBox.setSelected(RomReader.toGbPtr(objectSet.getItemSetAddr()));
 	}
 	void refreshEnemySet() {
-		enemySetBox.setSelected(objectSet.getEnemySetPtr());
+		enemySetBox.setSelected(RomReader.toGbPtr(enemySet.getAddr()));
 
-		baseBankField.setText(RomReader.toHexString(objectSet.getEnemySetBaseBank()));
+		baseBankField.setText(RomReader.toHexString(enemySet.getBaseGfxBank()));
 
 		ActionListener gfxSlotListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -231,7 +236,7 @@ public class ObjectSetEditor extends JDialog {
 					while (gfxSlotFields[i] != e.getSource()) {
 						i++;
 					}
-					objectSet.setEnemySetGfx(i, gfxSlotFields[i].getAddr());
+					enemySet.setGfxAddr(i, gfxSlotFields[i].getAddr());
 				}
 			}
 		};
@@ -239,9 +244,9 @@ public class ObjectSetEditor extends JDialog {
 			gfxSlotPanels[i].removeAll();
 			gfxSlotPanels[i].setLayout(new BoxLayout(gfxSlotPanels[i], BoxLayout.Y_AXIS));
 
-			gfxSlotFields[i] = new ComboBoxFromFile(this, ComboBoxFromFile.enemyGfxFile.getSection(""+Integer.toHexString(objectSet.getEnemySetBaseBank()+i)));
+			gfxSlotFields[i] = new ComboBoxFromFile(this, ComboBoxFromFile.enemyGfxFile.getSection(""+Integer.toHexString(enemySet.getBaseGfxBank()+i)));
 			gfxSlotFields[i].addActionListener(gfxSlotListener);
-			gfxSlotFields[i].setSelected(objectSet.enemySetRecord.read16(i*2+1));
+			gfxSlotFields[i].setSelected(enemySet.getGfxPtr(i));
 			gfxSlotPanels[i].add(gfxSlotFields[i]);
 
 			JPanel buttonPanel = new JPanel();
@@ -254,24 +259,24 @@ public class ObjectSetEditor extends JDialog {
 							i++;
 						}
 
-						byte[] tileData = objectSet.enemySetGfxRecords[i].toArray();
-						if (objectSet.enemySetGfxRecords[i] == null) {
+						byte[] tileData = enemySet.getGfxData(i);
+						if (tileData == null) {
 							JOptionPane.showMessageDialog(null, 
-								"Error: Bank number is too high.",
+								"Error loading sprite graphics.",
 								"Error",
 								JOptionPane.ERROR_MESSAGE
 								);
 						}
 						else {
-							TileEditor tileEditor = new TileEditor(tileData, objectSet.getEnemySetPalettes());
+							TileEditor tileEditor = new TileEditor(tileData, enemySet.getPalettes());
 							tileEditor.setArrangement(TileGridViewer.ARRANGEMENT_SPRITE);
 							tileEditor.setSelectedPalette(i);
-							tileEditor.setOffsetText("0x"+RomReader.toHexString(objectSet.enemySetGfxRecords[i].getAddr())+" (compressed)");
+							tileEditor.setOffsetText("0x"+RomReader.toHexString(enemySet.getGfxAddr(i))+" (compressed)");
 							tileEditor.setVisible(true);
 							if (tileEditor.clickedOk()) {
-								objectSet.enemySetGfxRecords[i].setData(tileEditor.getTileData());
-								objectSet.setEnemySetPaletteData(tileEditor.getPaletteData());
-								palettePanel.setPalettes(objectSet.getEnemySetPalettes());
+								enemySet.setGfxData(i, tileEditor.getTileData());
+								enemySet.setPaletteData(tileEditor.getPaletteData());
+								palettePanel.setPalettes(enemySet.getPalettes());
 							}
 						}
 					}
@@ -280,11 +285,11 @@ public class ObjectSetEditor extends JDialog {
 			buttonPanel.add(gfxSlotEditButtons[i]);
 			gfxSlotPanels[i].add(buttonPanel);
 			gfxSlotPanels[i].setBorder(BorderFactory.createTitledBorder(
-						"Gfx Slot " + i + " (Bank " + RomReader.toHexString(objectSet.getEnemySetBaseBank()+i)+")"));
+						"Gfx Slot " + i + " (Bank " + RomReader.toHexString(enemySet.getBaseGfxBank()+i)+")"));
 		}
 		for (int i=0; i<0xc; i++) {
-			if (i < objectSet.getEnemySetNumEnemies()-1 && i < 0xc) {
-				objectFields[i].setSelected(objectSet.enemySetRecord.read16(9+i*2));
+			if (i < enemySet.getNumEnemies()-1 && i < 0xc) {
+				objectFields[i].setSelected(enemySet.getEnemy(i));
 				objectFields[i].setEnabled(true);
 			}
 			else {
@@ -292,7 +297,7 @@ public class ObjectSetEditor extends JDialog {
 			}
 		}
 
-		palettePanel.setPalettes(objectSet.getEnemySetPalettes());
+		palettePanel.setPalettes(enemySet.getPalettes());
 		pack();
 	}
 	void refreshAll()

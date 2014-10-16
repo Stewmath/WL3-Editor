@@ -91,13 +91,6 @@ public class Level {
 		tileDataRecord.deleteWithNoPtr = true;
 		objectDataRecord.deleteWithNoPtr = true;
 		layoutRecord = rom.getJoinedRecord(tileDataRecord, objectDataRecord);
-	//	if (levelIndex == 0)
-	//	System.out.println(levelDataRecord);
-		
-//		for (int i=tileDataRecord.getSize(); i<0xa0*0x30; i++)
-//			tileDataRecord.add((byte)0);
-//		for (int i=objectDataRecord.getSize(); i<0xa0*0x30; i++)
-//			objectDataRecord.add((byte)0);
 		
 		int warpDataBank;
 		if (levelIndex >= 0x64)

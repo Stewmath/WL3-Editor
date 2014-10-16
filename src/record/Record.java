@@ -57,6 +57,10 @@ public abstract class Record {
 		}
 	}
 
+	public int getNumPtrs() {
+		return ptrs.size();
+	}
+
 	public void setDescription(String desc) {
 		description = desc;
 	}

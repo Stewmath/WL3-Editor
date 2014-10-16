@@ -17,9 +17,17 @@ public class ValueFileParser {
 		return s;
 	}
 	
+
+	// List of all values
 	ArrayList<Integer> values = new ArrayList<Integer>();
+	// List of all "associates" for the entry (usually just a string, but there can be multiple other associates)
 	ArrayList<ArrayList<String>> associates = new ArrayList<ArrayList<String>>();
+
+	// List of which entries belong to which "sections", denoted by square brackets.
+	// Same length as previous 2 variables
 	ArrayList<String> sections = new ArrayList<String>();
+	// List of which entries belong to which "file sections", denoted by curly brackets.
+	// Not sure what this was intended for.
 	ArrayList<String> fileSections = new ArrayList<String>();
 
 	String filename;
@@ -93,20 +101,24 @@ public class ValueFileParser {
 		return -1;
 	}
 
-	// Takes an index to the "value" array and returns the value
+	// Returns the value of the i'th entry (the leftmost number)
 	public int indexToValue(int index) {
 		return values.get(index);
 	}
 
-	public String indexToAssociate(int i, int index) {
-		return associates.get(index).get(i);
+	// Gets an associate for the i'th entry
+	public String indexToAssociate(int index, int associate) {
+		return associates.get(index).get(associate);
+	}
+	public String indexToAssociate(int index) {
+		return indexToAssociate(index, 0);
 	}
 	public int getNumEntries() {
 		return values.size();
 	}
 
 
-
+	// Get associate number 'i' for the value 'num'
 	public String getAssociate(int i, int num) {
 		int n = values.indexOf(num);
 		if (n == -1)
@@ -116,8 +128,12 @@ public class ValueFileParser {
 			pos = associates.get(n).size()-1;
 		return associates.get(n).get(pos);
 	}
+	// Get the last associate for the value 'num' (usually there's only 1 associate)
+	public String getAssociate(int num) {
+		return getAssociate(-1, num);
+	}
 
-	// This is the opposite; get the number from the string
+	// This is the opposite; get the number from an associate equal to 's'
 	public int getValue(int i, String s) {
 		int j;
 		for (j=0; j<associates.size(); j++) {
@@ -132,22 +148,20 @@ public class ValueFileParser {
 		return values.get(j);
 	}
 
-	public String getAssociate(int num) {
-		return getAssociate(-1, num);
-	}
-
 	public int getValue(String s) {
 		return getValue(-1, s);
 	}
 
+	// Get the number of associates for entry 'i' (usually 1)
 	public int getNumAssociates(int i) {
 		return associates.get(i).size();
 	}
 
 	public ArrayList<Integer> getAllValues() {
-		return new ArrayList(values);
+		return new ArrayList<Integer>(values);
 	}
 
+	// Returns a new ValueFileParser containing entries for the specified section.
 	public ValueFileParser getSection(String section) {
 		ValueFileParser ret = new ValueFileParser();
 

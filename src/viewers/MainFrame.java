@@ -682,6 +682,8 @@ public class MainFrame extends JFrame
 		TileSet.rom = rom;
 		RomReader.rom = rom;
 		
+		// Mind the order
+		EnemySet.reloadEnemySets();
 		ObjectSet.reloadObjectSets();
 		TileSet.reloadTileSets();
 		RegionRecord.reloadRecords();

@@ -12,8 +12,8 @@ public class RomPointer {
 
 	// -- TYPE_DIRECT --
 	// ptrAddr1 = address of the pointer.
-	// If it's fragmented, ptrAddr11 points to the high byte, ptrAddr12 to the low byte.
-	// Else, ptrAddr11 points to the little-endian address.
+	// If it's fragmented, ptrAddr1 points to the high byte, ptrAddr2 to the low byte.
+	// Else, ptrAddr1 points to the little-endian address.
 	int ptrAddr1;
 	int ptrAddr2;
 	// bankAddr = address of the corresponding bank. If bankAddr<0, ignore it.
@@ -128,37 +128,13 @@ public class RomPointer {
 	}
 
 	public void save() {
-		/*
 		if (type == TYPE_RECORD) {
-			try {
-				ptrRecord.save();
-			} catch(java.lang.Error e) {
-				//System.out.println(ptrRecord.getAddr());
-			}
+			ptrRecord.save();
 			if (bankRecord != null) {
 				bankRecord.save();
 			}
 		}
-		*/
 	}
-
-	/*
-	public int getPtrAddr() {
-		if (type == TYPE_DIRECT)
-			return ptrAddr1;
-		else //if (type == TYPE_RECORD)
-			return ptrRecord.getAddr()+ptrR
-	}
-	public int getBankAddr() {
-		if (type == TYPE_DIRECT)
-			return bankAddr;
-		else {
-			if (bankRecord == null)
-				return -1;
-			return bankRecord.read(bankIndex);
-		}
-	}
-	*/
 
 	// This function checks if this pointer is invalid.
 	public boolean isNull() {

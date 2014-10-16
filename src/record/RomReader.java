@@ -59,6 +59,9 @@ public class RomReader {
 	// I am not very cautious of records not synced with the rom.
 	// If records are overwritten in other areas, they will still be in this arraylist.
 	ArrayList<MoveableDataRecord> moveableDataRecords = new ArrayList<MoveableDataRecord>();
+	// Parallel arrayList, counting the number of times the record has been accessed.
+	ArrayList<Integer> moveableDataRecordAccesses = new ArrayList<Integer>();
+
 	ArrayList<JoinedRecord> joinedRecords = new ArrayList<JoinedRecord>();
 	
 	void checkNullRecords() {
@@ -71,6 +74,7 @@ public class RomReader {
 				// and it will free up the memory it took rather than "saving".
 				r.save();
 				moveableDataRecords.remove(i);
+				moveableDataRecordAccesses.remove(i);
 				i--;
 			}
 		}
@@ -86,6 +90,7 @@ public class RomReader {
 			{
 				if (ptr != null)
 					r.addPtr(ptr);
+				moveableDataRecordAccesses.set(i, moveableDataRecordAccesses.get(i)+1);
 				return r;
 			}
 			if (ptr != null) {
@@ -104,6 +109,7 @@ public class RomReader {
 			pointers.add(ptr);
 		r = new MoveableDataRecord(addr, pointers, compressed, size);
 		moveableDataRecords.add(r);
+		moveableDataRecordAccesses.add(1);
 
 		return r;
 	}
@@ -113,6 +119,7 @@ public class RomReader {
 		r.setRequiredBank(bank);
 		return r;
 	}
+	// Make a new record from this data
 	public MoveableDataRecord getMoveableDataRecord(byte[] data, RomPointer pointer, int bank, boolean compressed)
 	{
 		ArrayList<RomPointer> pointers = new ArrayList<RomPointer>();
@@ -120,7 +127,25 @@ public class RomReader {
 			pointers.add(pointer);
 		MoveableDataRecord r = new MoveableDataRecord(data, pointers, bank, compressed);
 		moveableDataRecords.add(r);
+		moveableDataRecordAccesses.add(1);
 		return r;
+	}
+	// This function will only take effect when called as many times as the record in question has been
+	// accessed from getMoveableDataRecord().
+	// So basically, everything which has accessed the record has to "agree" to delete it.
+	// This function is intended to be used for corrupt records - records which didn't read the kind of data
+	// that it expected to read...
+	public void deleteMoveableDataRecord(MoveableDataRecord record) {
+		int i = moveableDataRecords.indexOf(record);
+		int accesses = moveableDataRecordAccesses.get(i) - 1;
+		moveableDataRecordAccesses.set(i, accesses);
+		if (accesses == 0) {
+			System.out.print("Record deleted: ");
+			System.out.print("\"" + moveableDataRecords.get(i).getDescription() + "\"");
+			System.out.println(" (0x" + RomReader.toHexString(moveableDataRecords.get(i).getAddr()) + ")");
+			moveableDataRecords.remove(i);
+			moveableDataRecordAccesses.remove(i);
+		}
 	}
 	public JoinedRecord getJoinedRecord(MoveableDataRecord record1, MoveableDataRecord record2)
 	{
@@ -137,6 +162,7 @@ public class RomReader {
 		RegionRecord.regionRecords = new ArrayList<RegionRecord>();
 		joinedRecords = new ArrayList<JoinedRecord>();
 		moveableDataRecords = new ArrayList<MoveableDataRecord>();
+		moveableDataRecordAccesses = new ArrayList<Integer>();
 	}
 	
 	public int read(int addr)

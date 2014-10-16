@@ -1,6 +1,11 @@
 ; Names were taken from the Super Mario Wiki.
 ; I took the liberty of naming those which weren't listed.
 
+; Note: the Spearhead, Hammer-bot, and Doughnuteer graphics are
+; used in the credits sequence. The editor checks for their names
+; to fix their hard-coded pointers, in case their addresses change.
+; So, don't change the names for those 3 enemies in this file.
+
 [68]
 4000	Spearhead
 45a5	Spitting Fish
@@ -60,8 +65,8 @@
 4c7d	Electric Spark
 4ee3	Teru-Teru
 521f	Grab-bot
-5861	Spikey Carpet
 54ea	Brrr Bear
+5861	Spikey Carpet
 5a06	Falling Snow
 5cd5	Platform
 5d44	Water Drop

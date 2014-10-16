@@ -33,20 +33,24 @@ public class TextEditor extends JDialog {
 			public void paint(Graphics g2) {
 				Graphics2D g = (Graphics2D)g2;
 				super.paint(g);
+
 				FontMetrics metrics = g.getFontMetrics(textArea.getFont());
-				int x = metrics.stringWidth("*")*16+2;
+				int width = metrics.stringWidth("*");
+				int height = metrics.getHeight();
+
 				g.setColor(Color.red);
 
-				/*
-				int height=5;
-				int gap=13;
-				int y=0;
-				while (y < textArea.getHeight()) {
-					g.drawLine(x, y, x, y+height);
-					y = y+height+gap;
-				}
-				*/
+				int x = width*16+2;
+				// Characters per line limit
 				g.drawLine(x, 0, x, textArea.getHeight());
+				// Number of lines limit
+				g.drawLine(0, height*64, x-1, height*64);
+				// Line grouping
+				g.setColor(Color.blue);
+				for (int i=0; i<64/4; i++) {
+					int y = i*height*4;
+					g.drawLine(0, y, x-1, y);
+				}
 			}
 		};
 		textArea.setFont(new Font("monospaced", 0, 12));
@@ -102,7 +106,7 @@ public class TextEditor extends JDialog {
 	void resetTextParser() {
 		ValueFileParser parser = comboBox.getParser();
 		RomPointer p = new RomPointer(parser.indexToValue(comboBox.getSelectedIndex()),
-				Integer.parseInt(parser.indexToAssociate(0, comboBox.getSelectedIndex()), 16));
+				Integer.parseInt(parser.indexToAssociate(comboBox.getSelectedIndex(), 0), 16));
 		textParser = new TextParser(p.getPointedAddr(), p, false);
 
 		textArea.setText(textParser.getText());
