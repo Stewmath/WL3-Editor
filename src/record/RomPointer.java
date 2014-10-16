@@ -1,5 +1,9 @@
 package record;
 
+// RomPointer: A class accompanying records.
+// When data is moved around, it is important to update all pointers associated with that data.
+// So, if a record has a complete list of RomPointers, it can be moved around safely.
+// This is more important for compressed data than other kinds.
 public class RomPointer {
 	// TYPE_DIRECT = pointer to data directly in rom.
 	final int TYPE_DIRECT=0;

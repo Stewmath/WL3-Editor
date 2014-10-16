@@ -173,9 +173,11 @@ public class EnemySet {
 					gfxDataRecords[i] = rom.getMoveableDataRecord(enemySetRecord.read16(i*2+1, getBaseGfxBank()+i),
 							pointer, true, 0);
 					gfxDataRecords[i].setRequiredBank(getBaseGfxBank()+i);
-					gfxDataRecords[i].setDescription("Gfx for enemy '" +
-							ComboBoxFromFile.enemyGfxFile.getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getAssociate(RomReader.toGbPtr(gfxDataRecords[i].getAddr())) + "'");
 					gfxDataRecords[i].isMoveable = true;
+
+					String name = ComboBoxFromFile.enemyGfxFile.getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getAssociate(RomReader.toGbPtr(gfxDataRecords[i].getAddr()));
+
+					gfxDataRecords[i].setDescription("Gfx for enemy '" + name + "'");
 
 					// Integrity check
 					if ((gfxDataRecords[i].getDataSize() != GFX_DATA_SIZE) &&
@@ -185,6 +187,27 @@ public class EnemySet {
 						return;
 					}
 					gfxDataRecords[i].setDataSize(GFX_DATA_SIZE);
+
+					// Spearhead, Hammer-bot, and Doughnuteer graphics have hard-coded pointers
+					// for the credit sequence. Those pointers are added here.
+					if (name.equalsIgnoreCase("Spearhead")) {
+						RomPointer creditsPointer = new RomPointer(
+								RomReader.BANK(0x6f00, 0x2b),
+								RomReader.BANK(0x6efb, 0x2b));
+						gfxDataRecords[i].addPtr(creditsPointer);
+					}
+					else if (name.equalsIgnoreCase("Hammer-bot")) {
+						RomPointer creditsPointer = new RomPointer(
+								RomReader.BANK(0x6f22, 0x2b),
+								RomReader.BANK(0x6f1d, 0x2b));
+						gfxDataRecords[i].addPtr(creditsPointer);
+					}
+					else if (name.equalsIgnoreCase("Doughnuteer")) {
+						RomPointer creditsPointer = new RomPointer(
+								RomReader.BANK(0x6f44, 0x2b),
+								RomReader.BANK(0x6f3f, 0x2b));
+						gfxDataRecords[i].addPtr(creditsPointer);
+					}
 				}
 				else {
 					gfxDataRecords[i] = null;
