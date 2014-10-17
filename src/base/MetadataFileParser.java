@@ -26,7 +26,7 @@ public class MetadataFileParser extends ValueFileParser {
 
 	void createNewMetadata(File f) {
 		clearEntries();
-		addEntry("romchecksum", ""+RomReader.toHexString(RomReader.rom.getRomChecksum()));
+		setValue("romchecksum", ""+RomReader.toHexString(RomReader.rom.getRomChecksum()));
 		try {
 			f.delete();
 			f.createNewFile();
@@ -44,7 +44,7 @@ public class MetadataFileParser extends ValueFileParser {
 
 	void checkMetadata() {
 		try {
-			int checksum = getAssociateInt("romchecksum");
+			int checksum = getIntValue("romchecksum");
 
 			if (checksum != RomReader.rom.getRomChecksum()) {
 				int option = JOptionPane.showOptionDialog(null,
@@ -104,7 +104,7 @@ public class MetadataFileParser extends ValueFileParser {
 	}
 
 	public void save() {
-		setAssociate("romchecksum", ""+RomReader.toHexString(RomReader.rom.getRomChecksum()));
+		setValue("romchecksum", ""+RomReader.toHexString(RomReader.rom.getRomChecksum()));
 		try {
 			File f = new File(filename);
 			f.delete();
@@ -124,9 +124,9 @@ public class MetadataFileParser extends ValueFileParser {
 					out.println("[" + section + "]");
 				}
 
-				out.print(valueStrings.get(i));
-				for (int j=0; j<getNumAssociates(i); j++) {
-					out.print("\t" + associates.get(i).get(j));
+				out.print(names.get(i));
+				for (int j=0; j<getNumValues(i); j++) {
+					out.print("=" + values.get(i).get(j));
 				}
 				out.println();
 			}

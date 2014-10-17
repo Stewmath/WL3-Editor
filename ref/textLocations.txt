@@ -13,10 +13,14 @@
 ; The first number is the address of the pointer,
 ; the second is the address of the bank number.
 
-adf31	adf2c	Are you aware?
-acc4b	acc4e	Head For...
-acc22	acc25	Wonderful work
-aefe3	aefe6	Thank You!
+; Note that equals signs and tabs both act as separators.
+; their functions are basically the same.
+
+
+Are you aware?= adf31	adf2c	
+Head For...=    acc4b	acc4e	
+Wonderful work= acc22	acc25	
+Thank You!=     aefe3	aefe6	
 
 ;0b37f9	The Hidden Figure Explains
 ;0b211a	Head For...

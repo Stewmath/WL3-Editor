@@ -59,7 +59,7 @@ public class ObjectSet {
 		if (itemSetRecord != null)
 			itemSetRecord.removePtr(itemSetPointer);
 		itemSetRecord = rom.getMoveableDataRecord(RomReader.BANK(addr, 0x19), itemSetPointer, false, 4);
-		itemSetRecord.setDescription("'" + ValueFileParser.getItemSetFile().getAssociate(itemSetRecord.getAddr()) + "' item set");
+		itemSetRecord.setDescription("'" + ValueFileParser.getItemSetFile().getName(itemSetRecord.getAddr()) + "' item set");
 //		itemSetRecord.deleteWithNoPtr = false;
 	}
 	

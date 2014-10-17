@@ -79,6 +79,14 @@ public class RomReader {
 			}
 		}
 	}
+	public MoveableDataRecord moveableDataRecordExists(int addr) {
+		for (int i=0; i<moveableDataRecords.size(); i++) {
+			MoveableDataRecord r = moveableDataRecords.get(i);
+			if (r.getAddr() == addr)
+				return r;
+		}
+		return null;
+	}
 	public MoveableDataRecord getMoveableDataRecord(int addr, RomPointer ptr, boolean compressed, int size)
 	{
 		checkNullRecords();

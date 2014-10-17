@@ -6,8 +6,8 @@
 ; first 4 values listed here.
 ; You shouldn't edit this.
 
-4fc3	Grey
-4fd1	Red
-4fdf	Green
-4fed	Blue
-4ffb	Pinkish?
+Grey=       4fc3
+Red=        4fd1
+Green=      4fdf
+Blue=       4fed
+Pinkish?=   4ffb

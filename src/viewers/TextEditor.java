@@ -105,8 +105,8 @@ public class TextEditor extends JDialog {
 
 	void resetTextParser() {
 		ValueFileParser parser = comboBox.getParser();
-		RomPointer p = new RomPointer(parser.indexToValue(comboBox.getSelectedIndex()),
-				Integer.parseInt(parser.indexToAssociate(comboBox.getSelectedIndex(), 0), 16));
+		RomPointer p = new RomPointer(parser.indexToIntValue(0, comboBox.getSelectedIndex()),
+				parser.indexToIntValue(1, comboBox.getSelectedIndex()));
 		textParser = new TextParser(p.getPointedAddr(), p, false);
 
 		textArea.setText(textParser.getText());

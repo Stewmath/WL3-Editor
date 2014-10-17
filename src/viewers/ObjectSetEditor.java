@@ -287,7 +287,7 @@ public class ObjectSetEditor extends JDialog {
 						"Gfx Slot " + i + " (Bank " + RomReader.toHexString(enemySet.getBaseGfxBank()+i)+")"));
 		}
 		for (int i=0; i<0xc; i++) {
-			if (i < enemySet.getNumEnemies()-1 && i < 0xc) {
+			if (i < enemySet.getNumEnemies() && i < 0xc) {
 				objectFields[i].setSelected(enemySet.getEnemy(i));
 				objectFields[i].setEnabled(true);
 			}

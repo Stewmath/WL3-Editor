@@ -1,118 +1,119 @@
-43c3	None
-4413	Spearhead
-441b	Platform Frog
-4423	Webber
-442b	Fire
-4433	Fire (no emissions)
-443b	Unlit Torch
+None=                   43c3
+Spearhead=              4413
+Platform Frog=          441b
+Webber=                 4423
+Fire=                   442b
+Fire (no emissions)=    4433
+Unlit Torch=            443b
 ; Fire Block is used only in the Tower of Revival as the first puzzle.
-4443	Fire Block
-444b	Stool
-4453	Unused Flower
-445b	Richtertoffen
-4463	Roof Slime
-446b	Paragoom
-4473	Doughnuteer
-447b	Grab-bot
+Fire Block=             4443
+Stool=                  444b
+Unused Flower=          4453
+Richtertoffen=          445b
+Roof Slime=             4463
+Paragoom=               446b
+Doughnuteer=            4473
+Grab-bot=               447b
 ; I don't see any difference between squashers A and B except that wario doesn't
 ; stand on top of squasher A properly... so I'd recommend B.
-4483	Squasher A
-448b	Squasher B
+Squasher A=             4483
+Squasher B=             448b
 
-4493	Up/Down Tree Bug
-449b	Left/Right Tree Bug
-44a3	Spitting Fish
-44ab	Falling Leaf
-44b3	Leaf Platform
-44bb	Silky
-44c3	Red Bird
-44cb	Blue Bird
-44d3	Fire Snake
-44db	Appleby
-44e3	Falling Platform
-44eb	Box
-44f3	Stone
-44fb	Trapped Froggy
-4503	Resting Froggy
-450b	Hammer-bot
-4513	Teru-Teru
-451b	Mad Scienstein
-4523	Eye Wall
-452b	Pneumo
-4533	Electric Spark Maker
-453b	Zombie
-4543	Fire Robota
-454b	Spear-bot
-4553	Beam Robota
-455b	Mr. Sun
-4563	Mr. Moon
-456b	Kobats
-4573	Sand Hand
-457b	Bubble Maker
-4583	Brrr Bear
-458b	Cart A Leftward
-4593	Cart A Rightward
-459b	Cart B Leftward
-45a3	Cart B Rightward
-45ab	Robo-Mouse
-45b3	Spikey Carpet
-45bb	Haridama
-45c3	Owl
-45cb	Pulley (Right)
-45d3	Pulley (Up-Right)
-45db	Pulley (Up-Left)
-45e3	Pulley (Down-Left)
-45eb	Pulley (Down-Right)
-45f3	Anonster
-45fb	Anonster's Platform
-4603	Falling Snow
-460b	Doll Boy
-4613	?Doll Boy's Platform?
-461b	Doll Boy's Block 1
-4623	Doll Boy's Block 2
-462b	Doll Boy's Block 3
-4633	Wormwould
-463b	?Wormwould's Platform?
-4643	Pool Platform A
-464b	Pool Platform B
-4653	Pool Platform C
-465b	Water Drop Maker
-4663	Yellow Belly
-466b	Yellow Belly's Platform
-4673	Pinhead (extends left)
-467b	Pinhead (extends right)
+Up/Down Tree Bug=       4493
+Left/Right Tree Bug=    449b
+Spitting Fish=          44a3
+Falling Leaf=           44ab
+Leaf Platform=          44b3
+Silky=                  44bb
+Red Bird=               44c3
+Blue Bird=              44cb
+Fire Snake=             44d3
+Appleby=                44db
+Falling Platform=       44e3
+Box=                    44eb
+Stone=                  44f3
+Trapped Froggy=         44fb
+Resting Froggy=         4503
+Hammer-bot=             450b
+Teru-Teru=              4513
+Mad Scienstein=         451b
+Eye Wall=               4523
+Pneumo=                 452b
+Electric Spark Maker=   4533
+Zombie=                 453b
+Fire Robota=            4543
+Spear-bot=              454b
+Beam Robota=            4553
+Mr. Sun=                455b
+Mr. Moon=               4563
+Kobats=                 456b
+Sand Hand=              4573
+Bubble Maker=           457b
+Brrr Bear=              4583
+Cart A Leftward=        458b
+Cart A Rightward=       4593
+Cart B Leftward=        459b
+Cart B Rightward=       45a3
+Robo-Mouse=             45ab
+Spikey Carpet=          45b3
+Haridama=               45bb
+Owl=                    45c3
+Pulley (Right)=         45cb
+Pulley (Up-Right)=      45d3
+Pulley (Up-Left)=       45db
+Pulley (Down-Left)=     45e3
+Pulley (Down-Right)=    45eb
+Anonster=               45f3
+Anonster's Platform=    45fb
+Falling Snow=           4603
+Doll Boy=               460b
+?Doll Boy's Platform?=  4613
+Doll Boy's Block 1=     461b
+Doll Boy's Block 2=     4623
+Doll Boy's Block 3=     462b
+Wormwould=              4633
+?Wormwould's Platform?= 463b
+Pool Platform A=        4643
+Pool Platform B=        464b
+Pool Platform C=        4653
+Water Drop Maker=       465b
+Yellow Belly=           4663
+Yellow Belly's Platform=466b
+Pinhead (extends left)= 4673
+Pinhead (extends right)=467b
+
 ; The golf block can be put in one of 3 gfx slots,
 ; unlike most other things which require specific slots.
-4683	Golf Block (Slot 1)
-468b	Golf Block (Slot 2)
-4693	Golf Block (Slot 3)
+Golf Block (Slot 1)=    4683
+Golf Block (Slot 2)=    468b
+Golf Block (Slot 3)=    4693
 
-469b	Pesce
-46a3	Pesce's Firefly
-46ab	Pesce's Food
-46b3	?Pesce?
-46bb	?Pesce?
-46c3	Jumping Fish
-46cb	Water Spark
-46d3	Octahon A
-46db	Octahon B
-46e3	Spark (left/right)
-46eb	Spark (up/down)
-46f3	Scowler
-46fb	?Scowler?
-4703	Bonfire
-470b	Jamano
-4713	?Jamano?
-471b	?Jamano?
-4723	Muddee
-472b	Muddee's Turtle
-4733	?Muddee?
-473b	Wolfenboss
-4743	Wolfenboss's Platform
-474b	Shoot
-4753	?Shoot?
-475b	?Shoot?
-4763	?Shoot?
-476b	?Shoot?
-4773	Cyclone A
-477b	Cyclone B
+Pesce=                  469b
+Pesce's Firefly=        46a3
+Pesce's Food=           46ab
+?Pesce?=                46b3
+?Pesce?=                46bb
+Jumping Fish=           46c3
+Water Spark=            46cb
+Octahon A=              46d3
+Octahon B=              46db
+Spark (left/right)=     46e3
+Spark (up/down)=        46eb
+Scowler=                46f3
+?Scowler?=              46fb
+Bonfire=                4703
+Jamano=                 470b
+?Jamano?=               4713
+?Jamano?=               471b
+Muddee=                 4723
+Muddee's Turtle=        472b
+?Muddee?=               4733
+Wolfenboss=             473b
+Wolfenboss's Platform=  4743
+Shoot=                  474b
+?Shoot?=                4753
+?Shoot?=                475b
+?Shoot?=                4763
+?Shoot?=                476b
+Cyclone A=              4773
+Cyclone B=              477b

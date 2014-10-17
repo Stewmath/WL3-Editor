@@ -29,8 +29,8 @@ public class EnemySet {
 		ValueFileParser file = ValueFileParser.getEnemySetFile();
 		int entries = file.getNumEntries();
 		for (int i=0; i<entries; i++) {
-			int addr = file.indexToValue(i);
-			String name = file.indexToAssociate(i);
+			int addr = file.indexToIntValue(i);
+			String name = file.indexToName(i);
 
 			EnemySet enemySet = new EnemySet(addr, name);
 			enemySets.add(enemySet);
@@ -56,7 +56,7 @@ public class EnemySet {
 			recordEnd+=2;
 
 		enemySetRecord = rom.getMoveableDataRecord(recordStart, null, false, recordEnd-recordStart+1+0x20);
-		enemySetRecord.setDescription("Enemy set '" + ValueFileParser.getEnemySetFile().getAssociate(enemySetRecord.getAddr()) + "'");
+		enemySetRecord.setDescription("Enemy set '" + ValueFileParser.getEnemySetFile().getName(enemySetRecord.getAddr()) + "'");
 
 		loadGfxRecords();
 	}
@@ -174,7 +174,7 @@ public class EnemySet {
 					gfxDataRecords[i].setRequiredBank(getBaseGfxBank()+i);
 					gfxDataRecords[i].isMoveable = true;
 
-					String name = ValueFileParser.getEnemyGfxFile().getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getAssociate(RomReader.toGbPtr(gfxDataRecords[i].getAddr()));
+					String name = ValueFileParser.getEnemyGfxFile().getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getName(RomReader.toGbPtr(gfxDataRecords[i].getAddr()));
 
 					gfxDataRecords[i].setDescription("Gfx for enemy '" + name + "'");
 

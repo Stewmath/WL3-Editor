@@ -5,9 +5,8 @@ import javax.swing.JOptionPane;
 import record.RomReader;
 
 // ValueFileParser: parses the metadata file and files in the "ref" folder.
-// The "values" are the values on the leftmost column. The "associates" are the other strings on that line.
-// Usually values are numbers, and some functions treat them as such.
-// But for the metadata files, some "values" are strings.
+// The "names" are the strings on the leftmost column. The "parameters" are the other strings on that line.
+
 public class ValueFileParser {
 	private static MetadataFileParser metadataFile;
 
@@ -28,9 +27,7 @@ public class ValueFileParser {
 		return enemyAiFile;
 	}
 	public static ValueFileParser getEnemyGfxFile() {
-		ValueFileParser ret = new ValueFileParser(enemyGfxFile);
-		ret.merge(metadataFile.getFileSection("enemyGfx.txt"));
-		return ret;
+		return enemyGfxFile;
 	}
 	public static ValueFileParser getEnemySetFile() {
 		return enemySetFile;
@@ -63,7 +60,11 @@ public class ValueFileParser {
 		enemySetFile = new ValueFileParser("ref/enemySet.txt");
 		textLocationFile = new ValueFileParser("ref/textLocations.txt");
 		enemyAiFile = new ValueFileParser("ref/enemyAis.txt");
-		enemyGfxFile = new ValueFileParser("ref/enemyGfx.txt");
+
+		if (metadataFile != null) {
+			enemyGfxFile = new ValueFileParser("ref/enemyGfx.txt");
+			enemyGfxFile.merge(metadataFile.getFileSection("enemyGfx.txt"));
+		}
 	}
 
 	public static void reloadMetadataFile(String filename) {
@@ -89,18 +90,16 @@ public class ValueFileParser {
 	}
 	
 
-	// List of all values
-	ArrayList<Integer> values = new ArrayList<Integer>();
-	// List of all values in string form (though usually values are numbers)
-	ArrayList<String> valueStrings = new ArrayList<String>();
-	// List of all "associates" for the entry (usually just a string, but there can be multiple other associates)
-	ArrayList<ArrayList<String>> associates = new ArrayList<ArrayList<String>>();
+	// List of all names
+	ArrayList<String> names = new ArrayList<String>();
+	// List of all values for the entry (usually just one string, but there can be multiple others)
+	ArrayList<ArrayList<String>> values = new ArrayList<ArrayList<String>>();
 
 	// List of which entries belong to which "sections", denoted by square brackets.
-	// Same length as previous 2 variables
+	// Same length as previous 2 variables.
 	ArrayList<String> sections = new ArrayList<String>();
 	// List of which entries belong to which "file sections", denoted by curly brackets.
-	// Used in the metadata file to add to entries in existing files.
+	// Used in the metadata file to add to entries for existing files.
 	ArrayList<String> fileSections = new ArrayList<String>();
 
 	String filename;
@@ -126,8 +125,11 @@ public class ValueFileParser {
 	}
 
 	ValueFileParser(ValueFileParser parser) {
-		merge(parser);
-		filename = parser.filename;
+		names = new ArrayList<String>(parser.names);
+		values = new ArrayList<ArrayList<String>>(parser.values);
+		sections = new ArrayList<String>(parser.sections);
+		fileSections = new ArrayList<String>(parser.fileSections);
+		filename = new String(parser.filename);
 	}
 
 	void parseFile(File f) throws FileNotFoundException {
@@ -140,32 +142,22 @@ public class ValueFileParser {
 			String line = nextLine(in);
 			if (line.trim().equals(""))
 				break;
-			String[] s = line.split("\t");
-			if (s[0].charAt(0) == '[') {
+			String[] s = line.split("[\t=]");
+			if (line.trim().charAt(0) == '[' && line.trim().charAt(line.trim().length()-1) == ']') {
 				section = s[0].trim().substring(1, s[0].length()-1);
 			}
-			else if (s[0].charAt(0) == '{') {
+			else if (line.trim().charAt(0) == '{' && line.trim().charAt(line.trim().length()-1) == '}') {
 				fileSection = s[0].trim().substring(1, s[0].length()-1);
 				section = "default";
 			}
 			else {
-				int val = 0;
-				try {
-					val = Integer.parseInt(s[0], 16);
+				names.add(s[0]);
+				int numValues = s.length-1;
+				ArrayList<String> valueList = new ArrayList<String>();
+				for (int i=1; i<=numValues; i++) {
+					valueList.add(s[i].trim());
 				}
-				catch(NumberFormatException e) {
-					val = -1;
-				}
-
-				values.add(val);
-				valueStrings.add(s[0]);
-				int numAssociates = s.length-1;
-				ArrayList<String> associateList = new ArrayList<String>();
-				for (int i=1; i<=numAssociates; i++) {
-					String name = s[i];
-					associateList.add(name);
-				}
-				associates.add(associateList);
+				values.add(valueList);
 				sections.add(section);
 				fileSections.add(fileSection);
 			}
@@ -177,173 +169,161 @@ public class ValueFileParser {
 		return filename;
 	}
 
-	public int getValueIndex(int val) {
-		return values.indexOf(val);
+	public int getNameIndex(String name) {
+		return names.indexOf(name);
 	}
 
-	public int getValueIndex(String val) {
-		return valueStrings.indexOf(val);
-	}
-
-	public int getAssociateIndex(int i, String s) {
-		for (int j=0; j<associates.size(); j++) {
-			int n = associates.get(j).indexOf(s);
-			if (n == i)
+	public int getValueIndex(int valNum, String s) {
+		for (int j=0; j<values.size(); j++) {
+			if (values.get(j).get(valNum).equals(s))
 				return j;
 		}
 		return -1;
 	}
+	public int getValueIndex(String s) {
+		return getValueIndex(0, s);
+	}
+
+	public int getValueIndex(int valNum, int val) {
+		for (int j=0; j<values.size(); j++) {
+			try {
+				int numericVal = RomReader.parseInt(values.get(j).get(valNum));
+				if (numericVal == val)
+					return j;
+			}
+			catch(NumberFormatException e) {
+				continue;
+			}
+		}
+		return -1;
+	}
+	public int getValueIndex(int val) {
+		return getValueIndex(0, val);
+	}
 
 	// Returns the value of the i'th entry (the leftmost number)
-	public int indexToValue(int index) {
-		return values.get(index);
-	}
-	public String indexToValueString(int index) {
-		return valueStrings.get(index);
+	public String indexToName(int index) {
+		return names.get(index);
 	}
 
-	// Gets an associate for the i'th entry
-	public String indexToAssociate(int i, int associate) {
-		return associates.get(i).get(associate);
+	// Gets a value for the i'th entry
+	public String indexToValue(int valNum, int index) {
+		return values.get(index).get(valNum);
 	}
-	public String indexToAssociate(int index) {
-		return indexToAssociate(index, 0);
+	public String indexToValue(int index) {
+		return indexToValue(0, index);
 	}
+
+	public int indexToIntValue(int valNum, int index) throws NumberFormatException {
+		return RomReader.parseInt(indexToValue(valNum, index));
+	}
+	public int indexToIntValue(int index) {
+		return indexToIntValue(0, index);
+	}
+
+
 	public int getNumEntries() {
-		return values.size();
+		return names.size();
 	}
 
 
-	// Get associate number 'i' for the value 'val'
-	public String getAssociate(int i, int val) {
-		int n = values.indexOf(val);
+	public String getValue(int i, String name) {
+		int n = names.indexOf(name);
 		if (n == -1)
 			return "";
 		int pos = i;
 		if (i == -1)
-			pos = associates.get(n).size()-1;
-		return associates.get(n).get(pos);
+			pos = 0;
+		return values.get(n).get(pos);
 	}
-	// Get the last associate for the value 'val' (usually there's only 1 associate)
-	public String getAssociate(int val) {
-		return getAssociate(-1, val);
-	}
-	public String getAssociate(int i, String val) {
-		int n = valueStrings.indexOf(val);
-		if (n == -1)
-			return "";
-		int pos = i;
-		if (i == -1)
-			pos = associates.get(n).size()-1;
-		return associates.get(n).get(pos);
-	}
-	public String getAssociate(String val) {
-		return getAssociate(-1, val);
+	public String getValue(String val) {
+		return getValue(-1, val);
 	}
 
-	public int getAssociateInt(int i, String val) throws NumberFormatException {
-		return Integer.parseInt(getAssociate(i, val), 16);
+	public int getIntValue(int i, String name) throws NumberFormatException {
+		return Integer.parseInt(getValue(i, name), 16);
 	}
-	public int getAssociateInt(String val) throws NumberFormatException {
-		return getAssociateInt(0, val);
+	public int getIntValue(String name) throws NumberFormatException {
+		return getIntValue(0, name);
 	}
 
-	// This is the opposite; get the value from an associate equal to 's'
-	public int getValue(int i, String s) {
+	public String getName(int i, String val) {
 		int j;
-		for (j=0; j<associates.size(); j++) {
-			System.out.println("Value " + valueStrings.get(j));
-			System.out.println("Associate " + associates.get(j));
+		for (j=0; j<values.size(); j++) {
 			int pos = i;
 			if (i == -1)
 				pos = 0;
-			if (associates.get(j).get(pos).equals(s))
+			if (values.get(j).get(pos).equals(val))
 				break;
 		}
-		if (j == associates.size())
-			return -1;
-		return values.get(j);
-	}
-	public int getValue(String s) {
-		return getValue(-1, s);
-	}
-	public String getValueString(int i, String s) {
-		int j;
-		for (j=0; j<associates.size(); j++) {
-			int pos = i;
-			if (i == -1)
-				pos = associates.get(j).size()-1;
-			if (associates.get(j).get(pos).equals(s))
-				break;
-		}
-		if (j == associates.size())
+		if (j == values.size())
 			return null;
-		return valueStrings.get(j);
+		return names.get(j);
 	}
-	public String getValueString(String s) {
-		return getValueString(-1, s);
+	public String getName(String val) {
+		return getName(-1, val);
+	}
+
+	public String getName(int valIndex, int val) {
+		for (int i=0; i<names.size(); i++) {
+			try {
+				int numericVal = RomReader.parseInt(values.get(i).get(valIndex));
+				if (numericVal == val)
+					return names.get(i);
+			}
+			catch(NumberFormatException e) {}
+		}
+		return "";
+	}
+	public String getName(int val) {
+		return getName(0, val);
 	}
 
 	// Get the number of associates for entry 'i' (usually 1)
-	public int getNumAssociates(int i) {
-		return associates.get(i).size();
+	public int getNumValues(int i) {
+		return values.get(i).size();
 	}
 
-	public ArrayList<Integer> getAllValues() {
-		return new ArrayList<Integer>(values);
-	}
-	public ArrayList<String> getAllValueStrings() {
-		return new ArrayList<String>(valueStrings);
+	public ArrayList<String> getAllNames() {
+		return new ArrayList<String>(names);
 	}
 
 
-	public void setAssociate(String value, String asc) {
-		int index = valueStrings.indexOf(value);
-		if (index == -1)
-			return;
-		associates.get(index).set(0, asc);
-	}
-	public void setValue(String value, String asc) {
-		for (int i=0; i<associates.size(); i++) {
-			if (associates.get(i).get(0).equals(asc)) {
-				valueStrings.set(i, value);
-				int val=0;
-				try {
-					val = RomReader.parseInt(value);
-				}
-				catch (NumberFormatException e) {
-					val = -1;
-				}
-				values.set(i, val);
+	public void setName(String name, String value) {
+		for (int i=0; i<values.size(); i++) {
+			if (values.get(i).get(0).equals(value)) {
+				names.set(i, name);
 				return;
 			}
 		}
 	}
-
-
-	public void addEntry(String value, String associate, String fileSection, String section) {
-		ArrayList<String> associateList = new ArrayList<String>();
-		associateList.add(associate);
-
-		try {
-			values.add(RomReader.parseInt(value));
+	public void setValue(String name, String value, String fileSection, String section) {
+		int index = names.indexOf(name);
+		if (index == -1) {
+			addEntry(name, value, fileSection, section);
+			return;
 		}
-		catch (NumberFormatException e) {
-			values.add(-1);
-		}
-		valueStrings.add(value);
-		associates.add(associateList);
+		values.get(index).set(0, value);
+	}
+	public void setValue(String name, String value) {
+		setValue(name, value, "default", "default");
+	}
+
+
+	void addEntry(String name, String value, String fileSection, String section) {
+		ArrayList<String> valueList = new ArrayList<String>();
+		valueList.add(value);
+
+		names.add(name);
+		values.add(valueList);
 		sections.add(section);
 		fileSections.add(fileSection);
 	}
-	public void addEntry(String value, String associate) {
-		addEntry(value, associate, "default", "default");
-	}
+
 
 	public void clearEntries() {
-		values = new ArrayList<Integer>();
-		valueStrings = new ArrayList<String>();
-		associates = new ArrayList<ArrayList<String>>();
+		names = new ArrayList<String>();
+		values = new ArrayList<ArrayList<String>>();
 		sections = new ArrayList<String>();
 		fileSections = new ArrayList<String>();
 	}
@@ -354,9 +334,8 @@ public class ValueFileParser {
 
 		for (int i=0; i<sections.size(); i++) {
 			if (sections.get(i).equalsIgnoreCase(section)) {
+				ret.names.add(names.get(i));
 				ret.values.add(values.get(i));
-				ret.valueStrings.add(valueStrings.get(i));
-				ret.associates.add(associates.get(i));
 				ret.sections.add(sections.get(i));
 				ret.fileSections.add(fileSections.get(i));
 			}
@@ -369,9 +348,8 @@ public class ValueFileParser {
 
 		for (int i=0; i<fileSections.size(); i++) {
 			if (fileSections.get(i).equalsIgnoreCase(fileSection)) {
+				ret.names.add(names.get(i));
 				ret.values.add(values.get(i));
-				ret.valueStrings.add(valueStrings.get(i));
-				ret.associates.add(associates.get(i));
 				ret.sections.add(sections.get(i));
 				ret.fileSections.add(fileSections.get(i));
 			}
@@ -383,22 +361,22 @@ public class ValueFileParser {
 	public void merge(ValueFileParser parser) {
 		if (parser == null)
 			return;
-		for (int i=0; i<parser.valueStrings.size(); i++) {
+		for (int i=0; i<parser.names.size(); i++) {
 			int j=0;
-			for (j=0; j<valueStrings.size(); j++) {
-				if (associates.get(j).get(0).equals(parser.associates.get(i).get(0))) {
+			for (j=0; j<names.size(); j++) {
+				if (names.get(j).equals(parser.names.get(i)) &&
+						sections.get(j).equals(parser.sections.get(i))) {
+					names.set(j, parser.names.get(i));
 					values.set(j, parser.values.get(i));
-					valueStrings.set(j, parser.valueStrings.get(i));
 					sections.set(j, parser.sections.get(i));
-					associates.set(j, parser.associates.get(i));
+					fileSections.set(j, parser.fileSections.get(i));
 					break;
 				}
 			}
 			// Value is not in 
-			if (j == valueStrings.size()) {
-				values.add(new Integer(parser.values.get(i)));
-				valueStrings.add(new String(parser.valueStrings.get(i)));
-				associates.add(new ArrayList<String>(parser.associates.get(i)));
+			if (j == names.size()) {
+				names.add(new String(parser.names.get(i)));
+				values.add(new ArrayList<String>(parser.values.get(i)));
 				sections.add(new String(parser.sections.get(i)));
 				fileSections.add(new String(parser.fileSections.get(i)));
 			}

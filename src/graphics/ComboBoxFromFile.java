@@ -44,10 +44,16 @@ public class ComboBoxFromFile extends JComboBox {
 
 		parser = p;
 		
-		ArrayList<Integer> values = parser.getAllValues();
-		for (int i=0; i<values.size(); i++) {
-			int addr = values.get(i);
-			String name = parser.getAssociate(addr);
+		int entries = parser.getNumEntries();
+		for (int i=0; i<entries; i++) {
+			int addr;
+			try {
+				addr = parser.indexToIntValue(i);
+			}
+			catch(NumberFormatException e) {
+				addr = 0;
+			}
+			String name = parser.indexToName(i);
 			if (displayAddr)
 				this.addItem(name + " (" + Integer.toHexString(addr).toUpperCase() + ")");
 			else
@@ -57,24 +63,12 @@ public class ComboBoxFromFile extends JComboBox {
 	}
 	public ComboBoxFromFile(Component parent, ValueFileParser p)
 	{
-		super();
-		setEditable(true);
-
-		parser = p;
-		
-		ArrayList<Integer> values = parser.getAllValues();
-		for (int i=0; i<values.size(); i++) {
-			int addr = values.get(i);
-			String name = parser.getAssociate(addr);
-			this.addItem(name + " (" + Integer.toHexString(addr).toUpperCase() + ")");
-		}
-
+		this(parent, p, true);
 	}
 
 	public void setSelected(int addr)
 	{
-		ArrayList<Integer> values = parser.getAllValues();
-		int i = values.indexOf(addr);
+		int i = parser.getValueIndex(addr);
 		if (i == -1)
 			this.setSelectedItem(Integer.toHexString(addr).toUpperCase());
 		else
@@ -103,7 +97,12 @@ public class ComboBoxFromFile extends JComboBox {
 			// Give up
 			return 0;
 		}
-		return parser.indexToValue(this.getSelectedIndex());
+		try {
+			return parser.indexToIntValue(this.getSelectedIndex());
+		}
+		catch(NumberFormatException e) {
+			return 0;
+		}
 	}
 	public int getVal() {
 		return getAddr();

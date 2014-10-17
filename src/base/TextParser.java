@@ -60,7 +60,13 @@ public class TextParser {
 			}
 			else
 				s = ""+text.charAt(pos);
-			int val = tableParser.getValue(s);
+			int val;
+			try {
+				val = tableParser.getIntValue(s);
+			}
+			catch(NumberFormatException e) {
+				val = -1;
+			}
 
 			if (text.charAt(pos) == '\n') {
 				numLines++;
@@ -105,7 +111,6 @@ public class TextParser {
 					return 1;
 				}
 
-		//		System.out.print(Integer.toHexString(val) + " ");
 				data.add((byte)val);
 				if (data.size()%16 == 0)
 					madeLine = true;
@@ -154,14 +159,19 @@ public class TextParser {
 	void loadText() {
 		text = "";
 		if (creditText) {
-			int end = addr;
-			int line=0;
-			while (line < CreditEditor.maxLines) {
-				if (RomReader.rom.read(end) == 0x7f)
-					line++;
-				end++;
+			record = RomReader.rom.moveableDataRecordExists(addr);
+			if (record != null)
+				record.addPtr(pointer);
+			else {
+				int end = addr;
+				int line=0;
+				while (line < CreditEditor.maxLines) {
+					if (RomReader.rom.read(end) == 0x7f)
+						line++;
+					end++;
+				}
+				record = RomReader.rom.getMoveableDataRecord(addr, pointer, false, end-addr);
 			}
-			record = RomReader.rom.getMoveableDataRecord(addr, pointer, false, end-addr);
 		}
 		else
 			record = RomReader.rom.getMoveableDataRecord(addr, pointer, true, 0);
@@ -170,7 +180,7 @@ public class TextParser {
 		int lastChar = -1;
 		int numLines=0;
 		while (i < record.getDataSize()) {
-			String s = tableParser.getAssociate(record.read(i));
+			String s = tableParser.getName(record.read(i));
 			if (record.read(i) == 0x7f) {
 				if (creditText)
 					s = "\n";
