@@ -26,7 +26,6 @@ public class MoveableDataRecord extends Record
 	public boolean isMoveable=true;
 
 	RomReader rom;
-	int originalAddr=-1;
 	
 	int requiredBank=-1;
 	int originalSize;
@@ -270,6 +269,7 @@ public class MoveableDataRecord extends Record
 		
 		// Clear location of original data
 		if (originalAddr >= 0) {
+			// Remember to lock the memory after writing it back
 			rom.clear(originalAddr, originalSize);
 		}
 
@@ -326,13 +326,19 @@ public class MoveableDataRecord extends Record
 			addr = -1;
 		}
 		else {
-			if (type == RECORD_COMPRESSED)
+			int size;
+			if (type == RECORD_COMPRESSED) {
+				size = compressedData.size();
 				rom.write(addr, compressedData);
-			else
+			}
+			else {
+				size = decompressedData.size();
 				rom.write(addr, decompressedData);
+			}
+			rom.lock(addr, size);
+			originalAddr = addr;
+			originalSize = size;
 		}
-		originalAddr = addr;
-		originalSize = getSize();
 		modified = false;
 	}
 

@@ -38,6 +38,8 @@ public class RomReader {
 			{
 				if ((data[i]&0xff) == 0xff)
 					free[i] = true;
+				else
+					free[i] = false;
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -90,6 +92,9 @@ public class RomReader {
 	}
 	public MoveableDataRecord getMoveableDataRecord(int addr, RomPointer ptr, boolean compressed, int size)
 	{
+		if (addr < 0) {
+			System.out.println("getMoveableDataRecord negative addr");
+		}
 		checkNullRecords();
 		MoveableDataRecord r;
 		for (int i=0; i<moveableDataRecords.size(); i++)

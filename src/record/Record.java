@@ -5,6 +5,7 @@ import java.util.*;
 
 public abstract class Record {
 	int addr;
+	int originalAddr;
 	// Note: even if modified is false, remember to check the pointers!
 	public boolean modified = false;
 
@@ -34,7 +35,7 @@ public abstract class Record {
 			if (ptrs.get(i).equals(ptr))
 			{
 				ptrs.remove(i--);
-//				System.out.println("Pointer removed.");
+				//System.out.println("Pointer removed.");
 				// Might as well return here, there shouldn't be pointer duplicates.
 				// But lets be safe.
 			}
@@ -49,11 +50,19 @@ public abstract class Record {
 			else {
 				RomPointer ptr = ptrs.get(i);
 				// If the pointer isn't pointing to the correct address, it must be saved.
-				// I don't save it if getPointedAddr() returns -1, because only a metadata pointer
-				// would return that, and it's unnecessary to save to metadata unless the data changes location.
-				if (ptr.getPointedAddr() != -1 &&
-						!(ptr.getPointedAddr() == addr ||
-							(ptr.hasBankAddr() == false && ptr.getPointedAddr()%0x4000 == addr%0x4000))) {
+				boolean save = false;
+				if (ptr.getType() == RomPointer.TYPE_METADATA) {
+					// It's unnecessary to save to metadata unless the address changes.
+					save = originalAddr != addr;
+				}
+				else {
+					save = true;
+					if (!(ptr.getPointedAddr() == addr ||
+								(ptr.hasBankAddr() == false && ptr.getPointedAddr()%0x4000 == addr%0x4000))) {
+						save = true;
+					}
+				}
+				if (save) {
 					ptr.write(addr, addr/0x4000);
 					// Some pointers point to other records.
 					// All records are saved when the save button is clicked.

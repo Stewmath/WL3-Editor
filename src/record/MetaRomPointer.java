@@ -48,6 +48,10 @@ public class MetaRomPointer extends RomPointer {
 		return format != FORMAT_GB_PTR;
 	}
 
+	public int getType() {
+		return RomPointer.TYPE_METADATA;
+	}
+
 	public void save() {
 		String output = "";
 		switch(format) {

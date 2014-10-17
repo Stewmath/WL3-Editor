@@ -61,7 +61,7 @@ public class CompareLevelDialog extends JDialog {
 		if (l1.getLevelDataAddr() == l2.getLevelDataAddr() && l1.getLevelDataAddr() >= 0)
 		{
 			levelDataPanel.add(new JLabel("These levels use the same leveldata (tiles & objects)."));
-			actionButton.setText("Separate");
+			actionButton.setText("Separate (L-" + RomReader.toHexString(l1.getId(), 2) + " will be isolated)");
 			actionButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e)
 				{
@@ -77,7 +77,7 @@ public class CompareLevelDialog extends JDialog {
 		else
 		{
 			levelDataPanel.add(new JLabel("These levels use different leveldata (tiles & objects)."));
-			actionButton.setText("Merge (L-" + RomReader.toHexString(l1.getId(), 2) + " will copy L-" + RomReader.toHexString(l2.getId(), 2) + ")");
+			actionButton.setText("Merge (L-" + RomReader.toHexString(l1.getId(), 2) + " will reference L-" + RomReader.toHexString(l2.getId(), 2) + ")");
 			actionButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e)
 				{

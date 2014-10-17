@@ -6,12 +6,15 @@ package record;
 // This is more important for compressed data than other kinds.
 public class RomPointer {
 	// TYPE_DIRECT = pointer to data directly in rom.
-	final int TYPE_DIRECT=0;
+	final public static int TYPE_DIRECT=0;
 	// TYPE_DIRECT_FRAGMENTED = pointer to data in rom, with bytes of pointer separated
-	final int TYPE_DIRECT_FRAGMENTED=1;
+	final public static int TYPE_DIRECT_FRAGMENTED=1;
 
 	// TYPE_RECORD = pointer to data in a record.
-	final int TYPE_RECORD=2;
+	final public static int TYPE_RECORD=2;
+
+	// For the subclass MetaRomPointer
+	final public static int TYPE_METADATA=3;
 
 	int type;
 
@@ -135,6 +138,10 @@ public class RomPointer {
 				return false;
 			return true;
 		}
+	}
+
+	public int getType() {
+		return type;
 	}
 
 	public void save() {
