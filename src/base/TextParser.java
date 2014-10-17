@@ -19,11 +19,14 @@ public class TextParser {
 	RomPointer pointer;
 
 	String text;
+	String recordDescription;
 	ArrayList<Byte> data;
 
-	public TextParser(int _addr, RomPointer _pointer, boolean creditText) {
+	public TextParser(int _addr, RomPointer _pointer, String desc, boolean creditText) {
 		addr = _addr;
 		pointer = _pointer;
+		recordDescription = desc;
+
 		this.creditText = creditText;
 
 		if (creditText)
@@ -175,6 +178,7 @@ public class TextParser {
 		}
 		else
 			record = RomReader.rom.getMoveableDataRecord(addr, pointer, true, 0);
+		record.setDescription(recordDescription);
 
 		int i=0;
 		int lastChar = -1;

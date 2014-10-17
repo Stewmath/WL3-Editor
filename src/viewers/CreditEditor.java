@@ -371,7 +371,7 @@ public class CreditEditor extends JDialog implements PaletteEditorClient {
 
 	void loadText() {
 		RomPointer textPointer = new RomPointer(0x160064, 0x160067, -1);
-		textParser = new TextParser(RomReader.BANK(textPointer.getPointedAddr(), 0x58), textPointer, true);
+		textParser = new TextParser(RomReader.BANK(textPointer.getPointedAddr(), 0x58), textPointer, "Credits Text", true);
 		textParser.getRecord().setRequiredBank(0x58);
 
 		flagRecord = rom.getMoveableDataRecord(flagLocation, null, false, maxLines*13);
@@ -379,6 +379,7 @@ public class CreditEditor extends JDialog implements PaletteEditorClient {
 
 		RomPointer gfxDataPointer = new RomPointer(RomReader.parseInt("58:440d"));
 		gfxDataRecord = rom.getMoveableDataRecord(RomReader.BANK(gfxDataPointer.getPointedAddr(), 0x58), gfxDataPointer, true, 0, 0x58);
+		gfxDataRecord.setDescription("Credits Font");
 		gfxData = gfxDataRecord.toArray();
 
 		paletteDataRecord = rom.getMoveableDataRecord(RomReader.parseInt("58:44cc"), null, false, 0x40);
