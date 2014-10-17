@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.io.*;
 import java.util.*;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class RomReader {
 	public static RomReader rom;
@@ -581,51 +582,52 @@ public class RomReader {
 
 		return data;
 	}
-	/*
-		byte[] data = new byte[0x40];
-		for (int i=0; i<8; i++)
-		{
-			for (int c=0; c<4; c++)
-			{
-				int index = i*8 + c*2;
-
-				int[] rgb = Drawing.intToRgb(palettes[i][c]);
-				int r = (rgb[0]/8)&0x1f;
-				int g = (rgb[1]/8)&0x1f;
-				int b = (rgb[2]/8)&0x1f;
-
-				int by = r | (g<<5) | (b<<10);
-				int b1 = by&0xff;
-				int b2 = by>>8;
-
-				data[index] = (byte)b1;
-				data[index+1] = (byte)b2;
+	public static byte[] palettesToRGB24(int[][] palettes, int numPalettes) {
+		byte[] output = new byte[numPalettes*4*3];
+		int pos = 0;
+		for (int i=0; i<numPalettes; i++) {
+			for (int j=0; j<4; j++) {
+				Color c = new Color(palettes[i][j]);
+				output[pos++] = (byte)c.getRed();
+				output[pos++] = (byte)c.getGreen();
+				output[pos++] = (byte)c.getBlue();
 			}
 		}
-
-		return data;
+		return output;
 	}
-	*/
 
-	// The rest of the functions are basically I/O helper functions.
-	public static void exportData(byte[] data, String filename, String title) {
-		JFileChooser fc = new JFileChooser();
+	public static String getWorkingDirectory() {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(new File("ref/location.txt")));
 			String dir = in.readLine();
-			fc.setCurrentDirectory(new File(dir));
-		} catch (FileNotFoundException ex) {}
+			return dir;
+		}
+		catch (FileNotFoundException ex) {}
 		catch (IOException ex) {}
-		fc.setSelectedFile(new File(filename));
+		return null;
+	}
+	public static void setWorkingDirectory(String dir) {
+		try {
+			PrintWriter out = new PrintWriter(new File("ref/location.txt"));
+			out.println(dir);
+			out.close();
+		} catch (FileNotFoundException ex) {}
+	}
+
+	// The rest of the functions are basically I/O helper functions.
+	public static void exportData(byte[] data, String title, FileNameExtensionFilter filter) {
+		JFileChooser fc = new JFileChooser();
+		String dir = getWorkingDirectory();
+		if (dir != null)
+			fc.setCurrentDirectory(new File(dir));
+
 		fc.setDialogTitle(title);
+
+		fc.setFileFilter(filter);
+
 		if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 		{
-			String dir = fc.getCurrentDirectory().toString();
-			try {
-				PrintWriter out = new PrintWriter(new File("ref/location.txt"));
-				out.println(dir);
-				out.close();
-			} catch (FileNotFoundException ex) {}
+			setWorkingDirectory(fc.getCurrentDirectory().toString());
 			File f = fc.getSelectedFile();
 			try {
 				FileOutputStream out = new FileOutputStream(f);
@@ -635,34 +637,29 @@ public class RomReader {
 		}
 
 	}
-	public static void importRecord(MoveableDataRecord r, String filename, String title) {
+	public static byte[] importData(String title, FileNameExtensionFilter filter) {
 		JFileChooser fc = new JFileChooser();
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(new File("ref/location.txt")));
-			String dir = in.readLine();
+		String dir = getWorkingDirectory();
+		if (dir != null)
 			fc.setCurrentDirectory(new File(dir));
-		} catch (FileNotFoundException ex) {}
-		catch (IOException ex) {}
-		fc.setSelectedFile(new File(filename));
+
 		fc.setDialogTitle(title);
+		fc.setFileFilter(filter);
+
 		if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
 		{
-			String dir = fc.getCurrentDirectory().toString();
-			try {
-				PrintWriter out = new PrintWriter(new File("ref/location.txt"));
-				out.println(dir);
-				out.close();
-			} catch (FileNotFoundException ex) {}
+			setWorkingDirectory(fc.getCurrentDirectory().toString());
 			File f = fc.getSelectedFile();
 			try {
 				FileInputStream in = new FileInputStream(f);
 				byte[] data = new byte[(int)f.length()];
 				in.read(data);
-				r.setData(data);
 				in.close();
+				return data;
 			} catch(IOException ex){}
 		}
 
+		return null;
 	}
 
 	public static int parseInt(String s) throws NumberFormatException {

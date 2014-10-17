@@ -1,5 +1,7 @@
 package viewers;
 
+import java.util.Arrays;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -14,6 +16,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import javax.swing.border.BevelBorder;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import viewers.TileGridViewer;
 import graphics.*;
@@ -72,7 +76,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
 		JPanel tileViewerPanel = new JPanel();
-		//tileViewerPanel.setLayout(
+
 		tileImages = RomReader.binToTiles(tileData, selectedPalette, palettes);
 		tileGridViewer = new TileGridViewer(tileImages, 16, 2, this);
 		tileGridViewer.setSelectionColor(Color.blue);
@@ -313,6 +317,33 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			rightPanel.add(paletteEditSuperPanel);
 		}
 		setSelectedPalette(-1);
+
+		JButton exportButton = new JButton("Export...");
+		exportButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RomReader.exportData(tileData,
+						"Export Graphics",
+						new FileNameExtensionFilter("Binary file", "bin"));
+				if (numPalettes > 0)
+					RomReader.exportData(RomReader.palettesToRGB24(palettes, numPalettes),
+							"Export Palettes",
+							new FileNameExtensionFilter("Palette file", "pal"));
+			}
+		});
+		rightPanel.add(exportButton);
+
+		JButton importButton = new JButton("Import...");
+		importButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				byte[] data = RomReader.importData("Import Graphics",
+						new FileNameExtensionFilter("Binary file", "bin"));
+				if (data != null) {
+					tileData = Arrays.copyOf(data, tileData.length);
+					refreshTiles();
+				}
+			}
+		});
+		rightPanel.add(importButton);
 
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BorderLayout());

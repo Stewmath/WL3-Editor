@@ -171,6 +171,16 @@ public class EnemySet {
 				if (getBaseGfxBank()+i < rom.getRomSize()/0x4000) {
 					gfxDataRecords[i] = rom.getMoveableDataRecord(enemySetRecord.read16(i*2+1, getBaseGfxBank()+i),
 							pointer, true, 0);
+
+					// Integrity check
+					if ((gfxDataRecords[i].getDataSize() != GFX_DATA_SIZE) &&
+							gfxDataRecords[i].getDataSize() != GFX_ALTERNATE_DATA_SIZE) {
+						gfxDataRecords[i].removePtr(pointer);
+						rom.deleteMoveableDataRecord(gfxDataRecords[i]);
+						gfxDataRecords[i] = null;
+						return;
+					}
+
 					gfxDataRecords[i].setRequiredBank(getBaseGfxBank()+i);
 					gfxDataRecords[i].isMoveable = true;
 
@@ -178,13 +188,6 @@ public class EnemySet {
 
 					gfxDataRecords[i].setDescription("Gfx for enemy '" + name + "'");
 
-					// Integrity check
-					if ((gfxDataRecords[i].getDataSize() != GFX_DATA_SIZE) &&
-							gfxDataRecords[i].getDataSize() != GFX_ALTERNATE_DATA_SIZE) {
-						rom.deleteMoveableDataRecord(gfxDataRecords[i]);
-						gfxDataRecords[i] = null;
-						return;
-					}
 					gfxDataRecords[i].setDataSize(GFX_DATA_SIZE);
 
 					// Spearhead, Hammer-bot, and Doughnuteer graphics have hard-coded pointers
