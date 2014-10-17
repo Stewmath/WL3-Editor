@@ -5,9 +5,10 @@ import java.util.*;
 
 public abstract class Record {
 	int addr;
+	// Note: even if modified is false, remember to check the pointers!
 	public boolean modified = false;
-	boolean ptrsOutOfDate = false;
 
+	// List of pointers pointing to this data.
 	ArrayList<RomPointer> ptrs = new ArrayList<RomPointer>();
 
 	String description = "";
@@ -25,12 +26,6 @@ public abstract class Record {
 			if (ptrs.get(i).equals(ptr))
 				return;
 		}
-		// If the pointer isn't pointing to the correct address, it must be saved later on.
-		// I don't set "modified" if getPointedAddr() returns -1, because only a metadata pointer
-		// would return that, and it's unnecessary to save to metadata unless the data changes location.
-		if (ptr.getPointedAddr() != -1 &&
-				!(ptr.getPointedAddr() == addr || (ptr.hasBankAddr() == false && ptr.getPointedAddr()%0x4000 == addr%0x4000)))
-			ptrsOutOfDate = true;
 		ptrs.add(ptr);
 	}
 	public void removePtr(RomPointer ptr) {
@@ -52,12 +47,20 @@ public abstract class Record {
 			if (ptrs.get(i).isNull())
 				ptrs.remove(i--);
 			else {
-				ptrs.get(i).write(addr, addr/0x4000);
-				// Some pointers point to other records.
-				// All records are saved when the save button is clicked.
-				// But if a record that depends on this one is saved first?
-				// That happens sometimes, if it does, it's re-saved right here.
-				ptrs.get(i).save();
+				RomPointer ptr = ptrs.get(i);
+				// If the pointer isn't pointing to the correct address, it must be saved.
+				// I don't save it if getPointedAddr() returns -1, because only a metadata pointer
+				// would return that, and it's unnecessary to save to metadata unless the data changes location.
+				if (ptr.getPointedAddr() != -1 &&
+						!(ptr.getPointedAddr() == addr ||
+							(ptr.hasBankAddr() == false && ptr.getPointedAddr()%0x4000 == addr%0x4000))) {
+					ptr.write(addr, addr/0x4000);
+					// Some pointers point to other records.
+					// All records are saved when the save button is clicked.
+					// But if a record that depends on this one is saved first?
+					// That happens sometimes, if it does, it's re-saved right here.
+					ptr.save();
+				}
 			}
 		}
 	}

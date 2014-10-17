@@ -22,6 +22,9 @@ public class TileSet {
 		return loadedTileSets[id];
 	}
 
+	// It's not necessary to have all tilesets loaded.
+	// The only thing that is compressed is the flags, and all pointers to the flags are
+	// in the flag table. So they can be moved around safely.
 	public static void reloadTileSets() {
 		for (int i=0; i<loadedTileSets.length; i++) {
 			loadedTileSets[i] = null;
@@ -105,6 +108,7 @@ public class TileSet {
 		flagPointer = new RomPointer(flagTbl+2*flagIndex);
 		flagRecord = rom.getMoveableDataRecord(flagAddr, flagPointer,
 				true, 0, 0x38+metaTileIndex/6);
+		flagRecord.setDescription("Tileset flags " + RomReader.toHexString(flagIndex));
 
 		tileSetDataRecord.write(1, (byte)flagIndex);
 	}

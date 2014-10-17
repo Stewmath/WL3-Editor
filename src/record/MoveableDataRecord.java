@@ -260,8 +260,10 @@ public class MoveableDataRecord extends Record
 	}
 
 	public void save() {
-		if (!modified)
+		if (!modified) {
+			savePtrs();
 			return;
+		}
 
 		if (type == RECORD_COMPRESSED)
 			compressedData = rom.convertToRLE(decompressedData);
@@ -318,8 +320,7 @@ public class MoveableDataRecord extends Record
 					JOptionPane.WARNING_MESSAGE);
 		}
 		
-		if (addr != originalAddr || ptrsOutOfDate)
-			savePtrs();
+		savePtrs();
 		
 		if (isNull()) {
 			addr = -1;
@@ -333,7 +334,6 @@ public class MoveableDataRecord extends Record
 		originalAddr = addr;
 		originalSize = getSize();
 		modified = false;
-		ptrsOutOfDate = false;
 	}
 
 	// This function returns true if this record can and should be deleted.

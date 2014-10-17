@@ -246,6 +246,5 @@ public class RegionRecord extends Record
 		}
 
 		modified = false;
-		ptrsOutOfDate = false;
 	}
 }

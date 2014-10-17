@@ -163,8 +163,8 @@ public class Level {
 		levelDataRecord = l2.levelDataRecord;
 		levelDataRecord.addPtr(levelDataPointer);
 
-		tileDataPointer = l2.tileDataPointer;
-		objectDataPointer = l2.objectDataPointer;
+		tileDataPointer = new RomPointer(levelDataRecord, 0, 2);
+		objectDataPointer = new RomPointer(levelDataRecord, 3, 2);
 
 		tileDataRecord = l2.tileDataRecord;
 		objectDataRecord = l2.objectDataRecord;
