@@ -27,3 +27,12 @@ anticipated to fix some embarassing bugs. But it should be more stable.
 - Feature: Enemy set editing
 - You are warned when data is being shifted
 - Probably there are some bugfixes I've forgotten about by now
+
+v0.4.1: October 17th, 2014
+
+- Graphics editor can import and export graphics
+- A metadata file is created to go with the rom (keeps tracks of moved 
+graphics, and maybe other things in the future)
+- All files in the "ref" folder have been reformatted; please don't use old 
+files.
+- Bugfixes

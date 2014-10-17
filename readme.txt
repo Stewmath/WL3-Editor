@@ -234,11 +234,9 @@ ABOUT THE "REF" FOLDER
 reasons. You can add lines to these files if you have some idea what you're
 doing - most usefully, you can modify "tileEffects.txt" to add any tile effects
 I may have missed. Formatting is important though: make sure that any 2 values
-on the same line are tab-separated, and comments must begin the line with a
-semicolon.
+on the same line are separated by an equals sign or a tab; and comments must 
+begin the line with a semicolon.
 
 CONTACT ME
 
-	If you have something to say you can send an email to 
-stewartmatthew6@gmail.com. However I have no plans to continue with this editor
-at the moment.
+	My email is stewartmatthew6@gmail.com.
