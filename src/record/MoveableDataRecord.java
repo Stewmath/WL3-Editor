@@ -314,10 +314,15 @@ public class MoveableDataRecord extends Record
 				moveInfoString += "Data has no description.\n";
 			else
 				moveInfoString += "Data description: \"" + description + "\"\n";
-			JOptionPane.showMessageDialog(null,
-					moveInfoString,
-					"Warning",
-					JOptionPane.WARNING_MESSAGE);
+
+			// On second thought, don't display warnings for newly created records.
+			// It gets kinda ridiculous when creating a new set of warp data.
+			if (originalAddr != -1) {
+				JOptionPane.showMessageDialog(null,
+						moveInfoString,
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		
 		savePtrs();
