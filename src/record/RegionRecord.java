@@ -233,6 +233,7 @@ public class RegionRecord extends Record
 			addr = rom.findFreeSpace(0xa*0x3*2, warpDataBank, true);
 		}
 		tableRecord.moveAddr(addr);
+
 		savePtrs();
 		
 		if (ptrs.size() == 0) {
@@ -243,5 +244,8 @@ public class RegionRecord extends Record
 			tableRecord.deleteWithNoPtr = true;
 			return;
 		}
+
+		modified = false;
+		ptrsOutOfDate = false;
 	}
 }

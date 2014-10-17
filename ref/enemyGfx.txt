@@ -36,7 +36,7 @@ Mr. Moon B=         5b1f
 Robo-Mouse B=       5de3
 Golf Block=         6133
 
-[6a]
+[6A]
 Platform Frog=      4000
 Roof Slime=         4327
 Doughnuteer=        45b3
@@ -56,7 +56,7 @@ Stone=              6502
 Bonfire=            65ac
 Cyclone=            695f
 
-[6b]
+[6B]
 Fire=               4000
 Fire Robota=        4234
 Beam Robota=        4610
@@ -75,7 +75,7 @@ Golf Block=         5f31
 Octahon=            6041
 Spark=              6398
 
-[6c]
+[6C]
 Anonster A=         4000
 Doll Boy A=         42f8
 Wormwould A=        46d6
@@ -87,7 +87,7 @@ Muddee A=           5874
 Wolfenboss A=       5bf4
 Shoot A=            5f97
 
-[6d]
+[6D]
 Anonster B=         4000
 Doll Boy B=         42e7
 Wormwould B=        46be
@@ -99,7 +99,7 @@ Muddee B=           5744
 Wolfenboss B=       5a94
 Shoot B=            5e26
 
-[6e]
+[6E]
 Anonster C=         4000
 Doll Boy C=         434a
 Wormwould C=        473d
@@ -111,7 +111,7 @@ Muddee C=           5849
 Wolfenboss C=       5bc8
 Shoot C=            5f28
 
-[6f]
+[6F]
 Anonster D=         4000
 Doll Boy D=         42fc
 Wormwould D=        465e

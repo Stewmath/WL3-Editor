@@ -142,7 +142,8 @@ public class ValueFileParser {
 			String line = nextLine(in);
 			if (line.trim().equals(""))
 				break;
-			String[] s = line.split("[\t=]");
+			String[] s = line.split("[\t=]"); // tabs and equal signs act as separators
+
 			if (line.trim().charAt(0) == '[' && line.trim().charAt(line.trim().length()-1) == ']') {
 				section = s[0].trim().substring(1, s[0].length()-1);
 			}
@@ -311,13 +312,38 @@ public class ValueFileParser {
 
 
 	void addEntry(String name, String value, String fileSection, String section) {
+		int pos;
+		// Find the start of the fileSection
+		for (pos=0; pos<fileSections.size(); pos++) {
+			boolean correctSection = fileSections.get(pos).equals(fileSection);
+			if (correctSection)
+				break;
+		}
+		// Find the start of the section
+		for (; pos<sections.size(); pos++) {
+			boolean correctSection = sections.get(pos).equals(section);
+			if (correctSection)
+				break;
+		}
+		// Find the end of the section
+		for (; pos<sections.size(); pos++) {
+			boolean correctSection =
+				sections.get(pos).equals(section) &&
+				fileSections.get(pos).equals(fileSection);
+			if (!correctSection)
+				break;
+		}
+
+		// pos now points to the end of the section it should be in,
+		// if any entries in that section exist already.
+
 		ArrayList<String> valueList = new ArrayList<String>();
 		valueList.add(value);
 
-		names.add(name);
-		values.add(valueList);
-		sections.add(section);
-		fileSections.add(fileSection);
+		names.add(pos, name);
+		values.add(pos, valueList);
+		sections.add(pos, section);
+		fileSections.add(pos, fileSection);
 	}
 
 

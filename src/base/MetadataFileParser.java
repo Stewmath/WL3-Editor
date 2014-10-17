@@ -26,7 +26,6 @@ public class MetadataFileParser extends ValueFileParser {
 
 	void createNewMetadata(File f) {
 		clearEntries();
-		setValue("romchecksum", ""+RomReader.toHexString(RomReader.rom.getRomChecksum()));
 		try {
 			f.delete();
 			f.createNewFile();
@@ -104,6 +103,7 @@ public class MetadataFileParser extends ValueFileParser {
 	}
 
 	public void save() {
+		setValue("version", ""+RomReader.toHexString(METADATA_VERSION));
 		setValue("romchecksum", ""+RomReader.toHexString(RomReader.rom.getRomChecksum()));
 		try {
 			File f = new File(filename);

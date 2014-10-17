@@ -8,9 +8,10 @@ public class RomPointer {
 	// TYPE_DIRECT = pointer to data directly in rom.
 	final int TYPE_DIRECT=0;
 	// TYPE_DIRECT_FRAGMENTED = pointer to data in rom, with bytes of pointer separated
-	final int TYPE_DIRECT_FRAGMENTED=2;
+	final int TYPE_DIRECT_FRAGMENTED=1;
+
 	// TYPE_RECORD = pointer to data in a record.
-	final int TYPE_RECORD=1;
+	final int TYPE_RECORD=2;
 
 	int type;
 
@@ -72,6 +73,11 @@ public class RomPointer {
 		this.bankRecord = null;
 		this.bankIndex = -1;
 	}
+
+	// Only for use with subclasses
+	RomPointer() {
+	}
+
  
 	public void write(int newAddr, int newBank) {
 		int ptr = RomReader.toGbPtr(newAddr);

@@ -5,7 +5,9 @@ import java.util.*;
 
 public abstract class Record {
 	int addr;
-	public boolean modified;
+	public boolean modified = false;
+	boolean ptrsOutOfDate = false;
+
 	ArrayList<RomPointer> ptrs = new ArrayList<RomPointer>();
 
 	String description = "";
@@ -23,8 +25,12 @@ public abstract class Record {
 			if (ptrs.get(i).equals(ptr))
 				return;
 		}
-		if (!(ptr.getPointedAddr() == addr || (ptr.hasBankAddr() == false && ptr.getPointedAddr()%0x4000 == addr%0x4000)))
-			modified = true;
+		// If the pointer isn't pointing to the correct address, it must be saved later on.
+		// I don't set "modified" if getPointedAddr() returns -1, because only a metadata pointer
+		// would return that, and it's unnecessary to save to metadata unless the data changes location.
+		if (ptr.getPointedAddr() != -1 &&
+				!(ptr.getPointedAddr() == addr || (ptr.hasBankAddr() == false && ptr.getPointedAddr()%0x4000 == addr%0x4000)))
+			ptrsOutOfDate = true;
 		ptrs.add(ptr);
 	}
 	public void removePtr(RomPointer ptr) {
@@ -32,7 +38,6 @@ public abstract class Record {
 		{
 			if (ptrs.get(i).equals(ptr))
 			{
-				modified = true;
 				ptrs.remove(i--);
 //				System.out.println("Pointer removed.");
 				// Might as well return here, there shouldn't be pointer duplicates.

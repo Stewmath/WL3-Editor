@@ -578,6 +578,7 @@ public class MainFrame extends JFrame
 					rom.save();
 					if (rom.savedSuccessfully()) {
 						ValueFileParser.saveMetadataFile();
+						ValueFileParser.reloadValueFiles();
 					}
 				}
 			}

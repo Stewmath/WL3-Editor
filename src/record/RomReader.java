@@ -428,7 +428,7 @@ public class RomReader {
 	public int findFreeSpace(int size, boolean claim)
 	{
 		for (int b=0; b<preferredFreeBanks.length; b++) {
-			int addr = findFreeSpace(size, b, claim);
+			int addr = findFreeSpace(size, preferredFreeBanks[b], claim);
 			if (addr != -1)
 				return addr;
 		}

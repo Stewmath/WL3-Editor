@@ -207,6 +207,11 @@ public class EnemySet {
 								RomReader.BANK(0x6f3f, 0x2b));
 						gfxDataRecords[i].addPtr(creditsPointer);
 					}
+
+					// Add a pointer for the metadata, so the editor can keep track of moved graphics.
+					MetaRomPointer metaPointer = new MetaRomPointer(name, "enemyGfx.txt",
+							RomReader.toHexString(getBaseGfxBank()+i), MetaRomPointer.FORMAT_GB_PTR);
+					gfxDataRecords[i].addPtr(metaPointer);
 				}
 				else {
 					gfxDataRecords[i] = null;

@@ -318,7 +318,8 @@ public class MoveableDataRecord extends Record
 					JOptionPane.WARNING_MESSAGE);
 		}
 		
-		savePtrs();
+		if (addr != originalAddr || ptrsOutOfDate)
+			savePtrs();
 		
 		if (isNull()) {
 			addr = -1;
@@ -332,6 +333,7 @@ public class MoveableDataRecord extends Record
 		originalAddr = addr;
 		originalSize = getSize();
 		modified = false;
+		ptrsOutOfDate = false;
 	}
 
 	// This function returns true if this record can and should be deleted.
