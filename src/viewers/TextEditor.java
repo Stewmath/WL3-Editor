@@ -11,10 +11,11 @@ import java.awt.event.*;
 import graphics.*;
 
 public class TextEditor extends JDialog {
-	ComboBoxFromFile comboBox;
+	JComboBox<String> comboBox;
 	JScrollPane textPane;
 	JTextArea textArea;
 	TextParser textParser;
+	ValueFileParser textLocationParser;
 
 	public TextEditor(JFrame owner) {
 		super(owner, "Text Editor", Dialog.ModalityType.APPLICATION_MODAL);
@@ -22,7 +23,14 @@ public class TextEditor extends JDialog {
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new GridBagLayout());
 
-		comboBox = new ComboBoxFromFile(this, ValueFileParser.getTextLocationFile(), false);
+		comboBox = new JComboBox<String>();
+
+		textLocationParser = ValueFileParser.getTextLocationFile();
+
+		for (int s=0; s<textLocationParser.getNumSections(); s++) {
+			String name = textLocationParser.getSectionName(s);
+			comboBox.addItem(name);
+		}
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetTextParser();
@@ -105,10 +113,9 @@ public class TextEditor extends JDialog {
 
 	void resetTextParser() {
 		int index = comboBox.getSelectedIndex();
-		String description = "Text: " + comboBox.getParser().indexToName(index);
-		ValueFileParser parser = comboBox.getParser();
-		RomPointer p = new RomPointer(parser.indexToIntValue(0, index),
-				parser.indexToIntValue(1, index));
+		String description = "Text: " + textLocationParser.getSectionName(index);
+		ValueFileParser parser = textLocationParser.getSection(index);
+		RomPointer p = new RomPointer(parser.getIntValue("pointerAddr"), parser.getIntValue("bankAddr"));
 		textParser = new TextParser(p.getPointedAddr(), p, description, false);
 
 		textArea.setText(textParser.getText());

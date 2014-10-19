@@ -398,6 +398,7 @@ public class MainFrame extends JFrame
 		levelMenu.add(mntm_compare);
 		
 		JMenu miscMenu = new JMenu("Other");
+
 		JMenuItem miscMusicButton = new JMenuItem("Misc. Music");
 		miscMusicButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
@@ -405,6 +406,17 @@ public class MainFrame extends JFrame
 				MiscMusicDialog d = new MiscMusicDialog(itself);
 			}
 		});
+		miscMenu.add(miscMusicButton);
+
+		JMenuItem miscGfxButton = new JMenuItem("Misc. Graphics");
+		miscGfxButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				MiscGfxDialog d = new MiscGfxDialog(itself);
+			}
+		});
+		miscMenu.add(miscGfxButton);
+
 		JMenuItem textEditorButton = new JMenuItem("Edit Text");
 		textEditorButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
@@ -412,6 +424,8 @@ public class MainFrame extends JFrame
 				TextEditor editor = new TextEditor(itself);
 			}
 		});
+		miscMenu.add(textEditorButton);
+
 		JMenuItem creditEditorButton = new JMenuItem("Edit Credits");
 		creditEditorButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
@@ -419,8 +433,6 @@ public class MainFrame extends JFrame
 				CreditEditor editor = new CreditEditor(itself);
 			}
 		});
-		miscMenu.add(miscMusicButton);
-		miscMenu.add(textEditorButton);
 		miscMenu.add(creditEditorButton);
 		
 		menuBar_1.add(fileMenu);

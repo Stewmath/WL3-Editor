@@ -323,11 +323,11 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			public void actionPerformed(ActionEvent e) {
 				RomReader.exportData(tileData,
 						"Export Graphics",
-						new FileNameExtensionFilter("Binary file", "bin"));
+						new FileNameExtensionFilter("Binary file (.bin)", "bin"));
 				if (numPalettes > 0)
 					RomReader.exportData(RomReader.palettesToRGB24(palettes, numPalettes),
 							"Export Palettes",
-							new FileNameExtensionFilter("Palette file", "pal"));
+							new FileNameExtensionFilter("Palette file (.pal)", "pal"));
 			}
 		});
 		rightPanel.add(exportButton);
@@ -365,7 +365,8 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		disableListeners = true;
 		if (p == -1) {
 			selectedPalette = p;
-			blackWhiteButton.setSelected(true);
+			if (numPalettes != 0)
+				blackWhiteButton.setSelected(true);
 		}
 		else if (p < numPalettes) {
 			selectedPalette = p;

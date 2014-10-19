@@ -16,7 +16,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-public class ComboBoxFromFile extends JComboBox {
+public class ComboBoxFromFile extends JComboBox<String> {
 
 	static String next(Scanner in)
 	{

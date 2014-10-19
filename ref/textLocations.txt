@@ -7,20 +7,22 @@
 ; text. They're the addresses of the pointers to
 ; the text, so if the new text is bigger than the
 ; old text, it can be moved.
-; If only one number is provided, it's assumed to
-; be the address of the actual text.
 
-; The first number is the address of the pointer,
-; the second is the address of the bank number.
+[Are you aware?]
+pointerAddr=    adf31
+bankAddr=       adf2c
 
-; Note that equals signs and tabs both act as separators.
-; their functions are basically the same.
+[Head for...]
+pointerAddr=    acc4b
+bankAddr=       acc4e
 
+[Wonderful work]
+pointerAddr=    acc22
+bankAddr=       acc25
 
-Are you aware?= adf31	adf2c	
-Head For...=    acc4b	acc4e	
-Wonderful work= acc22	acc25	
-Thank You!=     aefe3	aefe6	
+[Thank You!]
+pointerAddr=    aefe3
+bankAddr=       aefe6
 
 ;0b37f9	The Hidden Figure Explains
 ;0b211a	Head For...

@@ -125,9 +125,7 @@ public class MetadataFileParser extends ValueFileParser {
 				}
 
 				out.print(names.get(i));
-				for (int j=0; j<getNumValues(i); j++) {
-					out.print("=" + values.get(i).get(j));
-				}
+				out.print("=" + values.get(i));
 				out.println();
 			}
 

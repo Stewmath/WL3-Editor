@@ -19,6 +19,7 @@ public class ValueFileParser {
 	private static ValueFileParser textLocationFile;
 	private static ValueFileParser enemyAiFile;
 	private static ValueFileParser enemyGfxFile;
+	private static ValueFileParser miscGfxFile;
 
 	public static MetadataFileParser getMetadataFile() {
 		return metadataFile;
@@ -50,6 +51,9 @@ public class ValueFileParser {
 	public static ValueFileParser getTileEffectFile() {
 		return tileEffectFile;
 	}
+	public static ValueFileParser getMiscGfxFile() {
+		return miscGfxFile;
+	}
 
 	public static void reloadValueFiles() {
 		musicFile = new ValueFileParser("ref/music.txt");
@@ -60,6 +64,7 @@ public class ValueFileParser {
 		enemySetFile = new ValueFileParser("ref/enemySet.txt");
 		textLocationFile = new ValueFileParser("ref/textLocations.txt");
 		enemyAiFile = new ValueFileParser("ref/enemyAis.txt");
+		miscGfxFile = new ValueFileParser("ref/miscGfx.txt");
 
 		if (metadataFile != null) {
 			enemyGfxFile = new ValueFileParser("ref/enemyGfx.txt");
@@ -90,10 +95,11 @@ public class ValueFileParser {
 	}
 	
 
+	// 4 Parallel ArrayLists:
 	// List of all names
 	ArrayList<String> names = new ArrayList<String>();
 	// List of all values for the entry (usually just one string, but there can be multiple others)
-	ArrayList<ArrayList<String>> values = new ArrayList<ArrayList<String>>();
+	ArrayList<String> values = new ArrayList<String>();
 
 	// List of which entries belong to which "sections", denoted by square brackets.
 	// Same length as previous 2 variables.
@@ -101,6 +107,11 @@ public class ValueFileParser {
 	// List of which entries belong to which "file sections", denoted by curly brackets.
 	// Used in the metadata file to add to entries for existing files.
 	ArrayList<String> fileSections = new ArrayList<String>();
+
+	// 2 parallel ArrayLists:
+	ArrayList<String> sectionList = new ArrayList<String>();
+	// sectionIndices isn't properly implemented yet
+	ArrayList<Integer> sectionIndices = new ArrayList<Integer>();
 
 	String filename;
 
@@ -125,11 +136,7 @@ public class ValueFileParser {
 	}
 
 	ValueFileParser(ValueFileParser parser) {
-		names = new ArrayList<String>(parser.names);
-		values = new ArrayList<ArrayList<String>>(parser.values);
-		sections = new ArrayList<String>(parser.sections);
-		fileSections = new ArrayList<String>(parser.fileSections);
-		filename = new String(parser.filename);
+		merge(parser);
 	}
 
 	void parseFile(File f) throws FileNotFoundException {
@@ -142,23 +149,32 @@ public class ValueFileParser {
 			String line = nextLine(in);
 			if (line.trim().equals(""))
 				break;
-			String[] s = line.split("[\t=]"); // tabs and equal signs act as separators
+			String[] s;
+			s = line.split("=");
 
 			if (line.trim().charAt(0) == '[' && line.trim().charAt(line.trim().length()-1) == ']') {
-				section = s[0].trim().substring(1, s[0].length()-1);
+				String newSection = s[0].trim().substring(1, s[0].length()-1);
+				if (!section.equalsIgnoreCase(newSection)) {
+					sectionList.add(newSection);
+					sectionIndices.add(getNumEntries());
+					section = newSection;
+				}
 			}
 			else if (line.trim().charAt(0) == '{' && line.trim().charAt(line.trim().length()-1) == '}') {
 				fileSection = s[0].trim().substring(1, s[0].length()-1);
 				section = "default";
 			}
 			else {
+				if (sectionList.size() == 0 && section.equalsIgnoreCase("default")) {
+					sectionList.add("default");
+					sectionIndices.add(getNumEntries());
+				}
 				names.add(s[0]);
 				int numValues = s.length-1;
-				ArrayList<String> valueList = new ArrayList<String>();
-				for (int i=1; i<=numValues; i++) {
-					valueList.add(s[i].trim());
-				}
-				values.add(valueList);
+				if (s.length >= 2)
+					values.add(s[1].trim());
+				else
+					values.add("");
 				sections.add(section);
 				fileSections.add(fileSection);
 			}
@@ -174,21 +190,18 @@ public class ValueFileParser {
 		return names.indexOf(name);
 	}
 
-	public int getValueIndex(int valNum, String s) {
+	public int getValueIndex(String s) {
 		for (int j=0; j<values.size(); j++) {
-			if (values.get(j).get(valNum).equals(s))
+			if (values.get(j).equalsIgnoreCase(s))
 				return j;
 		}
 		return -1;
 	}
-	public int getValueIndex(String s) {
-		return getValueIndex(0, s);
-	}
 
-	public int getValueIndex(int valNum, int val) {
+	public int getValueIndex(int val) {
 		for (int j=0; j<values.size(); j++) {
 			try {
-				int numericVal = RomReader.parseInt(values.get(j).get(valNum));
+				int numericVal = RomReader.parseInt(values.get(j));
 				if (numericVal == val)
 					return j;
 			}
@@ -198,9 +211,6 @@ public class ValueFileParser {
 		}
 		return -1;
 	}
-	public int getValueIndex(int val) {
-		return getValueIndex(0, val);
-	}
 
 	// Returns the value of the i'th entry (the leftmost number)
 	public String indexToName(int index) {
@@ -208,18 +218,12 @@ public class ValueFileParser {
 	}
 
 	// Gets a value for the i'th entry
-	public String indexToValue(int valNum, int index) {
-		return values.get(index).get(valNum);
-	}
 	public String indexToValue(int index) {
-		return indexToValue(0, index);
+		return values.get(index);
 	}
 
-	public int indexToIntValue(int valNum, int index) throws NumberFormatException {
-		return RomReader.parseInt(indexToValue(valNum, index));
-	}
-	public int indexToIntValue(int index) {
-		return indexToIntValue(0, index);
+	public int indexToIntValue(int index) throws NumberFormatException {
+		return RomReader.parseInt(indexToValue(index));
 	}
 
 
@@ -228,61 +232,38 @@ public class ValueFileParser {
 	}
 
 
-	public String getValue(int i, String name) {
+	public String getValue(String name) {
 		int n = names.indexOf(name);
 		if (n == -1)
 			return "";
-		int pos = i;
-		if (i == -1)
-			pos = 0;
-		return values.get(n).get(pos);
-	}
-	public String getValue(String val) {
-		return getValue(-1, val);
+		return values.get(n);
 	}
 
-	public int getIntValue(int i, String name) throws NumberFormatException {
-		return Integer.parseInt(getValue(i, name), 16);
-	}
 	public int getIntValue(String name) throws NumberFormatException {
-		return getIntValue(0, name);
+		return Integer.parseInt(getValue(name), 16);
 	}
 
-	public String getName(int i, String val) {
+	public String getName(String val) {
 		int j;
 		for (j=0; j<values.size(); j++) {
-			int pos = i;
-			if (i == -1)
-				pos = 0;
-			if (values.get(j).get(pos).equals(val))
+			if (values.get(j).equalsIgnoreCase(val))
 				break;
 		}
 		if (j == values.size())
 			return null;
 		return names.get(j);
 	}
-	public String getName(String val) {
-		return getName(-1, val);
-	}
 
-	public String getName(int valIndex, int val) {
+	public String getName(int val) {
 		for (int i=0; i<names.size(); i++) {
 			try {
-				int numericVal = RomReader.parseInt(values.get(i).get(valIndex));
+				int numericVal = RomReader.parseInt(values.get(i));
 				if (numericVal == val)
 					return names.get(i);
 			}
 			catch(NumberFormatException e) {}
 		}
 		return "";
-	}
-	public String getName(int val) {
-		return getName(0, val);
-	}
-
-	// Get the number of associates for entry 'i' (usually 1)
-	public int getNumValues(int i) {
-		return values.get(i).size();
 	}
 
 	public ArrayList<String> getAllNames() {
@@ -292,7 +273,7 @@ public class ValueFileParser {
 
 	public void setName(String name, String value) {
 		for (int i=0; i<values.size(); i++) {
-			if (values.get(i).get(0).equals(value)) {
+			if (values.get(i).equalsIgnoreCase(value)) {
 				names.set(i, name);
 				return;
 			}
@@ -304,10 +285,18 @@ public class ValueFileParser {
 			addEntry(name, value, fileSection, section);
 			return;
 		}
-		values.get(index).set(0, value);
+		values.set(index, value);
 	}
 	public void setValue(String name, String value) {
 		setValue(name, value, "default", "default");
+	}
+
+	public boolean hasEntry(String name) {
+		for (int i=0; i<getNumEntries(); i++) {
+			if (names.get(i).equalsIgnoreCase(name))
+				return true;
+		}
+		return false;
 	}
 
 
@@ -315,21 +304,21 @@ public class ValueFileParser {
 		int pos;
 		// Find the start of the fileSection
 		for (pos=0; pos<fileSections.size(); pos++) {
-			boolean correctSection = fileSections.get(pos).equals(fileSection);
+			boolean correctSection = fileSections.get(pos).equalsIgnoreCase(fileSection);
 			if (correctSection)
 				break;
 		}
 		// Find the start of the section
 		for (; pos<sections.size(); pos++) {
-			boolean correctSection = sections.get(pos).equals(section);
+			boolean correctSection = sections.get(pos).equalsIgnoreCase(section);
 			if (correctSection)
 				break;
 		}
 		// Find the end of the section
 		for (; pos<sections.size(); pos++) {
 			boolean correctSection =
-				sections.get(pos).equals(section) &&
-				fileSections.get(pos).equals(fileSection);
+				sections.get(pos).equalsIgnoreCase(section) &&
+				fileSections.get(pos).equalsIgnoreCase(fileSection);
 			if (!correctSection)
 				break;
 		}
@@ -337,11 +326,13 @@ public class ValueFileParser {
 		// pos now points to the end of the section it should be in,
 		// if any entries in that section exist already.
 
-		ArrayList<String> valueList = new ArrayList<String>();
-		valueList.add(value);
+		if (sections.isEmpty() || !section.equalsIgnoreCase(sections.get(pos-1))) {
+			sectionList.add(section);
+			sectionIndices.add(pos);
+		}
 
 		names.add(pos, name);
-		values.add(pos, valueList);
+		values.add(pos, value);
 		sections.add(pos, section);
 		fileSections.add(pos, fileSection);
 	}
@@ -349,9 +340,17 @@ public class ValueFileParser {
 
 	public void clearEntries() {
 		names = new ArrayList<String>();
-		values = new ArrayList<ArrayList<String>>();
+		values = new ArrayList<String>();
 		sections = new ArrayList<String>();
 		fileSections = new ArrayList<String>();
+	}
+
+	public int getNumSections() {
+		return sectionList.size();
+	}
+
+	public String getSectionName(int sectionIndex) {
+		return sectionList.get(sectionIndex);
 	}
 
 	// Returns a new ValueFileParser containing entries for the specified section.
@@ -360,24 +359,22 @@ public class ValueFileParser {
 
 		for (int i=0; i<sections.size(); i++) {
 			if (sections.get(i).equalsIgnoreCase(section)) {
-				ret.names.add(names.get(i));
-				ret.values.add(values.get(i));
-				ret.sections.add(sections.get(i));
-				ret.fileSections.add(fileSections.get(i));
+				ret.addEntry(names.get(i), values.get(i), fileSections.get(i), sections.get(i));
 			}
 		}
 
 		return ret;
 	}
+	public ValueFileParser getSection(int index) {
+		return getSection(getSectionName(index));
+	}
+
 	public ValueFileParser getFileSection(String fileSection) {
 		ValueFileParser ret = new ValueFileParser();
 
 		for (int i=0; i<fileSections.size(); i++) {
 			if (fileSections.get(i).equalsIgnoreCase(fileSection)) {
-				ret.names.add(names.get(i));
-				ret.values.add(values.get(i));
-				ret.sections.add(sections.get(i));
-				ret.fileSections.add(fileSections.get(i));
+				ret.addEntry(names.get(i), values.get(i), fileSections.get(i), sections.get(i));
 			}
 		}
 
@@ -388,24 +385,7 @@ public class ValueFileParser {
 		if (parser == null)
 			return;
 		for (int i=0; i<parser.names.size(); i++) {
-			int j=0;
-			for (j=0; j<names.size(); j++) {
-				if (names.get(j).equals(parser.names.get(i)) &&
-						sections.get(j).equals(parser.sections.get(i))) {
-					names.set(j, parser.names.get(i));
-					values.set(j, parser.values.get(i));
-					sections.set(j, parser.sections.get(i));
-					fileSections.set(j, parser.fileSections.get(i));
-					break;
-				}
-			}
-			// Value is not in 
-			if (j == names.size()) {
-				names.add(new String(parser.names.get(i)));
-				values.add(new ArrayList<String>(parser.values.get(i)));
-				sections.add(new String(parser.sections.get(i)));
-				fileSections.add(new String(parser.fileSections.get(i)));
-			}
+			setValue(parser.names.get(i), parser.values.get(i), parser.sections.get(i), parser.fileSections.get(i));
 		}
 	}
 

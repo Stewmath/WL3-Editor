@@ -1,0 +1,79 @@
+; Parameters:
+;   addresstype (string):   'absolute' or 'pointer'.
+;   compressed (bool):      true or false
+
+;   paletteAddress (hex):   Address of palette data
+;   numPalettes (hex):      Number of palettes
+
+;   size (hex):             Size of the data (if uncompressed)
+
+;  For addresstype "absolute":
+;   address (hex):          Address of the data
+;  For addresstype "pointer":
+;   ptrAddress[i] (hex):       Address of the pointer(s)
+;   bankAddress[i] (hex):      Address of the bank number(s)
+;   bank (hex):             The bank number (if bankAddress is unspecified)
+
+; Notes:
+; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise.
+; - 'absolute' and the palettes aren't implemented yet.
+; - Some things (like golf tilesets) must be in the same bank
+
+
+[Pause Screen]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1f400e
+bank=       7d
+
+[Results (Bank 0)]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1e002b
+bank=       78
+
+[Results (Bank 1)]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1e001f
+bank=       78
+
+; Address = 35:5124
+[Golf/Results Menu]
+addresstype=pointer
+compressed= true
+
+ptrAddress1=d465f
+ptrAddress2=1c860d
+bank=       35
+
+; Address = 71:4f0d
+[Golf Menu]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1c80db
+bankAddress=1c80ce
+
+; NOTE: both of the following golf tilesets must be in the same bank.
+; The editor can't handle this yet, so I don't specify bankAddress at all.
+; However the bank could be changed if the editor supported this.
+
+; Address = 70:4000
+[Golf Tileset (Bank 0)]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1c89aa
+bank=       70
+
+; Address = 70:4c5f
+[Golf Tileset (Bank 1)]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1c899e
+bank=       70
