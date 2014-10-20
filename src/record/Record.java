@@ -41,6 +41,13 @@ public abstract class Record {
 			}
 		}
 	}
+	public void trimPtrs() {
+		for (int i=0; i<ptrs.size(); i++) {
+			if (ptrs.get(i).isNull()) {
+				ptrs.remove(i--);
+			}
+		}
+	}
 	public void savePtrs() {
 		// Write to all pointers.
 		for (int i=0; i<ptrs.size(); i++)

@@ -95,7 +95,6 @@ public class RomReader {
 		if (addr < 0) {
 			System.out.println("getMoveableDataRecord negative addr");
 		}
-		checkNullRecords();
 		MoveableDataRecord r;
 		for (int i=0; i<moveableDataRecords.size(); i++)
 		{
@@ -159,6 +158,8 @@ public class RomReader {
 			System.out.println(" (0x" + RomReader.toHexString(moveableDataRecords.get(i).getAddr()) + ")");
 			moveableDataRecords.remove(i);
 			moveableDataRecordAccesses.remove(i);
+			// Note: the record's memory won't be unlocked, I guess that's okay?
+			// Since this is probably a corrupt record I don't want to risk unlocking the memory.
 		}
 	}
 	public JoinedRecord getJoinedRecord(MoveableDataRecord record1, MoveableDataRecord record2)
@@ -397,7 +398,7 @@ public class RomReader {
 		for (int i=0; i<moveableDataRecords.size(); i++) {
 			MoveableDataRecord r = moveableDataRecords.get(i);
 			if (!r.belongsToJoinedRecord) {
-				moveableDataRecords.get(i).save();
+				r.save();
 			}
 		}
 		

@@ -145,6 +145,8 @@ public class RomPointer {
 	}
 
 	public void save() {
+		if (isNull())
+			return;
 		if (type == TYPE_RECORD) {
 			ptrRecord.save();
 			if (bankRecord != null) {

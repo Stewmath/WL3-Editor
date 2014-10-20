@@ -6,7 +6,7 @@ import base.TileSet;
 
 public class RegionRecord extends Record
 {
-	final static int numSectors = 0x1e;
+	final static int NUM_SECTORS = 0x1e;
 
 	static ArrayList<RegionRecord> regionRecords = new ArrayList<RegionRecord>();
 	// This function gets a regionRecord.
@@ -18,8 +18,7 @@ public class RegionRecord extends Record
 				return r;
 			}
 		}
-		RegionRecord r = new RegionRecord(_tblAddr);
-		r.addPtr(ptr);
+		RegionRecord r = new RegionRecord(_tblAddr, ptr);
 		regionRecords.add(r);
 		return r;
 	}
@@ -50,15 +49,12 @@ public class RegionRecord extends Record
 	// tableRecord - the table containing pointers to each warpRecord.
 	MoveableDataRecord tableRecord;
 	// warpRecords - 0xa*0x3 entries, one for each warp.
+	// If null, 0xffff is written to the table record.
 	MoveableDataRecord[] warpRecords;
 	// sectorDestinations - warp destination for each sector.
 	int[] sectorDestinations;
-	// null warps - sectors which don't warp to anywhere.
-	// To save space, most levels will share their "null warps" with each other.
-	// For this reason and others, all levels should probably be loaded right as the rom is opened.
-	MoveableDataRecord nullWarpDataRecord;
 
-	RegionRecord(int _tblAddr) {
+	RegionRecord(int _tblAddr, RomPointer ptr) {
 		rom = RomReader.rom;
 
 		modified = false;
@@ -66,8 +62,9 @@ public class RegionRecord extends Record
 		warpDataBank = addr/0x4000;
 		// The pointer to tableRecord would be the same as the pointer to this record.
 		// See the save() function.
-		tableRecord = rom.getMoveableDataRecord(addr, null, false, 0xa*3*2);
+		tableRecord = rom.getMoveableDataRecord(addr, ptr, false, 0xa*3*2);
 		tableRecord.deleteWithNoPtr = true;
+		tableRecord.setDescription("Warp table");
 		// Generate regions
 		warpRecords = new MoveableDataRecord[0xa*0x3];
 		sectorDestinations = new int[0xa*0x3];
@@ -77,66 +74,58 @@ public class RegionRecord extends Record
 			{
 				int i = x+y*0xa;
 				
-				int warpDataAddr = tableRecord.read16(i*2, warpDataBank);
-				RomPointer warpDataPointer = new RomPointer(tableRecord, i*2);
-				warpRecords[i] = rom.getMoveableDataRecord(warpDataAddr, warpDataPointer, false, 8);
-				warpRecords[i].deleteWithNoPtr = true;
-				
-				Region r = new Region(warpRecords[i].toArray());
-				int b1 = warpRecords[i].read(0)&0xff;
-				sectorDestinations[i] = (b1>>4)*0xa + (b1&0xf);
-				if (sectorDestinations[i] >= numSectors)
+				int warpDataAddr = tableRecord.read16(i*2);
+				if (warpDataAddr == 0xffff) {
 					sectorDestinations[i] = 0xff;
-				
-				// Here, all other regions are checked to make sure no others 
-				// contain the same sectors.
-				// This happens commonly when there are 2 warp points to the 
-				// same region.
-				// However when the warp points describe that region 
-				// differently, only one is selected.
-				// Theoretically 2 regions could contain the same sector, 
-				// but... that would be a real hassle.
-				boolean contains = false;
-				for (int rx=r.firstHSector; rx<r.lastHSector; rx++)
-				{
-					for (int ry=r.firstVSector; ry<r.lastVSector; ry++)
-					{
-						if (getRegion(rx*16, ry*16) != null)
-						{
-							contains = true;
-							break;
-						}
-					}
+					warpRecords[i] = null;
 				}
-				if (!contains && r.isValid() && sectorDestinations[i] < numSectors)
-				{
-					r.tileSet = TileSet.getTileSet(r.tileSetId);
-					regions.add(r);
-				}
-				else if (!r.isValid() || sectorDestinations[i] >= numSectors)
-				{
-					if (nullWarpDataRecord == null)
-						nullWarpDataRecord = (MoveableDataRecord)warpRecords[i];
-					else if (warpRecords[i] != nullWarpDataRecord) {
+				else {
+					RomPointer warpDataPointer = new RomPointer(tableRecord, i*2);
+					warpRecords[i] = rom.getMoveableDataRecord(RomReader.BANK(warpDataAddr, warpDataBank),
+							warpDataPointer, false, 8);
+					warpRecords[i].deleteWithNoPtr = true;
+					warpRecords[i].setDescription("Warp data");
+
+					Region r = new Region(warpRecords[i].toArray());
+					int b1 = warpRecords[i].read(0)&0xff;
+					sectorDestinations[i] = (b1>>4)*0xa + (b1&0xf);
+
+					if (!r.isValid() || sectorDestinations[i] >= NUM_SECTORS) {
+						sectorDestinations[i] = 0xff;
 						warpRecords[i].removePtr(warpDataPointer);
-						warpRecords[i] = nullWarpDataRecord;
-						warpRecords[i].addPtr(warpDataPointer);
+						warpRecords[i] = null;
+						modified = true;
+					}
+					else {
+						// Here, all other regions are checked to make sure no others 
+						// contain the same sectors.
+						// This happens commonly when there are 2 warp points to the 
+						// same region.
+						// However when the warp points describe that region 
+						// differently, only one is selected.
+						// Theoretically 2 regions could contain the same sector, 
+						// but... that would be a real hassle.
+						boolean contains = false;
+						for (int rx=r.firstHSector; rx<r.lastHSector; rx++)
+						{
+							for (int ry=r.firstVSector; ry<r.lastVSector; ry++)
+							{
+								if (getRegion(rx*16, ry*16) != null)
+								{
+									contains = true;
+									break;
+								}
+							}
+						}
+						if (!contains) {
+							r.tileSet = TileSet.getTileSet(r.tileSetId);
+							regions.add(r);
+						}
 					}
 				}
 			}
 		}
 		Collections.sort(regions);
-
-		// I see a potential pitfall about all this:
-		// Suppose multiple levels use the same warpdata for one warp. The only one they share is the nullWarp.
-		// If I make nullWarpDataRecord one that is not the shared warp, the nullwarp used by other levels may be freed,
-		// and classified as free space!
-		// Note, this could only happen if not all levels were loaded. Otherwise the other nullwarp pointers would be loaded.
-		if (nullWarpDataRecord == null)
-		{
-		//	System.out.println("Madenull");
-			nullWarpDataRecord = rom.getMoveableDataRecord(rom.findFreeSpace(8, warpDataBank, true), null, false, 8);
-		}
 
 		for (Region r : regions) {
 			originalRegions.add(new Region(r));
@@ -153,6 +142,7 @@ public class RegionRecord extends Record
 		byte[] data = r.tableRecord.toArray();
 		tableRecord = rom.getMoveableDataRecord(data, null, warpDataBank, false);
 		tableRecord.deleteWithNoPtr = true;
+		tableRecord.setDescription("Warp table");
 		// Generate regions
 		regions = new ArrayList<Region>();
 		warpRecords = new MoveableDataRecord[0xa*0x3];
@@ -161,17 +151,17 @@ public class RegionRecord extends Record
 		for (int i=0; i<r.regions.size(); i++) {
 			regions.add(new Region(r.regions.get(i)));
 		}
-		nullWarpDataRecord = r.nullWarpDataRecord;
 		for (int i=0; i<0xa*0x3; i++) {
 			sectorDestinations[i] = r.sectorDestinations[i];
 
-			if (r.warpRecords[i] == r.nullWarpDataRecord) {
-				warpRecords[i] = nullWarpDataRecord;
-				warpRecords[i].addPtr(new RomPointer(tableRecord, i*2));
+			if (r.warpRecords[i] == null) {
+				warpRecords[i] = null;
 			}
 			else {
 				data = r.warpRecords[i].toArray();
 				warpRecords[i] = rom.getMoveableDataRecord(data, new RomPointer(tableRecord, i*2), warpDataBank, false);
+				warpRecords[i].deleteWithNoPtr = true;
+				warpRecords[i].setDescription("Warp data");
 			}
 		}
 
@@ -214,8 +204,10 @@ public class RegionRecord extends Record
 		return sectorDestinations[i];
 	}
 	public void setSectorDestination(int i, int dest) {
-		sectorDestinations[i] = dest;
-		modified = true;
+		if (sectorDestinations[i] != dest) {
+			sectorDestinations[i] = dest;
+			modified = true;
+		}
 	}
 
 	public void save() {
@@ -232,14 +224,18 @@ public class RegionRecord extends Record
 		}
 
 		if (tableRecord.isNull()) {
-			System.out.println("remove region");
+			System.out.println("remove region data");
 			regionRecords.remove(this);
 			return;
 		}
 
 
 		if (modified) {
-			System.out.println("saveregions");
+			for (int i=0; i<NUM_SECTORS; i++) {
+				// Clear everything, then write back pointers for the records which still exist
+				tableRecord.write16(i*2, 0xffff);
+			}
+
 			for (int x=0; x<0xa; x++)
 			{
 				for (int y=0; y<3; y++)
@@ -249,37 +245,29 @@ public class RegionRecord extends Record
 
 					int b0 = sectorDestinations[i]%0xa;
 					b0 |= (sectorDestinations[i]/0xa)<<4;
-					if (sectorDestinations[i] >= numSectors)
-						b0 = 0xff;
 
 					int nextX = b0&0xf;
 					int nextY = b0>>4;
 					Region r = getRegion(nextX*16, nextY*16);
 
 
-					if (r == null)
-					{
-						if (warpRecords[i] != nullWarpDataRecord)
-						{
+					if (sectorDestinations[i] >= NUM_SECTORS || r == null || !r.isValid()) {
+						// Invalid warp
+						sectorDestinations[i] = 0xff;
+						if (warpRecords[i] != null) {
 							warpRecords[i].removePtr(warpDataPointer);
-
-							warpRecords[i] = nullWarpDataRecord;
-							warpRecords[i].addPtr(warpDataPointer);
+							warpRecords[i] = null;
 						}
 					}
-					else
-					{
-						if (warpRecords[i] == nullWarpDataRecord)
-						{
-							warpRecords[i].removePtr(warpDataPointer);
-
-							warpRecords[i] = rom.getMoveableDataRecord(rom.findFreeSpace(8, warpDataBank, true),
-									warpDataPointer, false, 8);
+					else {
+						byte[] data = r.toArray();
+						data[0] = (byte)b0;
+						if (warpRecords[i] == null) {
+							warpRecords[i] = rom.getMoveableDataRecord(data, warpDataPointer, warpDataBank, false);
+							warpRecords[i].deleteWithNoPtr = true;
+							warpRecords[i].setDescription("Warp data");
 						}
-						warpRecords[i].write(0, (byte)b0);
-						byte[] bytes = r.toArray();
-						for (int j=1; j<8; j++)
-							warpRecords[i].write(j, bytes[j]);
+						warpRecords[i].setData(data);
 					}
 				}
 			}

@@ -66,6 +66,7 @@ public class MoveableDataRecord extends Record
 			originalSize = decompressedData.size();
 		}
 
+		rom.lock(originalAddr, originalSize);
 	}
 	MoveableDataRecord(byte[] data, ArrayList<RomPointer> pointers, int b, boolean compressed) {
 		// This is a newly created record - previously non-existent in the rom - so it must be saved.
@@ -99,13 +100,6 @@ public class MoveableDataRecord extends Record
 				decompressedData.add(data[i]);
 			compressedData = null;
 		}
-	}
-
-	// Use sparingly... currently this overrides free space checks.
-	public void moveAddr(int newAddr)
-	{
-		addr = newAddr;
-		modified = true;
 	}
 
 	public int getSize() {
@@ -259,6 +253,15 @@ public class MoveableDataRecord extends Record
 	}
 
 	public void save() {
+		if (isNull()) {
+			System.out.println("null record " + getDescription());
+			if (originalAddr >= 0) {
+				rom.clear(originalAddr, originalSize);
+			}
+			addr = -1;
+			originalAddr = -1;
+			return;
+		}
 		if (!modified) {
 			savePtrs();
 			return;
@@ -274,7 +277,6 @@ public class MoveableDataRecord extends Record
 		}
 
 		// Condition for moving data
-		// If addr != originalAddr (someone called moveAddr), we assume it's okay to write there?
 		if (addr < 0 || (addr == originalAddr && !fitsInOriginalSpace()) ||
 				(addr/0x4000 != requiredBank && requiredBank >= 0)) {
 			if (!isMoveable) {
@@ -298,9 +300,10 @@ public class MoveableDataRecord extends Record
 						"There was an error allocating space in the rom for data.\n" +
 						"Data was originally stored at 0x" + RomReader.toHexString(originalAddr) + ".\n" +
 						(description != "" ? "Data description: \"" + description + "\"\n" : "Data has no description.\n") +
-						"\nThe rom will not be saved.",
+						"\nThe rom will not be saved. Sorry =(",
 						"Error",
 						JOptionPane.ERROR_MESSAGE);
+				originalAddr = -1;
 				rom.saveFail = true;
 				return;
 			}
@@ -325,33 +328,34 @@ public class MoveableDataRecord extends Record
 			}
 		}
 		
-		savePtrs();
-		
-		if (isNull()) {
-			addr = -1;
+		int size;
+		if (type == RECORD_COMPRESSED) {
+			size = compressedData.size();
+			rom.write(addr, compressedData);
 		}
 		else {
-			int size;
-			if (type == RECORD_COMPRESSED) {
-				size = compressedData.size();
-				rom.write(addr, compressedData);
-			}
-			else {
-				size = decompressedData.size();
-				rom.write(addr, decompressedData);
-			}
-			rom.lock(addr, size);
-			originalAddr = addr;
-			originalSize = size;
+			size = decompressedData.size();
+			rom.write(addr, decompressedData);
 		}
+		rom.lock(addr, size);
+		originalAddr = addr;
+		originalSize = size;
+
+		savePtrs();
+
 		modified = false;
 	}
 
 	// This function returns true if this record can and should be deleted.
 	public boolean isNull()
 	{
-		if (ptrs.size() == 0 && deleteWithNoPtr)
-			return true;
+		// A potential problem with having trimPtrs() here is that it may remove pointers prematurely.
+		// To prevent this, data which has "deleteWithNoPtr" set should have their pointers updated asap.
+		if (deleteWithNoPtr) {
+			trimPtrs();
+			if (ptrs.size() == 0)
+				return true;
+		}
 		return false;
 	}
 }
