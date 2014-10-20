@@ -336,7 +336,7 @@ public class MainFrame extends JFrame
 						if (n <= 0x1D && levelViewer.level.getRegion((n%0xa)*16, (n/0xa)*16) == null)
 						{
 							Region r = new Region(bytes);
-							levelViewer.level.regionDataRecord.regions.add(r);
+							levelViewer.level.getRegionDataRecord().addRegion(r);
 							levelViewer.level.generateImage();
 							levelViewer.selectedRegion = r;
 							// disableRegionListener makes sure the fields' action listeners
@@ -434,6 +434,17 @@ public class MainFrame extends JFrame
 			}
 		});
 		miscMenu.add(creditEditorButton);
+
+		JMenuItem exportLevelButton = new JMenuItem("Export Data");
+		exportLevelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				ExportDialog d = new ExportDialog();
+				d.setVisible(true);
+			}
+		});
+		miscMenu.add(exportLevelButton);
+
 		
 		menuBar_1.add(fileMenu);
 		menuBar_1.add(viewMenu);

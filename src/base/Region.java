@@ -143,7 +143,9 @@ public class Region implements Comparable {
 			return false;
 		Region r = (Region)o;
 		
-		if (r.firstVSector == firstVSector && r.lastVSector == lastVSector && r.firstHSector == firstHSector && r.lastHSector == lastHSector)
+		if (r.firstVSector == firstVSector && r.lastVSector == lastVSector && r.firstHSector == firstHSector && r.lastHSector == lastHSector &&
+				scrollMode == r.scrollMode && objectSetId == r.objectSetId && b5 == r.b5 && b6 == r.b6 &&
+				tileSetId == r.tileSetId)
 			return true;
 		return false;
 	}

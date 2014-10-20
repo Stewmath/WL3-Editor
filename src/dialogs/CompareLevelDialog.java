@@ -93,7 +93,7 @@ public class CompareLevelDialog extends JDialog {
 		JPanel warpDataPanel = new JPanel();
 		warpDataPanel.setLayout(new BoxLayout(warpDataPanel, BoxLayout.Y_AXIS));
 		JButton warpButton = new JButton("Action");
-		if (l1.regionDataRecord == l2.regionDataRecord)
+		if (l1.getRegionDataRecord() == l2.getRegionDataRecord())
 		{
 			warpDataPanel.add(new JLabel("These levels use the same warpdata (regions)."));
 			warpButton.setText("Separate");

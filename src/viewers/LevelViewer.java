@@ -239,12 +239,12 @@ public class LevelViewer extends JPanel  {
 		mainFrame.cropBottom.setSelected(selectedRegion.getCropBottom());
 
 		mainFrame.sectorEditor.setBorder(BorderFactory.createTitledBorder("Sector " + Integer.toHexString(selectedSector).toUpperCase()));
-		mainFrame.sectorDestinationField.setText(Integer.toHexString(level.regionDataRecord.sectorDestinations[selectedSector]).toUpperCase());
+		mainFrame.sectorDestinationField.setText(Integer.toHexString(level.getRegionDataRecord().getSectorDestination(selectedSector)).toUpperCase());
 		mainFrame.disableRegionListener = false;
 	}
 	public void setSectorDestination(int dest)
 	{
-		level.regionDataRecord.sectorDestinations[selectedSector] = dest;
+		level.getRegionDataRecord().setSectorDestination(selectedSector, dest);
 	}
 	public void setEditMode(int mode)
 	{
@@ -274,7 +274,7 @@ public class LevelViewer extends JPanel  {
 		else
 		{
 			setPreferredSize(new Dimension(0xa00, 0x300));
-			selectedRegion = level.regionDataRecord.regions.get(0);
+			selectedRegion = level.getRegionDataRecord().getRegion(0);
 			selectedSector = 0;
 			refreshRegionFields();
 			tileSetViewer.setTileSet(selectedRegion.tileSet);
@@ -321,9 +321,9 @@ public class LevelViewer extends JPanel  {
 			if (viewRegions)
 			{
 				// Draw region divisions
-				for (int i=0; i<level.regionDataRecord.regions.size(); i++)
+				for (int i=0; i<level.getRegionDataRecord().getNumRegions(); i++)
 				{
-					Region r = level.regionDataRecord.regions.get(i);
+					Region r = level.getRegionDataRecord().getRegion(i);
 					
 					if (r == selectedRegion)
 						g.setColor(new Color(255, 0, 0));

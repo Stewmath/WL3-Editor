@@ -30,14 +30,14 @@ public class Level {
 	int levelIndex;
 	
 	TileSet defaultTileSet;
-	public MoveableDataRecord levelDataRecord;
-	public MoveableDataRecord tileDataRecord;
-	public MoveableDataRecord objectDataRecord;
+	MoveableDataRecord levelDataRecord;
+	MoveableDataRecord tileDataRecord;
+	MoveableDataRecord objectDataRecord;
 	public JoinedRecord layoutRecord;
 	RomPointer levelDataPointer, tileDataPointer, objectDataPointer;
 
 
-	public RegionRecord regionDataRecord;
+	RegionRecord regionDataRecord;
 	RomPointer regionDataPointer;
 	
 	BufferedImage levelImage = null;
@@ -107,6 +107,15 @@ public class Level {
 	public int getLevelDataAddr()
 	{
 		return levelDataRecord.getAddr();
+	}
+	public MoveableDataRecord getLevelDataRecord() {
+		return levelDataRecord;
+	}
+	public MoveableDataRecord getTileDataRecord() {
+		return tileDataRecord;
+	}
+	public MoveableDataRecord getObjectDataRecord() {
+		return objectDataRecord;
 	}
 
 	void updateRecordDescriptions() {
@@ -259,9 +268,9 @@ public class Level {
 		g.setColor(Color.black);
 		g.fillRect(0, 0, levelImage.getWidth(), levelImage.getHeight());
 		
-		for (int i=0; i<regionDataRecord.regions.size(); i++)
+		for (int i=0; i<regionDataRecord.getNumRegions(); i++)
 		{
-			Region r = regionDataRecord.regions.get(i);
+			Region r = regionDataRecord.getRegion(i);
 			int endX = r.lastHSector*16;
 			int endY = r.lastVSector*16;
 			TileSet tileSet = TileSet.getTileSet(r.tileSetId);

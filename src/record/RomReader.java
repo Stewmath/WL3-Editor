@@ -408,6 +408,7 @@ public class RomReader {
 		try {
 			FileOutputStream out = new FileOutputStream(file);
 			out.write(data);
+			out.close();
 		}
 		catch(FileNotFoundException e) {}
 		catch(IOException e){}

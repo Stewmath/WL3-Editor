@@ -37,21 +37,25 @@ public class RegionRecord extends Record
 	}
 
 	RomReader rom;
+
 	// Here, addr is warpDataTbl.
 	// It *probably* won't change.
 	int warpDataBank;
 
-	public ArrayList<Region> regions;
+	ArrayList<Region> regions = new ArrayList<Region>();
+
+	// Used for checking if the regions have bee changed
+	ArrayList<Region> originalRegions = new ArrayList<Region>();
+
 	// tableRecord - the table containing pointers to each warpRecord.
 	MoveableDataRecord tableRecord;
 	// warpRecords - 0xa*0x3 entries, one for each warp.
 	MoveableDataRecord[] warpRecords;
 	// sectorDestinations - warp destination for each sector.
-	public int[] sectorDestinations;
+	int[] sectorDestinations;
 	// null warps - sectors which don't warp to anywhere.
 	// To save space, most levels will share their "null warps" with each other.
 	// For this reason and others, all levels should probably be loaded right as the rom is opened.
-	boolean[] nullWarp;
 	MoveableDataRecord nullWarpDataRecord;
 
 	RegionRecord(int _tblAddr) {
@@ -63,11 +67,10 @@ public class RegionRecord extends Record
 		// The pointer to tableRecord would be the same as the pointer to this record.
 		// See the save() function.
 		tableRecord = rom.getMoveableDataRecord(addr, null, false, 0xa*3*2);
+		tableRecord.deleteWithNoPtr = true;
 		// Generate regions
-		regions = new ArrayList<Region>();
 		warpRecords = new MoveableDataRecord[0xa*0x3];
 		sectorDestinations = new int[0xa*0x3];
-		nullWarp = new boolean[0xa*0x3];
 		for (int x=0; x<0xa; x++)
 		{
 			for (int y=0; y<0x3; y++)
@@ -105,7 +108,6 @@ public class RegionRecord extends Record
 						}
 					}
 				}
-				nullWarp[i] = false;
 				if (!contains && r.isValid() && sectorDestinations[i] < numSectors)
 				{
 					r.tileSet = TileSet.getTileSet(r.tileSetId);
@@ -115,7 +117,11 @@ public class RegionRecord extends Record
 				{
 					if (nullWarpDataRecord == null)
 						nullWarpDataRecord = (MoveableDataRecord)warpRecords[i];
-					nullWarp[i] = true;
+					else if (warpRecords[i] != nullWarpDataRecord) {
+						warpRecords[i].removePtr(warpDataPointer);
+						warpRecords[i] = nullWarpDataRecord;
+						warpRecords[i].addPtr(warpDataPointer);
+					}
 				}
 			}
 		}
@@ -130,40 +136,61 @@ public class RegionRecord extends Record
 		{
 		//	System.out.println("Madenull");
 			nullWarpDataRecord = rom.getMoveableDataRecord(rom.findFreeSpace(8, warpDataBank, true), null, false, 8);
-			nullWarpDataRecord.deleteWithNoPtr = false;
+		}
+
+		for (Region r : regions) {
+			originalRegions.add(new Region(r));
 		}
 	}
 
 	RegionRecord(RegionRecord r) {
 		rom = RomReader.rom;
 
-		modified = false;
+		modified = true;
 		addr = -1;
 		warpDataBank = r.warpDataBank;
 
 		byte[] data = r.tableRecord.toArray();
 		tableRecord = rom.getMoveableDataRecord(data, null, warpDataBank, false);
+		tableRecord.deleteWithNoPtr = true;
 		// Generate regions
 		regions = new ArrayList<Region>();
 		warpRecords = new MoveableDataRecord[0xa*0x3];
 		sectorDestinations = new int[0xa*0x3];
-		nullWarp = new boolean[0xa*0x3];
 
 		for (int i=0; i<r.regions.size(); i++) {
 			regions.add(new Region(r.regions.get(i)));
 		}
+		nullWarpDataRecord = r.nullWarpDataRecord;
 		for (int i=0; i<0xa*0x3; i++) {
 			sectorDestinations[i] = r.sectorDestinations[i];
-			nullWarp[i] = r.nullWarp[i];
 
-			data = r.warpRecords[i].toArray();
-			warpRecords[i] = rom.getMoveableDataRecord(data, new RomPointer(tableRecord, i*2), warpDataBank, false);
+			if (r.warpRecords[i] == r.nullWarpDataRecord) {
+				warpRecords[i] = nullWarpDataRecord;
+				warpRecords[i].addPtr(new RomPointer(tableRecord, i*2));
+			}
+			else {
+				data = r.warpRecords[i].toArray();
+				warpRecords[i] = rom.getMoveableDataRecord(data, new RomPointer(tableRecord, i*2), warpDataBank, false);
+			}
 		}
-		nullWarpDataRecord = r.nullWarpDataRecord;
+
+		// There's no real point to this, the record is automatically marked as modified
+		for (Region reg : regions) {
+			originalRegions.add(new Region(reg));
+		}
+	}
+
+	public int getNumRegions() {
+		return regions.size();
+	}
+
+	public Region getRegion(int index) {
+		return regions.get(index);
 	}
 
 	public Region getRegion(int x, int y) {
-		// The region returned may well be changed.
+		// The region returned may be changed by the caller.
 		for (int i=0; i<regions.size(); i++)
 		{
 			Region r = regions.get(i);
@@ -178,73 +205,117 @@ public class RegionRecord extends Record
 		return null;
 	}
 
+	public void addRegion(Region r) {
+		regions.add(r);
+		modified = true;
+	}
+
+	public int getSectorDestination(int i) {
+		return sectorDestinations[i];
+	}
+	public void setSectorDestination(int i, int dest) {
+		sectorDestinations[i] = dest;
+		modified = true;
+	}
+
 	public void save() {
-		// The "modified" variable isn't checked for. Member fields can be directly accessed making it difficult to update it.
-		// It's not very important anyway, it won't (shouldn't) allocate new memory if nothing changed.
-
-		for (int x=0; x<0xa; x++)
-		{
-			for (int y=0; y<3; y++)
-			{
-				int i = y*0xa + x;
-				RomPointer warpDataPointer = new RomPointer(tableRecord, i*2);
-				
-				int b0 = sectorDestinations[i]%0xa;
-				b0 |= (sectorDestinations[i]/0xa)<<4;
-				if (sectorDestinations[i] >= numSectors)
-					b0 = 0xff;
-				
-				int nextX = b0&0xf;
-				int nextY = b0>>4;
-				Region r = getRegion(nextX*16, nextY*16);
-				
-				
-				if (r == null)
-				{
-					if (nullWarp[i] == false)
-					{
-						nullWarp[i] = true;
-						warpRecords[i].removePtr(warpDataPointer);
-
-						warpRecords[i] = nullWarpDataRecord;
-						warpRecords[i].addPtr(warpDataPointer);
-					}
+		// Check if the regions have changed
+		if (regions.size() != originalRegions.size())
+			modified = true;
+		else {
+			for (int i=0; i<regions.size(); i++) {
+				if (!regions.get(i).equals(originalRegions.get(i))) {
+					modified = true;
+					break;
 				}
-				else
-				{
-					if (nullWarp[i] == true)
-					{
-						nullWarp[i] = false;
-						warpRecords[i].removePtr(warpDataPointer);
-
-						warpRecords[i] = rom.getMoveableDataRecord(rom.findFreeSpace(8, warpDataBank, true),
-								warpDataPointer, false, 8);
-					}
-					warpRecords[i].write(0, (byte)b0);
-					byte[] bytes = r.toArray();
-					for (int j=1; j<8; j++)
-						warpRecords[i].write(j, bytes[j]);
-				}
-	//			warpRecords[i].save();
 			}
 		}
 
-		if (addr < 0) {
-			addr = rom.findFreeSpace(0xa*0x3*2, warpDataBank, true);
-		}
-		tableRecord.moveAddr(addr);
-
-		savePtrs();
-		
-		if (ptrs.size() == 0) {
+		if (tableRecord.isNull()) {
+			System.out.println("remove region");
 			regionRecords.remove(this);
-			// Okay, so the tableRecord never actually HAS pointers... instead, its parent (this) has them.
-			// This is when it is told to be deleted.
-			// The warpRecords, which depend on this tableRecord, should be deleted as well.
-			tableRecord.deleteWithNoPtr = true;
 			return;
 		}
 
-		modified = false;
+
+		if (modified) {
+			System.out.println("saveregions");
+			for (int x=0; x<0xa; x++)
+			{
+				for (int y=0; y<3; y++)
+				{
+					int i = y*0xa + x;
+					RomPointer warpDataPointer = new RomPointer(tableRecord, i*2);
+
+					int b0 = sectorDestinations[i]%0xa;
+					b0 |= (sectorDestinations[i]/0xa)<<4;
+					if (sectorDestinations[i] >= numSectors)
+						b0 = 0xff;
+
+					int nextX = b0&0xf;
+					int nextY = b0>>4;
+					Region r = getRegion(nextX*16, nextY*16);
+
+
+					if (r == null)
+					{
+						if (warpRecords[i] != nullWarpDataRecord)
+						{
+							warpRecords[i].removePtr(warpDataPointer);
+
+							warpRecords[i] = nullWarpDataRecord;
+							warpRecords[i].addPtr(warpDataPointer);
+						}
+					}
+					else
+					{
+						if (warpRecords[i] == nullWarpDataRecord)
+						{
+							warpRecords[i].removePtr(warpDataPointer);
+
+							warpRecords[i] = rom.getMoveableDataRecord(rom.findFreeSpace(8, warpDataBank, true),
+									warpDataPointer, false, 8);
+						}
+						warpRecords[i].write(0, (byte)b0);
+						byte[] bytes = r.toArray();
+						for (int j=1; j<8; j++)
+							warpRecords[i].write(j, bytes[j]);
+					}
+				}
+			}
+
+			originalRegions = new ArrayList<Region>();
+			for (Region r : regions) {
+				originalRegions.add(new Region(r));
+			}
+			modified = false;
+		}
+	}
+
+	@Override
+	public int getAddr() {
+		return tableRecord.getAddr();
+	}
+
+	@Override
+	public void addPtr(RomPointer p) {
+		tableRecord.addPtr(p);
+	}
+
+	@Override
+	public void removePtr(RomPointer p) {
+		tableRecord.removePtr(p);
+	}
+
+	// Kinda redundant but eh
+	// tableRecord.savePtrs() will be called from romreader.java anyway
+	@Override
+	public void savePtrs() {
+		tableRecord.savePtrs();
+	}
+
+	@Override
+	public int getNumPtrs() {
+		return tableRecord.getNumPtrs();
 	}
 }
