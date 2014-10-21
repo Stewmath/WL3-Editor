@@ -39,18 +39,72 @@ public class TileSet {
 	final static int gfxData0Tbl = 		RomReader.BANK(0x4a95, 0x30);
 	final static int gfxData1Tbl =		RomReader.BANK(0x4af7, 0x30);
 	final static int paletteDataTbl =	RomReader.BANK(0x4b1b, 0x30);
-	
-	// These are public, but they shouldn't be modified anywhere but here.
-	public int tileSetDataIndex;
-	public int metaTileIndex, flagIndex, gfxData0Index, gfxData1Index, paletteDataIndex;
 
+	// I set pointers for all of these records, but it's kind of pointless except for flagRecord
+	public static MoveableDataRecord getMetaTileRecord(int metaTileIndex) {
+		RomPointer metaTilePointer = new RomPointer(metaTileTbl+2*metaTileIndex);
+		int metaTileAddr = RomReader.BANK(metaTilePointer.getPointedAddr(), 0x38+metaTileIndex/6);
+		return rom.getMoveableDataRecord(metaTileAddr, metaTilePointer,
+				false, 128*4, 0x38+metaTileIndex/6);
+	}
+	public static MoveableDataRecord getEffectRecord(int metaTileIndex) {
+		// effectRecord uses metaTileIndex, which is why there is no effectIndex.
+		int effectBank;
+		if (metaTileIndex >= 0x3f)
+			effectBank = 0x50;
+		else
+			effectBank = 0x32;
+
+		RomPointer effectPointer = new RomPointer(effectTbl+2*metaTileIndex);
+		int effectAddr = RomReader.BANK(effectPointer.getPointedAddr(), effectBank);
+		return rom.getMoveableDataRecord(effectAddr, effectPointer, false, 0x80*2, effectBank);
+	}
+	public static MoveableDataRecord getFlagRecord(int flagIndex) {
+		RomPointer flagPointer = new RomPointer(flagTbl+2*flagIndex);
+		int flagAddr = RomReader.BANK(flagPointer.getPointedAddr(), 0x38+(flagIndex/6));
+		MoveableDataRecord flagRecord = rom.getMoveableDataRecord(flagAddr, flagPointer,
+				true, 0, 0x38+flagIndex/6);
+		flagRecord.setRequiredBank(0x38+flagIndex/6); // Pretty redundant =P
+		// The game actually uses bank 0x38+metaTileIndex/6.
+		// I think metaTileIndex and flagIndex should always be the same.
+
+		flagRecord.setDescription("Tileset flags " + RomReader.toHexString(flagIndex, 2));
+		return flagRecord;
+	}
+	public static MoveableDataRecord getGfxData0Record(int gfxData0Index) {
+		RomPointer gfxData0Pointer = new RomPointer(gfxData0Tbl+2*gfxData0Index);
+		int gfxData0Addr = RomReader.BANK(gfxData0Pointer.getPointedAddr(), 0x51+(gfxData0Index/8));
+		return rom.getMoveableDataRecord(gfxData0Addr, gfxData0Pointer,
+				false, 0x800, 0x51+gfxData0Index/8);
+	}
+	public static MoveableDataRecord getGfxData1Record(int gfxData1Index) {
+		RomPointer gfxData1Pointer = new RomPointer(gfxData1Tbl+2*gfxData1Index);
+		int gfxData1Addr = RomReader.BANK(gfxData1Pointer.getPointedAddr(), 0x4e+(gfxData1Index/8));
+		return rom.getMoveableDataRecord(gfxData1Addr, gfxData1Pointer,
+				false, 0x800, 0x4e+gfxData1Index/8);
+	}
+	public static MoveableDataRecord getPaletteDataRecord(int paletteDataIndex) {
+		RomPointer paletteDataPointer = new RomPointer(paletteDataTbl+2*paletteDataIndex);
+		int paletteDataAddr = RomReader.BANK(paletteDataPointer.getPointedAddr(), 0x33);
+		return rom.getMoveableDataRecord(paletteDataAddr, paletteDataPointer,
+				false, 2*4*8, 0x33);
+	}
+
+
+	
+	// It looks like metaTileIndex and flagIndex should always be the same.
+	// I don't think the game can really handle them independently.
+	private int tileSetDataIndex;
+	private int metaTileIndex;
+	private int flagIndex;
+	private int gfxData0Index;
+	private int gfxData1Index;
+	private int paletteDataIndex;
+
+	// The only one of these records that may be moved around is flagRecord, since it's compressed.
 	MoveableDataRecord tileSetDataRecord;
-	public MoveableDataRecord metaTileRecord, flagRecord, gfxData0Record, gfxData1Record, paletteDataRecord, effectRecord;
+	MoveableDataRecord metaTileRecord, flagRecord, gfxData0Record, gfxData1Record, paletteDataRecord, effectRecord;
 
-	public RomPointer metaTilePointer, flagPointer, gfxData0Pointer, gfxData1Pointer, paletteDataPointer, effectPointer;
-	
-	int effectBank;
-	
 	BufferedImage[] tileImages = new BufferedImage[128];
 	int[][] paletteColors = new int[8][4];
 	
@@ -77,74 +131,40 @@ public class TileSet {
 		return tileSetDataIndex;
 	}
 
+
 	public void setMetaTileIndex(int val) {
 		metaTileIndex = val;
-		if (metaTileRecord != null)
-			metaTileRecord.removePtr(metaTilePointer);
-		metaTilePointer = new RomPointer(metaTileTbl+2*metaTileIndex);
-		int metaTileAddr		= rom.read16FromTable(metaTileTbl, metaTileIndex, 0x38+metaTileIndex/6);
-		metaTileRecord		= rom.getMoveableDataRecord(metaTileAddr, metaTilePointer,
-				false, 128*4, 0x38+metaTileIndex/6);
 
-		if (metaTileIndex >= 0x3f)
-			effectBank = 0x50;
-		else
-			effectBank = 0x32;
-		if (effectRecord != null)
-			effectRecord.removePtr(effectPointer);
-		effectPointer = new RomPointer(effectTbl+2*metaTileIndex);
-		int effectAddr = rom.read16FromTable(effectTbl, metaTileIndex, effectBank);
-		// effectRecord uses metaTileIndex, which is why there is no effectIndex.
-		effectRecord = rom.getMoveableDataRecord(effectAddr, effectPointer, false, 0x100, effectBank);
+		metaTileRecord = getMetaTileRecord(metaTileIndex);
+		effectRecord = getEffectRecord(metaTileIndex);
 
 		tileSetDataRecord.write(0, (byte)metaTileIndex);
 	}
 	public void setFlagIndex(int val) {
 		flagIndex = val;
-		int flagAddr = rom.read16FromTable(flagTbl, flagIndex, 0x38+(metaTileIndex/6));
 
-		if (flagRecord != null)
-			flagRecord.removePtr(flagPointer);
-		flagPointer = new RomPointer(flagTbl+2*flagIndex);
-		flagRecord = rom.getMoveableDataRecord(flagAddr, flagPointer,
-				true, 0, 0x38+metaTileIndex/6);
-		flagRecord.setDescription("Tileset flags " + RomReader.toHexString(flagIndex));
+		flagRecord = getFlagRecord(flagIndex);
 
 		tileSetDataRecord.write(1, (byte)flagIndex);
 	}
 	public void setGfxData0Index(int val) {
 		gfxData0Index = val;
-		int gfxData0Addr = rom.read16FromTable(gfxData0Tbl, gfxData0Index, 0x51+(gfxData0Index/8));
 
-		if (gfxData0Record != null)
-			gfxData0Record.removePtr(gfxData0Pointer);
-		gfxData0Pointer = new RomPointer(gfxData0Tbl+2*gfxData0Index);
-		gfxData0Record = rom.getMoveableDataRecord(gfxData0Addr, gfxData0Pointer,
-				false, 0x800, 0x51+gfxData0Index/8);
+		gfxData0Record = getGfxData0Record(gfxData0Index);
 
 		tileSetDataRecord.write(2, (byte)gfxData0Index);
 	}
 	public void setGfxData1Index(int val) {
 		gfxData1Index = val;
-		int gfxData1Addr = rom.read16FromTable(gfxData1Tbl, gfxData1Index, 0x4e+(gfxData1Index/8));
 
-		if (gfxData1Record != null)
-			gfxData1Record.removePtr(gfxData1Pointer);
-		gfxData1Pointer = new RomPointer(gfxData1Tbl+2*gfxData1Index);
-		gfxData1Record = rom.getMoveableDataRecord(gfxData1Addr, gfxData1Pointer,
-				false, 0x800, 0x4e+gfxData1Index/8);
+		gfxData1Record = getGfxData1Record(gfxData1Index);
 
 		tileSetDataRecord.write(3, (byte)gfxData1Index);
 	}
 	public void setPaletteDataIndex(int val) {
 		paletteDataIndex = val;
-		int paletteDataAddr = rom.read16FromTable(paletteDataTbl, paletteDataIndex, 0x33);
 
-		if (paletteDataRecord != null)
-			paletteDataRecord.removePtr(paletteDataPointer);
-		paletteDataPointer = new RomPointer(paletteDataTbl+2*paletteDataIndex);
-		paletteDataRecord = rom.getMoveableDataRecord(paletteDataAddr, paletteDataPointer,
-				false, 2*4*8, 0x33);
+		paletteDataRecord = getPaletteDataRecord(paletteDataIndex);
 
 		tileSetDataRecord.write(4, (byte)paletteDataIndex);
 	}
@@ -320,5 +340,54 @@ public class TileSet {
 			}
 		}
 
+	}
+
+	public int getFlagIndex() {
+		return flagIndex;
+	}
+
+	public int getGfxData0Index() {
+		return gfxData0Index;
+	}
+
+	public int getGfxData1Index() {
+		return gfxData1Index;
+	}
+
+	public int getMetaTileIndex() {
+		return metaTileIndex;
+	}
+
+	public int getPaletteDataIndex() {
+		return paletteDataIndex;
+	}
+
+	public int getTileSetDataIndex() {
+		return tileSetDataIndex;
+	}
+	public int getIndex() {
+		return tileSetDataIndex;
+	}
+
+	public MoveableDataRecord getMetaTileRecord() {
+		return metaTileRecord;
+	}
+	public MoveableDataRecord getFlagRecord() {
+		return flagRecord;
+	}
+	public MoveableDataRecord getGfxData0Record() {
+		return gfxData0Record;
+	}
+	public MoveableDataRecord getGfxData1Record() {
+		return gfxData1Record;
+	}
+	public MoveableDataRecord paletteDataRecord() {
+		return paletteDataRecord;
+	}
+	public MoveableDataRecord getEffectRecord() {
+		return effectRecord;
+	}
+	public MoveableDataRecord getTileSetDataRecord() {
+		return tileSetDataRecord;
 	}
 }

@@ -60,7 +60,7 @@ public class LevelViewer extends JPanel  {
 						Region newRegion = level.getRegion(cursorPos.x, cursorPos.y);
 						if (newRegion != null) {
 							selectedRegion = newRegion;
-							tileSetViewer.setTileSet(selectedRegion.tileSet);
+							tileSetViewer.setTileSet(selectedRegion.getTileSet());
 						}
 						changedRegion = true;
 					}
@@ -277,7 +277,7 @@ public class LevelViewer extends JPanel  {
 			selectedRegion = level.getRegionDataRecord().getRegion(0);
 			selectedSector = 0;
 			refreshRegionFields();
-			tileSetViewer.setTileSet(selectedRegion.tileSet);
+			tileSetViewer.setTileSet(selectedRegion.getTileSet());
 			mainFrame.musicField.setSelected(level.getMusicId());
 			mainFrame.levelField.setSelected(level.getId());
 		}

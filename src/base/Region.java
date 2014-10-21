@@ -12,7 +12,6 @@ public class Region implements Comparable {
 	public int objectSetId;
 	public int b5,b6;
 	public int tileSetId;
-	public TileSet tileSet;
 	public ObjectSet objectSet;
 	
 	public Region(byte[] warpData)
@@ -39,7 +38,6 @@ public class Region implements Comparable {
 		b5 = r.b5;
 		b6 = r.b6;
 		tileSetId = r.tileSetId;
-		tileSet = r.tileSet;
 		objectSet = r.objectSet;
 	}
 	
@@ -73,10 +71,8 @@ public class Region implements Comparable {
 	}
 	public void setTileSet(int set)
 	{
-		if (set < 256 && set != 0)
-		{
+		if (set < 256 && set != 0) {
 			tileSetId = set;
-			tileSet = TileSet.getTileSet(tileSetId);
 		}
 	}
 	
@@ -136,6 +132,10 @@ public class Region implements Comparable {
 	public int getHeight()
 	{
 		return lastVSector-firstVSector;
+	}
+
+	public TileSet getTileSet() {
+		return TileSet.getTileSet(tileSetId);
 	}
 	
 	public boolean equals(Object o)

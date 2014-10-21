@@ -187,7 +187,6 @@ public class RegionRecord extends Record
 				}
 			}
 			if (!contains) {
-				r.tileSet = TileSet.getTileSet(r.tileSetId);
 				regions.add(r);
 			}
 		}

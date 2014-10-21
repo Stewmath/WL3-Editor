@@ -6,10 +6,14 @@ import java.util.Arrays;
 import java.awt.image.*;
 import java.awt.Color;
 
+import java.util.logging.Logger;
+
 import javax.swing.JOptionPane;
 
 public class MoveableDataRecord extends Record
 {
+	final static Logger log = Logger.getLogger(Record.class.getName());
+
 	final static int RECORD_NORMAL = 0;
 	final static int RECORD_COMPRESSED = 1;
 	final static int RECORD_TBL = 2;
@@ -236,9 +240,14 @@ public class MoveableDataRecord extends Record
 	public void setData(byte[] data) {
 		modified = true;
 
+		int lastSize = decompressedData.size();
 		decompressedData = new ArrayList<Byte>();
 		for (int i=0; i<data.length; i++) {
 			decompressedData.add(data[i]);
+		}
+
+		if (lastSize != decompressedData.size()) {
+			log.fine("Changing data size to " + decompressedData.size() + ": " + getDescription());
 		}
 	}
 	public void setData(ArrayList<Byte> data) {

@@ -212,7 +212,7 @@ public class Level {
 		TileSet tileSet = null;
 		Region r = getRegion(x, y);
 		if (r != null)
-			tileSet = r.tileSet;
+			tileSet = r.getTileSet();
 		if (tileSet != null)
 			levelImage.getGraphics().drawImage(tileSet.getTileImage(tile), x*16, y*16, null);
 	}

@@ -12,6 +12,8 @@ import java.io.ObjectOutputStream;
 
 import java.nio.charset.*;
 
+import java.util.Set;
+
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -54,14 +56,9 @@ public class ExportDialog extends JDialog {
 
 				ByteArrayOutputStream dataOutput = new ByteArrayOutputStream();
 
-				// 8 levels plus index -1 as the terminator
-				// NOTE: THIS IS WRONG FOR LEVEL C8
-				int dataPos = HEADER_SIZE + out.size() + (3*4)*8 + 4;
+				int dataPos = HEADER_SIZE + out.size() + (3*4)*levelsToExport.size() + 4;
 
-				for (int i=levelIndex/8*8; i<(levelIndex/8+1)*8; i++) {
-					if (i > 0xc8)
-						break;
-					Level level = Level.getLevel(i);
+				for (Level level : levelsToExport) {
 					// Check if the level's tile & object data has a pointer already
 					Integer tileObjectPointer = writtenLevelData.get(level.getLevelDataRecord());
 
@@ -86,7 +83,7 @@ public class ExportDialog extends JDialog {
 						dataOutput.write(level.getRegionDataRecord().getRawWarpData());
 					}
 
-					writeInt(out, i);
+					writeInt(out, level.getId());
 					writeInt(out, tileObjectPointer);
 					writeInt(out, warpDataPointer);
 				}
@@ -155,10 +152,138 @@ public class ExportDialog extends JDialog {
 			String name = "Tileset Data";
 
 			int exportData(ByteArrayOutputStream out) throws IOException {
+				Set<TileSet> tileSets = new HashSet<TileSet>();
+				Set<Integer> metaTiles = new HashSet<Integer>();
+				Set<Integer> flags = new HashSet<Integer>();
+				Set<Integer> palettes = new HashSet<Integer>();
+				Set<Integer> bank0Gfxs = new HashSet<Integer>();
+				Set<Integer> bank1Gfxs = new HashSet<Integer>();
+
+				for (Level l : levelsToExport) {
+					RegionRecord regionRecord = l.getRegionDataRecord();
+					for (int i=0; i<regionRecord.getNumRegions(); i++) {
+						tileSets.add(regionRecord.getRegion(i).getTileSet());
+					}
+				}
+
+				for (TileSet tileSet : tileSets) {
+					metaTiles.add(tileSet.getMetaTileIndex());
+					flags.add(tileSet.getFlagIndex());
+					palettes.add(tileSet.getPaletteDataIndex());
+					bank0Gfxs.add(tileSet.getGfxData0Index());
+					bank1Gfxs.add(tileSet.getGfxData1Index());
+				}
+
+				// Start writing everything
+
+				// Tileset data
+				for (TileSet tileSet : tileSets) {
+					writeInt(out, tileSet.getIndex());
+					out.write(tileSet.getTileSetDataRecord().toArray());
+				}
+				writeInt(out, -1);
+				// Metatile data: includes both metatiles and effects (both use the same index)
+				logger.finer("Exporting metatiles");
+				for (Integer index : metaTiles) {
+					writeInt(out, index);
+					out.write(TileSet.getMetaTileRecord(index).toArray());
+					out.write(TileSet.getEffectRecord(index).toArray());
+				}
+				writeInt(out, -1);
+				// Flag data
+				logger.finer("Exporting flags");
+				for (Integer index : flags) {
+					writeInt(out, index);
+					out.write(TileSet.getFlagRecord(index).toArray());
+				}
+				writeInt(out, -1);
+				// Palette data
+				logger.finer("Exporting palettes");
+				for (Integer index : palettes) {
+					writeInt(out, index);
+					out.write(TileSet.getPaletteDataRecord(index).toArray());
+				}
+				writeInt(out, -1);
+				// Bank 0 Gfx
+				logger.finer("Exporting gfx bank 0");
+				for (Integer index : bank0Gfxs) {
+					writeInt(out, index);
+					out.write(TileSet.getGfxData0Record(index).toArray());
+				}
+				writeInt(out, -1);
+				// Bank 1 Gfx
+				logger.finer("Exporting gfx bank 1");
+				for (Integer index : bank1Gfxs) {
+					writeInt(out, index);
+					out.write(TileSet.getGfxData1Record(index).toArray());
+				}
+				writeInt(out, -1);
+
 				return 0;
 			}
 			boolean importData(byte[] data, int offset) {
-				return false;
+				ByteArrayInputStream in = new ByteArrayInputStream(data, offset, data.length-offset);
+
+				int index;
+
+				// Tileset data
+				logger.finer("Importing tileset data");
+				index = readInt(in);
+				while (index != -1) {
+					byte[] buf = new byte[5];
+					in.read(buf, 0, 5);
+					TileSet.getTileSet(index).getTileSetDataRecord().setData(buf);
+					index = readInt(in);
+				}
+				// Metatile and effect data
+				logger.finer("Importing metatile data");
+				index = readInt(in);
+				while (index != -1) {
+					byte[] buf = new byte[0x80*4];
+					in.read(buf, 0, 0x80*4);
+					TileSet.getMetaTileRecord(index).setData(buf);
+					buf = new byte[0x80*2];
+					in.read(buf, 0, 0x80*2);
+					TileSet.getEffectRecord(index).setData(buf);
+					index = readInt(in);
+				}
+				// Flag data
+				index = readInt(in);
+				while (index != -1) {
+					logger.finer("Importing flag data " + RomReader.toHexString(index));
+					byte[] buf = new byte[0x80*4];
+					in.read(buf, 0, 0x80*4);
+					TileSet.getFlagRecord(index).setData(buf);
+					index = readInt(in);
+				}
+				// Palette data
+				logger.finer("Importing palette data");
+				index = readInt(in);
+				while (index != -1) {
+					byte[] buf = new byte[8*4*2];
+					in.read(buf, 0, 8*4*2);
+					TileSet.getPaletteDataRecord(index).setData(buf);
+					index = readInt(in);
+				}
+				// Gfx 0 data
+				logger.finer("Importing gfx bank 0 data");
+				index = readInt(in);
+				while (index != -1) {
+					byte[] buf = new byte[128*16];
+					in.read(buf, 0, 128*16);
+					TileSet.getGfxData0Record(index).setData(buf);
+					index = readInt(in);
+				}
+				// Gfx 1 data
+				logger.finer("Importing gfx bank 1 data");
+				index = readInt(in);
+				while (index != -1) {
+					byte[] buf = new byte[128*16];
+					in.read(buf, 0, 128*16);
+					TileSet.getGfxData1Record(index).setData(buf);
+					index = readInt(in);
+				}
+				return true;
 			}
 		},
 	};
@@ -166,7 +291,8 @@ public class ExportDialog extends JDialog {
 
 
 	ComboBoxFromFile comboBox;
-	int levelIndex = -1;
+
+	Set<Level> levelsToExport;
 
 	public ExportDialog() {
 		super(null, "Export Level", Dialog.ModalityType.APPLICATION_MODAL);
@@ -180,7 +306,11 @@ public class ExportDialog extends JDialog {
 		JButton exportButton = new JButton("Export");
 		exportButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				levelIndex = comboBox.getAddr();
+				int levelIndex = comboBox.getAddr();
+				levelsToExport = new HashSet<Level>();
+				for (int i=levelIndex/8*8; i<(levelIndex/8+1)*8; i++) {
+					levelsToExport.add(Level.getLevel(i));
+				}
 
 				ByteArrayOutputStream data = new ByteArrayOutputStream();
 
@@ -236,9 +366,6 @@ public class ExportDialog extends JDialog {
 	}
 
 	void writeHeader(ByteArrayOutputStream out) throws IOException {
-		if (levelIndex == -1)
-			return;
-
 		// Magic (0x00)
 		out.write("WL3E".getBytes(StandardCharsets.US_ASCII));
 

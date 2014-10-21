@@ -67,7 +67,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 					int n = Integer.parseInt(tileSetField.getText(), 16);
 					if (n > 0) {
 						tileSet = TileSet.getTileSet(n);
-						metaTileEffectBox.setSelected(tileSet.effectRecord.read16(metaTile*2));
+						metaTileEffectBox.setSelected(tileSet.getEffectRecord().read16(metaTile*2));
 						refreshPropertyFields();
 						refreshFlagFields();
 						refreshTileSet();
@@ -176,7 +176,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 					int addr = metaTileEffectBox.getAddr();
 					if (addr >= 0) {
 						metaTileEffectBox.setSelected(addr);
-						tileSet.effectRecord.write16(metaTile*2, addr);
+						tileSet.getEffectRecord().write16(metaTile*2, addr);
 					}
 				}
 			}
@@ -229,11 +229,11 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		flipXBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
-				int flags = tileSet.flagRecord.read(flagIndex);
+				int flags = tileSet.getFlagRecord().read(flagIndex);
 				flags &= ~0x20;
 				if (e.getStateChange() == ItemEvent.SELECTED)
 					flags |= 0x20;
-				tileSet.flagRecord.write(flagIndex, (byte)flags);
+				tileSet.getFlagRecord().write(flagIndex, (byte)flags);
 
 				refreshFlagFields();
 				refreshTileSet();
@@ -243,11 +243,11 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		flipYBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
-				int flags = tileSet.flagRecord.read(flagIndex);
+				int flags = tileSet.getFlagRecord().read(flagIndex);
 				flags &= ~0x40;
 				if (e.getStateChange() == ItemEvent.SELECTED)
 					flags |= 0x40;
-				tileSet.flagRecord.write(flagIndex, (byte)flags);
+				tileSet.getFlagRecord().write(flagIndex, (byte)flags);
 
 				refreshFlagFields();
 				refreshTileSet();
@@ -257,11 +257,11 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		priorityBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
-				int flags = tileSet.flagRecord.read(flagIndex);
+				int flags = tileSet.getFlagRecord().read(flagIndex);
 				flags &= ~0x80;
 				if (e.getStateChange() == ItemEvent.SELECTED)
 					flags |= 0x80;
-				tileSet.flagRecord.write(flagIndex, (byte)flags);
+				tileSet.getFlagRecord().write(flagIndex, (byte)flags);
 
 				refreshFlagFields();
 			}
@@ -270,11 +270,11 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		bankBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
-				int flags = tileSet.flagRecord.read(flagIndex);
+				int flags = tileSet.getFlagRecord().read(flagIndex);
 				flags &= ~0x8;
 				if (e.getStateChange() == ItemEvent.SELECTED)
 					flags |= 0x8;
-				tileSet.flagRecord.write(flagIndex, (byte)flags);
+				tileSet.getFlagRecord().write(flagIndex, (byte)flags);
 
 				refreshFlagFields();
 				refreshTileSet();
@@ -303,8 +303,8 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		subTileEditorButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TileEditor editor = new TileEditor(tileSet.getSubTileData(), tileSet.getPalettes());
-				editor.setOffsetText("Bank 0 Tiles: 0x" + RomReader.toHexString(tileSet.gfxData0Record.getAddr()) + "\n" +
-					"Bank 1 Tiles: 0x" + RomReader.toHexString(tileSet.gfxData1Record.getAddr()));
+				editor.setOffsetText("Bank 0 Tiles: 0x" + RomReader.toHexString(tileSet.getGfxData0Record().getAddr()) + "\n" +
+					"Bank 1 Tiles: 0x" + RomReader.toHexString(tileSet.getGfxData1Record().getAddr()));
 				editor.setVisible(true);
 				if (editor.clickedOk()) {
 					tileSet.setSubTileData(editor.getTileData());
@@ -379,10 +379,10 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 	void setPalette(int n) {
 		if (n < 8 && n >= 0) {
 			int flagIndex = metaTile*4+selectedSubTile;
-			int flags = tileSet.flagRecord.read(flagIndex);
+			int flags = tileSet.getFlagRecord().read(flagIndex);
 			flags &= ~7;
 			flags |= n;
-			tileSet.flagRecord.write(flagIndex, (byte)flags);
+			tileSet.getFlagRecord().write(flagIndex, (byte)flags);
 
 			refreshFlagFields();
 			refreshTileSet();
@@ -416,25 +416,25 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		refreshTileSet();
 	}
 	void refreshPropertyFields() {
-		tileSetField.setText(Integer.toHexString(tileSet.tileSetDataIndex).toUpperCase());
-		metaTileField.setText(Integer.toHexString(tileSet.metaTileIndex).toUpperCase());
-		flagField.setText(Integer.toHexString(tileSet.flagIndex).toUpperCase());
-		gfxData0Field.setText(Integer.toHexString(tileSet.gfxData0Index).toUpperCase());
-		gfxData1Field.setText(Integer.toHexString(tileSet.gfxData1Index).toUpperCase());
-		paletteDataField.setText(Integer.toHexString(tileSet.paletteDataIndex).toUpperCase());
+		tileSetField.setText(Integer.toHexString(tileSet.getTileSetDataIndex()).toUpperCase());
+		metaTileField.setText(Integer.toHexString(tileSet.getMetaTileIndex()).toUpperCase());
+		flagField.setText(Integer.toHexString(tileSet.getFlagIndex()).toUpperCase());
+		gfxData0Field.setText(Integer.toHexString(tileSet.getGfxData0Index()).toUpperCase());
+		gfxData1Field.setText(Integer.toHexString(tileSet.getGfxData1Index()).toUpperCase());
+		paletteDataField.setText(Integer.toHexString(tileSet.getPaletteDataIndex()).toUpperCase());
 	}
 	
 	// Refresh all flag fields with the tileset's info.
 	void refreshFlagFields() {
-		int flags = tileSet.flagRecord.read(metaTile*4+selectedSubTile);
+		int flags = tileSet.getFlagRecord().read(metaTile*4+selectedSubTile);
 		paletteField.setText(""+(flags&7));
 		flipXBox.setSelected((flags&0x20) != 0);
 		flipYBox.setSelected((flags&0x40) != 0);
 		priorityBox.setSelected((flags&0x80) != 0);
 		bankBox.setSelected((flags&0x8) != 0);
 		subTileListenerDisabled = true;
-		subTileViewer.setSelectedTile(tileSet.metaTileRecord.read(metaTile*4+selectedSubTile)+
-				((tileSet.flagRecord.read(metaTile*4+selectedSubTile)&0x8) != 0 ? 0x80 : 0));
+		subTileViewer.setSelectedTile(tileSet.getMetaTileRecord().read(metaTile*4+selectedSubTile)+
+				((tileSet.getFlagRecord().read(metaTile*4+selectedSubTile)&0x8) != 0 ? 0x80 : 0));
 		subTileListenerDisabled = false;
 	}
 	void refreshTileSet() {
@@ -448,9 +448,10 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 	}
 	void setMetaTile(int tile) {
 		metaTile = tile;
-		metaTileEffectBox.setSelected(tileSet.effectRecord.read16(metaTile*2));
+		metaTileEffectBox.setSelected(tileSet.getEffectRecord().read16(metaTile*2));
 		refreshFlagFields();
-		refreshTileSet();
+		metaTileImage = tileSet.getTileImage(metaTile);
+		repaint();
 	}
 
 	void setSelectedSubTile(int s) {
@@ -468,12 +469,12 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		int bank = subTile>>7;
 		subTile &= 0x7f;
 
-		tileSet.metaTileRecord.write(metaTile*4+selectedSubTile, (byte)subTile);
+		tileSet.getMetaTileRecord().write(metaTile*4+selectedSubTile, (byte)subTile);
 
-		int flagVal = tileSet.flagRecord.read(metaTile*4+selectedSubTile);
+		int flagVal = tileSet.getFlagRecord().read(metaTile*4+selectedSubTile);
 		flagVal &= ~8;
 		flagVal |= bank<<3;
-		tileSet.flagRecord.write(metaTile*4+selectedSubTile, (byte)flagVal);
+		tileSet.getFlagRecord().write(metaTile*4+selectedSubTile, (byte)flagVal);
 		refreshFlagFields();
 		refreshTileSet();
 	}
