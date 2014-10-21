@@ -35,8 +35,9 @@ public class Level {
 	MoveableDataRecord tileDataRecord;
 	MoveableDataRecord objectDataRecord;
 	public JoinedRecord layoutRecord;
-	RomPointer levelDataPointer, tileDataPointer, objectDataPointer;
+	RomPointer levelDataPointer;
 
+	int warpDataBank;
 
 	RegionRecord regionDataRecord;
 	RomPointer regionDataPointer;
@@ -79,8 +80,8 @@ public class Level {
 		levelDataRecord = rom.getMoveableDataRecord(levelDataAddr, levelDataPointer, false, 5); 
 		
 		int levelDataBank = levelDataRecord.read(2);
-		tileDataPointer = new RomPointer(levelDataRecord,0,2);
-		objectDataPointer = new RomPointer(levelDataRecord,3,2);
+		RomPointer tileDataPointer = new RomPointer(levelDataRecord,0,2);
+		RomPointer objectDataPointer = new RomPointer(levelDataRecord,3,2);
 		tileDataRecord = rom.getMoveableDataRecord(levelDataRecord.read16(0, levelDataBank), tileDataPointer, true, 0);
 		objectDataRecord = rom.getMoveableDataRecord(levelDataRecord.read16(3, levelDataBank), objectDataPointer, true, 0);
 
@@ -89,7 +90,6 @@ public class Level {
 		objectDataRecord.deleteWithNoPtr = true;
 		layoutRecord = rom.getJoinedRecord(tileDataRecord, objectDataRecord);
 		
-		int warpDataBank;
 		if (levelIndex >= 0x64)
 			warpDataBank = 0x31;
 		else
@@ -106,11 +106,11 @@ public class Level {
 	//	generateImage();
 		
 	}
-	
-	public int getLevelDataAddr()
-	{
-		return levelDataRecord.getAddr();
+
+	public int getWarpDataBank() {
+		return warpDataBank;
 	}
+	
 	public MoveableDataRecord getLevelDataRecord() {
 		return levelDataRecord;
 	}
@@ -126,35 +126,27 @@ public class Level {
 		objectDataRecord.setDescription("Level " + RomReader.toHexString(getId(), 2) + " object data");
 		levelDataRecord.setDescription("Level " + RomReader.toHexString(getId(), 2) + " level data");
 	}
-	public void getNewLevelData()
+	// "NewLevelData" functions create new records, separating it from other levels.
+	public void makeNewLevelData()
 	{
-		// Remove pointers - these records will soon be replaced.
-		levelDataRecord.removePtr(levelDataPointer);
+		setNewLevelData(tileDataRecord.toArray(), objectDataRecord.toArray());
+	}
 
+	public void setNewLevelData(byte[] tileData, byte[] objectData) {
+		log.fine("Creating new leveldata for level " + getId() + ".");
+
+		levelDataRecord.removePtr(levelDataPointer);
 		// Don't remove these pointers... they're "attached" to the level data we just abandoned.
 		/*
 		tileDataRecord.removePtr(tileDataPointer);
 		objectDataRecord.removePtr(objectDataPointer);
 		*/
 
-		// Make a copy of levelDataRecord.
-		byte[] data = levelDataRecord.toArray();
-		levelDataRecord = rom.getMoveableDataRecord(data, levelDataPointer, 0x30, false);
+		levelDataRecord = rom.getMoveableDataRecord(new byte[5], levelDataPointer, 0x30, false);
+		tileDataRecord = rom.getMoveableDataRecord(tileData, new RomPointer(levelDataRecord, 0, 2), -1, true);
+		objectDataRecord = rom.getMoveableDataRecord(objectData, new RomPointer(levelDataRecord, 3, 2), -1, true);
 
-		// Update pointers which rely on levelDataRecord.
-		tileDataPointer = new RomPointer(levelDataRecord,0,2);
-		objectDataPointer = new RomPointer(levelDataRecord,3,2);
-
-		// Make a copy of the tiledata.
-		data = tileDataRecord.toArray();
-		tileDataRecord = rom.getMoveableDataRecord(data, tileDataPointer, -1, true);
-
-		// Make a copy of the objectdata.
-		data = objectDataRecord.toArray();
-		objectDataRecord = rom.getMoveableDataRecord(data, objectDataPointer, -1, true);
-
-		// set the JoinedRecord.
-		layoutRecord = rom.getJoinedRecord(tileDataRecord,objectDataRecord);
+		layoutRecord = rom.getJoinedRecord(tileDataRecord, objectDataRecord);
 
 		// deleteWithNoPtr should be set.
 		levelDataRecord.deleteWithNoPtr = true;
@@ -168,15 +160,13 @@ public class Level {
 		}
 	}
 
-	public void copyLevelData(Level l2) {
+	public void mergeLevelDataWith(Level l2) {
+		log.fine("Merging level data for level " + getId() + " into " + l2.getId() + ".");
 		// Important, in case the old leveldata is no longer used, it can be deleted.
 		levelDataRecord.removePtr(levelDataPointer);
 
 		levelDataRecord = l2.levelDataRecord;
 		levelDataRecord.addPtr(levelDataPointer);
-
-		tileDataPointer = new RomPointer(levelDataRecord, 0, 2);
-		objectDataPointer = new RomPointer(levelDataRecord, 3, 2);
 
 		tileDataRecord = l2.tileDataRecord;
 		objectDataRecord = l2.objectDataRecord;
@@ -193,6 +183,20 @@ public class Level {
 	public RegionRecord getRegionDataRecord() {
 		return regionDataRecord;
 	}
+
+	// Creates a new RegionRecord, separating this level's region data from others
+	public void setNewRegionData(byte[] data) {
+		regionDataRecord.removePtr(regionDataPointer);
+
+		regionDataRecord = RegionRecord.getNew(data, regionDataPointer, warpDataBank);
+	}
+
+	public void makeNewRegionData() {
+		log.fine("Creating new region data for level " + getId() + ".");
+		setRegionDataRecord(RegionRecord.getCopy(regionDataRecord, regionDataPointer, warpDataBank));
+	}
+
+
 
 	public byte getTile(int x, int y) {
 		// High bit indicates if an object is present on that space... so AND it with 0x7f.

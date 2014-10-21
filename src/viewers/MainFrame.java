@@ -326,7 +326,7 @@ public class MainFrame extends JFrame
 				String s = (String)JOptionPane.showInputDialog(
 						itself,
 						"Specify the new region's top-left sector.\n"
-						+ "Note: If nothing warps to the region, it can't be saved.",
+						+ "Note: You must set a sector destination to point to this region, or it can't be saved.",
 						"Add region",
 						JOptionPane.PLAIN_MESSAGE,
 						null,
@@ -420,6 +420,7 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				MiscGfxDialog d = new MiscGfxDialog(itself);
+				levelViewer.setLevel(levelViewer.level);
 			}
 		});
 		miscMenu.add(miscGfxButton);
@@ -448,6 +449,7 @@ public class MainFrame extends JFrame
 			{
 				ExportDialog d = new ExportDialog();
 				d.setVisible(true);
+				levelViewer.setLevel(levelViewer.level);
 			}
 		});
 		miscMenu.add(exportLevelButton);

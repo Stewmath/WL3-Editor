@@ -67,21 +67,6 @@ public class RomReader {
 
 	ArrayList<JoinedRecord> joinedRecords = new ArrayList<JoinedRecord>();
 	
-	void checkNullRecords() {
-		for (int i=0; i<moveableDataRecords.size(); i++)
-		{
-			MoveableDataRecord r = moveableDataRecords.get(i);
-			if (r.isNull())
-			{
-				// In this case, it will detect that all its pointers are gone
-				// and it will free up the memory it took rather than "saving".
-				r.save();
-				moveableDataRecords.remove(i);
-				moveableDataRecordAccesses.remove(i);
-				i--;
-			}
-		}
-	}
 	public MoveableDataRecord moveableDataRecordExists(int addr) {
 		for (int i=0; i<moveableDataRecords.size(); i++) {
 			MoveableDataRecord r = moveableDataRecords.get(i);
@@ -164,10 +149,6 @@ public class RomReader {
 	}
 	public JoinedRecord getJoinedRecord(MoveableDataRecord record1, MoveableDataRecord record2)
 	{
-		for (int i=0; i<moveableDataRecords.size(); i++)
-		{
-			MoveableDataRecord r = moveableDataRecords.get(i);
-		}
 		JoinedRecord j = new JoinedRecord(record1, record2);
 		joinedRecords.add(j);
 		return j;
@@ -379,7 +360,6 @@ public class RomReader {
 	{
 		saveFail = false;
 
-		checkNullRecords();
 		// Check RegionRecords
 		for (int i=0; i<RegionRecord.regionRecords.size(); i++) {
 			RegionRecord r = RegionRecord.regionRecords.get(i);
@@ -387,8 +367,7 @@ public class RomReader {
 		}
 		for (int i=0; i<joinedRecords.size(); i++)
 		{
-			if (joinedRecords.get(i).r1.isNull() || joinedRecords.get(i).r2.isNull())
-			{
+			if (joinedRecords.get(i).r1.isNull() && joinedRecords.get(i).r2.isNull()) {
 				joinedRecords.remove(i);
 				i--;
 			}
@@ -400,11 +379,18 @@ public class RomReader {
 			if (!r.belongsToJoinedRecord) {
 				r.save();
 			}
+			if (r.isNull()) {
+				// Remember that save must be invoked (above) so that it can clear up its memory
+				moveableDataRecords.remove(i);
+				moveableDataRecordAccesses.remove(i);
+				i--;
+			}
 		}
 		
 		if (saveFail) {
 			return;
 		}
+
 		fixRomChecksum();
 		try {
 			FileOutputStream out = new FileOutputStream(file);

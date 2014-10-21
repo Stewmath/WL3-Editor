@@ -127,7 +127,9 @@ public class MoveableDataRecord extends Record
 	}
 	public boolean fitsInOriginalSpace()
 	{
-		if (originalAddr < 0)
+		if (addr < 0)
+			return false;
+		if (requiredBank >= 0 && addr/0x4000 != requiredBank)
 			return false;
 
 		int originalSlotSize = originalSize+rom.getFreeSpaceLength(originalAddr+originalSize);
@@ -277,8 +279,7 @@ public class MoveableDataRecord extends Record
 		}
 
 		// Condition for moving data
-		if (addr < 0 || (addr == originalAddr && !fitsInOriginalSpace()) ||
-				(addr/0x4000 != requiredBank && requiredBank >= 0)) {
+		if (!fitsInOriginalSpace()) {
 			if (!isMoveable) {
 				JOptionPane.showMessageDialog(null,
 						"Un-moveable data was changed in size and is too big." +

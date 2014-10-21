@@ -58,14 +58,14 @@ public class CompareLevelDialog extends JDialog {
 		JPanel levelDataPanel = new JPanel();
 		levelDataPanel.setLayout(new BoxLayout(levelDataPanel, BoxLayout.Y_AXIS));
 		JButton actionButton = new JButton("Action");
-		if (l1.getLevelDataAddr() == l2.getLevelDataAddr() && l1.getLevelDataAddr() >= 0)
+		if (l1.getLevelDataRecord() == l2.getLevelDataRecord())
 		{
 			levelDataPanel.add(new JLabel("These levels use the same leveldata (tiles & objects)."));
 			actionButton.setText("Separate (L-" + RomReader.toHexString(l1.getId(), 2) + " will be isolated)");
 			actionButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e)
 				{
-					l1.getNewLevelData();
+					l1.makeNewLevelData();
 				//	l1.tileLayout = rom.getMoveableDataRecord(l2.tileLayout.toArray(), levelDataAddr, levelDataAddr+2, true);
 				//	l1.objectLayout = rom.getMoveableDataRecord(l2.objectLayout.toArray(), levelDataAddr+3, levelDataAddr+2, true);
 				//	l1.layoutRecord = rom.getJoinedRecord(l1.tileLayout, l1.objectLayout);
@@ -81,7 +81,7 @@ public class CompareLevelDialog extends JDialog {
 			actionButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e)
 				{
-					l1.copyLevelData(l2);
+					l1.mergeLevelDataWith(l2);
 					setVisible(false);
 				}
 			});
@@ -100,7 +100,7 @@ public class CompareLevelDialog extends JDialog {
 			warpButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e)
 				{
-					l1.setRegionDataRecord(RegionRecord.getCopy(l2.getRegionDataRecord(), null));
+					l1.makeNewRegionData();
 					setVisible(false);
 				}
 			});

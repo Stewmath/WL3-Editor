@@ -12,6 +12,8 @@ import java.io.ObjectOutputStream;
 
 import java.nio.charset.*;
 
+import java.util.logging.Logger;
+
 import javax.swing.*;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -28,6 +30,7 @@ import record.RomReader;
 // TODO: enforce data sizes when exporting
 
 public class ExportDialog extends JDialog {
+	static Logger logger = Logger.getLogger(ExportDialog.class.getName());
 
 	public static final int EXPORT_VERSION = 1;
 	public static final int HEADER_SIZE = 0x40;
@@ -36,7 +39,7 @@ public class ExportDialog extends JDialog {
 	abstract class ExportableData {
 		String name;
 		abstract int exportData(ByteArrayOutputStream out) throws IOException;
-		abstract void importData(ByteArrayInputStream in) throws IOException;
+		abstract boolean importData(byte[] data, int offset);
 	}
 
 	ExportableData[] exportableData = new ExportableData[] {
@@ -45,9 +48,9 @@ public class ExportDialog extends JDialog {
 
 			int exportData(ByteArrayOutputStream out) throws IOException {
 				// Keeps track of which leveldata has been written already
-				HashMap<MoveableDataRecord, Integer> writtenLevelData = new HashMap<MoveableDataRecord, Integer>();
+				HashMap<Object, Integer> writtenLevelData = new HashMap<Object, Integer>();
 				// Same for warpdata
-				HashMap<MoveableDataRecord, Integer> writtenWarpData = new HashMap<MoveableDataRecord, Integer>();
+				HashMap<Object, Integer> writtenWarpData = new HashMap<Object, Integer>();
 
 				ByteArrayOutputStream dataOutput = new ByteArrayOutputStream();
 
@@ -73,15 +76,14 @@ public class ExportDialog extends JDialog {
 					}
 
 					// Same for warp data
-					Integer warpDataPointer = writtenWarpData.get(level.getLevelDataRecord());
+					Integer warpDataPointer = writtenWarpData.get(level.getRegionDataRecord());
 
 					if (warpDataPointer == null) {
 						warpDataPointer = dataPos;
 						dataPos += 0xa*0x3*8;
-						writtenWarpData.put(level.getLevelDataRecord(), warpDataPointer);
+						writtenWarpData.put(level.getRegionDataRecord(), warpDataPointer);
 
-						dataOutput.write(level.getTileDataRecord().toArray());
-						dataOutput.write(level.getObjectDataRecord().toArray());
+						dataOutput.write(level.getRegionDataRecord().getRawWarpData());
 					}
 
 					writeInt(out, i);
@@ -92,7 +94,62 @@ public class ExportDialog extends JDialog {
 				out.write(dataOutput.toByteArray());
 				return 0;
 			}
-			void importData(ByteArrayInputStream in) {
+
+			boolean importData(byte[] data, int offset) throws ArrayIndexOutOfBoundsException {
+				ByteArrayInputStream in = new ByteArrayInputStream(data, offset, data.length-offset);
+				HashMap<Integer, Level> readLevelData = new HashMap<Integer,Level>();
+				HashMap<Integer, Level> readWarpData = new HashMap<Integer,Level>();
+
+				int index = readInt(in);
+
+				while (index != -1) {
+					logger.fine("Importing level " + RomReader.toHexString(index, 2));
+
+					// Offsets of data in file
+					int tileObjectDataPointer = readInt(in);
+					int warpDataPointer = readInt(in);
+
+					Level level = Level.getLevel(index);
+
+					// Tile, Object data
+					Level mergeLevel = readLevelData.get(tileObjectDataPointer);
+					if (mergeLevel == null) {
+						// Data has not been read yet, create the data and give it to the level
+						byte[] tileData = Arrays.copyOfRange(data,
+								tileObjectDataPointer,
+								tileObjectDataPointer+0xa0*0x30);
+						byte[] objectData = Arrays.copyOfRange(data,
+								tileObjectDataPointer+0xa0*0x30,
+								tileObjectDataPointer+0xa0*0x30+0xa0*0x30/2);
+
+						level.setNewLevelData(tileData, objectData);
+
+						readLevelData.put(tileObjectDataPointer, level);
+					}
+					else {
+						// Data has been read already, merge the current level's data with it
+						level.mergeLevelDataWith(mergeLevel);
+					}
+
+					// Regions
+					mergeLevel = readWarpData.get(warpDataPointer);
+					if (mergeLevel == null) {
+						byte[] warpData = Arrays.copyOfRange(data,
+								warpDataPointer,
+								warpDataPointer+RegionRecord.NUM_SECTORS*8);
+						level.setNewRegionData(warpData);
+
+						readWarpData.put(warpDataPointer, level);
+					}
+					else {
+						logger.fine("Merging region data for level " + level.getId() + " into " + mergeLevel.getId());
+						level.setRegionDataRecord(mergeLevel.getRegionDataRecord());
+					}
+
+					index = readInt(in);
+				}
+
+				return true;
 			}
 		},
 		new ExportableData() {
@@ -101,7 +158,8 @@ public class ExportDialog extends JDialog {
 			int exportData(ByteArrayOutputStream out) throws IOException {
 				return 0;
 			}
-			void importData(ByteArrayInputStream in) throws IOException {
+			boolean importData(byte[] data, int offset) {
+				return false;
 			}
 		},
 	};
@@ -142,6 +200,21 @@ public class ExportDialog extends JDialog {
 		});
 		contentPanel.add(exportButton);
 
+		JButton importButton = new JButton("Import");
+		importButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				byte[] data = RomReader.importData("Import Level",
+						new FileNameExtensionFilter("WL3 Archive File (.wl3)", "wl3"));
+
+				if (!readHeader(data)) {
+					logger.warning("Import error");
+				}
+
+				setVisible(false);
+			}
+		});
+		contentPanel.add(importButton);
+
 		add(contentPanel);
 		pack();
 	}
@@ -152,6 +225,15 @@ public class ExportDialog extends JDialog {
 		out.write((val>>16)&0xff);
 		out.write((val>>24)&0xff);
 		return 4;
+	}
+
+	int readInt(byte[] data, int i) throws ArrayIndexOutOfBoundsException {
+		return (data[i]&0xff) | (data[i+1]&0xff)<<8 | (data[i+2]&0xff)<<16 | (data[i+3]&0xff)<<24;
+	}
+	int readInt(ByteArrayInputStream in) {
+		byte[] data = new byte[4];
+		in.read(data, 0, 4);
+		return (data[0]&0xff) | (data[1]&0xff)<<8 | (data[2]&0xff)<<16 | (data[3]&0xff)<<24;
 	}
 
 	void writeHeader(ByteArrayOutputStream out) throws IOException {
@@ -176,5 +258,41 @@ public class ExportDialog extends JDialog {
 			out.write(0);
 
 		out.write(dataOutput.toByteArray());
+	}
+
+	boolean readHeader(byte[] data) {
+		try {
+			byte[] magicBytes = Arrays.copyOf(data, 4);
+			String magic = new String(magicBytes, StandardCharsets.US_ASCII);
+			if (!magic.equals("WL3E")) {
+				importErr("Archive is corrupt.");
+				return false;
+			}
+
+			int version = readInt(data, 4);
+			if (version > EXPORT_VERSION) {
+				importErr("Archive is from a newer revision.");
+				return false;
+			}
+
+			int headerPos = 8;
+			for (ExportableData importer : exportableData) {
+				int pointer = readInt(data, headerPos);
+				importer.importData(data, pointer);
+				headerPos += 4;
+			}
+		}
+		catch (ArrayIndexOutOfBoundsException e) {
+			importErr("Abrupt end of file.");
+		}
+
+		return true;
+	}
+
+	void importErr(String message) {
+		JOptionPane.showMessageDialog(null,
+				"Import Error: " + message,
+				"Import Error",
+				JOptionPane.ERROR_MESSAGE);
 	}
 }
