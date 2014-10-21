@@ -1,5 +1,7 @@
 package base;
 
+import java.util.logging.Logger;
+
 import base.TextParser;
 import record.*;
 import record.RomPointer;
@@ -10,10 +12,9 @@ import java.awt.Graphics;
 import java.util.*;
 import java.io.*;
 
-
-
-
 public class Level {
+	final static Logger log = Logger.getLogger(Level.class.getName());
+
 
 	public final static int levelDataTbl = RomReader.BANK(0x40be, 0x30);
 	// This is a table of tables...
@@ -67,6 +68,8 @@ public class Level {
 	
 	Level(RomReader _rom, int index)
 	{
+		log.fine("Loading level " + RomReader.toHexString(index, 2));
+
 		rom = _rom;
 		levelIndex = index;
 		

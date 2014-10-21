@@ -338,10 +338,13 @@ public class MoveableDataRecord extends Record
 			rom.write(addr, decompressedData);
 		}
 		rom.lock(addr, size);
+
+		// savePtrs checks originalAddr for saving to metadata.
+		// It may also invoke save() on other records, so it should come after rom.lock().
+		savePtrs();
+
 		originalAddr = addr;
 		originalSize = size;
-
-		savePtrs();
 
 		modified = false;
 	}

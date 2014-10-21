@@ -1,7 +1,8 @@
 package base;
+
 import java.util.Comparator;
 
-
+import record.RomReader;
 
 public class Region implements Comparable {
 
@@ -163,5 +164,14 @@ public class Region implements Comparable {
 		else if (firstHSector > r.firstHSector)
 			return 1;
 		return 0;
+	}
+	
+	public String toString() {
+		String ret = "";
+		byte[] data = toArray();
+		for (int i=0; i<8; i++) {
+			ret += RomReader.toHexString(data[i]&0xff, 2) + " ";
+		}
+		return ret;
 	}
 }

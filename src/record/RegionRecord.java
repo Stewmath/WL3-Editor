@@ -1,11 +1,15 @@
 package record;
 
 import java.util.*;
+
+import java.util.logging.Logger;
 import base.Region;
 import base.TileSet;
 
 public class RegionRecord extends Record
 {
+	final static Logger log = Logger.getLogger(RegionRecord.class.getName());
+
 	final static int NUM_SECTORS = 0x1e;
 
 	static ArrayList<RegionRecord> regionRecords = new ArrayList<RegionRecord>();
@@ -110,9 +114,26 @@ public class RegionRecord extends Record
 						{
 							for (int ry=r.firstVSector; ry<r.lastVSector; ry++)
 							{
-								if (getRegion(rx*16, ry*16) != null)
+								Region r2;
+								if ((r2 = getRegion(rx*16, ry*16)) != null)
 								{
 									contains = true;
+									if (!r.equals(r2)) {
+										// There are a few cases where this will occur on unmodified roms
+										// The editor will need to pick one region to use
+										log.finer("Region conflict: addr " + RomReader.toHexString(addr, 4) + "\n" +
+												"Region 1: " + r2.toString() + "\n" +
+												"Region 2: " + r.toString());
+
+										// Fix to prevent beneath the waves from using a screwed up region
+										// which they left in for some reason
+										if (addr == 0xc316f || addr == 0xc325b || addr == 0xc3347 ||
+												addr == 0xc3433 || addr == 0xc351f || addr == 0xc360b) {
+											regions.remove(r2);
+											contains = false;
+											continue;
+										}
+									}
 									break;
 								}
 							}
@@ -224,7 +245,7 @@ public class RegionRecord extends Record
 		}
 
 		if (tableRecord.isNull()) {
-			System.out.println("remove region data");
+			log.info("Deleting region data");
 			regionRecords.remove(this);
 			return;
 		}

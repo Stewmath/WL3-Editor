@@ -1,5 +1,8 @@
 package viewers;
 
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import viewers.*;
 import viewerclients.*;
 import viewers.LevelViewer;
@@ -95,7 +98,11 @@ public class MainFrame extends JFrame
 	 * Create the frame.
 	 */
 	public MainFrame() {
+		LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(java.util.logging.Level.FINE);
+
 		ValueFileParser.reloadValueFiles(); // These are used for some combo boxes
+
+
 
 		JPanel tileSetViewerPanel = new JPanel();
 		tileSetViewerPanel.setLayout(new BoxLayout(tileSetViewerPanel, BoxLayout.Y_AXIS));
