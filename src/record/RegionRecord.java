@@ -90,6 +90,7 @@ public class RegionRecord extends Record
 					warpRecords[i] = null;
 				}
 				else {
+					// parseWarpData will give warpRecords[i] its pointer and other settings
 					warpRecords[i] = rom.getMoveableDataRecord(RomReader.BANK(warpDataAddr, warpDataBank),
 							null, false, 8);
 					parseWarpData(i);

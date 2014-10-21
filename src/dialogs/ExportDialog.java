@@ -142,7 +142,6 @@ public class ExportDialog extends JDialog {
 						readWarpData.put(warpDataPointer, level);
 					}
 					else {
-						logger.fine("Merging region data for level " + level.getId() + " into " + mergeLevel.getId());
 						level.setRegionDataRecord(mergeLevel.getRegionDataRecord());
 					}
 

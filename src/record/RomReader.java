@@ -1,5 +1,7 @@
 package record;
 
+import java.util.logging.Logger;
+
 import graphics.Drawing;
 
 import java.util.Arrays;
@@ -11,6 +13,8 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class RomReader {
+	final static Logger logger = Logger.getLogger(RomReader.class.getName());
+
 	public static RomReader rom;
 	
 	// When data can be moved anywhere, it's moved to one of these banks.
@@ -91,15 +95,6 @@ public class RomReader {
 				moveableDataRecordAccesses.set(i, moveableDataRecordAccesses.get(i)+1);
 				return r;
 			}
-			if (ptr != null) {
-				for (int j=0; j<r.ptrs.size(); j++)
-				{
-					if (r.ptrs.get(j).equals(ptr)) {
-		//				System.out.println("ptrequal");
-						return r;
-					}
-				}
-			}
 		}
 		
 		ArrayList<RomPointer> pointers = new ArrayList<RomPointer>();
@@ -138,9 +133,9 @@ public class RomReader {
 		int accesses = moveableDataRecordAccesses.get(i) - 1;
 		moveableDataRecordAccesses.set(i, accesses);
 		if (accesses == 0) {
-			System.out.print("Record deleted: ");
-			System.out.print("\"" + moveableDataRecords.get(i).getDescription() + "\"");
-			System.out.println(" (0x" + RomReader.toHexString(moveableDataRecords.get(i).getAddr()) + ")");
+			logger.info("Record deleted: \n" +
+					"\"" + moveableDataRecords.get(i).getDescription() + "\"\n" +
+					" (0x" + RomReader.toHexString(moveableDataRecords.get(i).getAddr()) + ")");
 			moveableDataRecords.remove(i);
 			moveableDataRecordAccesses.remove(i);
 			// Note: the record's memory won't be unlocked, I guess that's okay?
@@ -360,7 +355,20 @@ public class RomReader {
 	{
 		saveFail = false;
 
+		// Iterate through all records and delete those which we can, to free up space
+		for (int i=0; i<moveableDataRecords.size(); i++) {
+			MoveableDataRecord r = moveableDataRecords.get(i);
+			if (r.isNull()) {
+				// It will free up the memory it took in the save() function
+				r.save();
+				moveableDataRecords.remove(i);
+				moveableDataRecordAccesses.remove(i);
+				i--;
+			}
+		}
+
 		// Check RegionRecords
+		// RegionRecord class takes care of removing invalid records
 		for (int i=0; i<RegionRecord.regionRecords.size(); i++) {
 			RegionRecord r = RegionRecord.regionRecords.get(i);
 			r.save();
@@ -376,15 +384,7 @@ public class RomReader {
 		}
 		for (int i=0; i<moveableDataRecords.size(); i++) {
 			MoveableDataRecord r = moveableDataRecords.get(i);
-			if (!r.belongsToJoinedRecord) {
-				r.save();
-			}
-			if (r.isNull()) {
-				// Remember that save must be invoked (above) so that it can clear up its memory
-				moveableDataRecords.remove(i);
-				moveableDataRecordAccesses.remove(i);
-				i--;
-			}
+			r.save();
 		}
 		
 		if (saveFail) {
