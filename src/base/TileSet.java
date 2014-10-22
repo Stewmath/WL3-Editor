@@ -21,7 +21,7 @@ public class TileSet {
 	final static int gfxData1Tbl =		RomReader.BANK(0x4af7, 0x30);
 	final static int paletteDataTbl =	RomReader.BANK(0x4b1b, 0x30);
 
-	final static int NUM_TILESETS = 0x9B; // There is room enough for a few more tilesets after this
+	final static int NUM_TILESETS = 0x9B;
 	final static int NUM_POSSIBLE_TILESETS = 0xA3;
 
 	final static int NUM_METATILE_INDICES = 0x59;
@@ -61,17 +61,32 @@ public class TileSet {
 		rom.lock(gfxData1Tbl, NUM_POSSIBLE_GFX1_INDICES*2);
 		rom.lock(paletteDataTbl, NUM_POSSIBLE_PALETTE_INDICES*2);
 
+		// Load everything into records
+		for (int i=0; i<NUM_METATILE_INDICES; i++) {
+			getMetaTileRecord(i);
+			getFlagRecord(i);
+			getEffectRecord(i);
+		}
+		for (int i=0; i<NUM_GFX0_INDICES; i++)
+			getGfxData0Record(i);
+		for (int i=0; i<NUM_GFX1_INDICES; i++)
+			getGfxData1Record(i);
+		for (int i=0; i<NUM_PALETTE_INDICES; i++)
+			getPaletteDataRecord(i);
+
 		for (int i=0; i<NUM_TILESETS; i++) {
 			loadedTileSets[i] = new TileSet(i);
 		}
 	}
 
-	// I set pointers for all of these records, but it's kind of pointless except for flagRecord
+
 	public static MoveableDataRecord getMetaTileRecord(int metaTileIndex) {
 		RomPointer metaTilePointer = new RomPointer(metaTileTbl+2*metaTileIndex);
 		int metaTileAddr = RomReader.BANK(metaTilePointer.getPointedAddr(), 0x38+metaTileIndex/6);
-		return rom.getMoveableDataRecord(metaTileAddr, metaTilePointer,
+		MoveableDataRecord r = rom.getMoveableDataRecord(metaTileAddr, metaTilePointer,
 				false, 128*4, 0x38+metaTileIndex/6);
+		r.setDescription("Tileset metadata " + RomReader.toHexString(metaTileIndex, 2));
+		return r;
 	}
 	public static MoveableDataRecord getEffectRecord(int metaTileIndex) {
 		// effectRecord uses metaTileIndex, which is why there is no effectIndex.
@@ -83,7 +98,9 @@ public class TileSet {
 
 		RomPointer effectPointer = new RomPointer(effectTbl+2*metaTileIndex);
 		int effectAddr = RomReader.BANK(effectPointer.getPointedAddr(), effectBank);
-		return rom.getMoveableDataRecord(effectAddr, effectPointer, false, 0x80*2, effectBank);
+		MoveableDataRecord r = rom.getMoveableDataRecord(effectAddr, effectPointer, false, 0x80*2, effectBank);
+		r.setDescription("Tileset effect data " + RomReader.toHexString(metaTileIndex, 2));
+		return r;
 	}
 	public static MoveableDataRecord getFlagRecord(int flagIndex) {
 		RomPointer flagPointer = new RomPointer(flagTbl+2*flagIndex);
@@ -100,20 +117,24 @@ public class TileSet {
 	public static MoveableDataRecord getGfxData0Record(int gfxData0Index) {
 		RomPointer gfxData0Pointer = new RomPointer(gfxData0Tbl+2*gfxData0Index);
 		int gfxData0Addr = RomReader.BANK(gfxData0Pointer.getPointedAddr(), 0x51+(gfxData0Index/8));
-		return rom.getMoveableDataRecord(gfxData0Addr, gfxData0Pointer,
+		// Not giving it the pointer because there's no reason to ever want this to move
+		return rom.getMoveableDataRecord(gfxData0Addr, null,
 				false, 0x800, 0x51+gfxData0Index/8);
 	}
 	public static MoveableDataRecord getGfxData1Record(int gfxData1Index) {
 		RomPointer gfxData1Pointer = new RomPointer(gfxData1Tbl+2*gfxData1Index);
 		int gfxData1Addr = RomReader.BANK(gfxData1Pointer.getPointedAddr(), 0x4e+(gfxData1Index/8));
-		return rom.getMoveableDataRecord(gfxData1Addr, gfxData1Pointer,
+		// Not giving it the pointer because there's no reason to ever want this to move
+		return rom.getMoveableDataRecord(gfxData1Addr, null,
 				false, 0x800, 0x4e+gfxData1Index/8);
 	}
 	public static MoveableDataRecord getPaletteDataRecord(int paletteDataIndex) {
 		RomPointer paletteDataPointer = new RomPointer(paletteDataTbl+2*paletteDataIndex);
 		int paletteDataAddr = RomReader.BANK(paletteDataPointer.getPointedAddr(), 0x33);
-		return rom.getMoveableDataRecord(paletteDataAddr, paletteDataPointer,
+		MoveableDataRecord r = rom.getMoveableDataRecord(paletteDataAddr, paletteDataPointer,
 				false, 2*4*8, 0x33);
+		r.setDescription("Tileset palette data " + RomReader.toHexString(paletteDataIndex, 2));
+		return r;
 	}
 
 	public static void invalidateAllImages() {
@@ -146,8 +167,9 @@ public class TileSet {
 		int tileSetDataAddr;
 	
 		tileSetDataIndex = setId;
-		tileSetDataAddr = rom.read16FromTable(tileSetDataTbl, tileSetDataIndex, 0x30);
-		tileSetDataRecord = rom.getMoveableDataRecord(tileSetDataAddr, null, false, 5);
+		RomPointer tileSetDataPointer = new RomPointer(tileSetDataTbl+tileSetDataIndex*2);
+		tileSetDataAddr = RomReader.BANK(tileSetDataPointer.getPointedAddr(), 0x30);
+		tileSetDataRecord = rom.getMoveableDataRecord(tileSetDataAddr, tileSetDataPointer, false, 5);
 		
 		setMetaTileIndex(tileSetDataRecord.read(0));
 		setFlagIndex(tileSetDataRecord.read(1));

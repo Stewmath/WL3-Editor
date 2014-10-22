@@ -79,6 +79,7 @@ public class RomReader {
 		}
 		return null;
 	}
+	// If no pointer is specified, the record will be marked as unmoveable. Otherwise it's moveable.
 	public MoveableDataRecord getMoveableDataRecord(int addr, RomPointer ptr, boolean compressed, int size)
 	{
 		if (addr < 0) {
@@ -104,6 +105,8 @@ public class RomReader {
 		moveableDataRecords.add(r);
 		moveableDataRecordAccesses.add(1);
 
+		r.setMoveable(ptr != null);
+
 		return r;
 	}
 	public MoveableDataRecord getMoveableDataRecord(int addr, RomPointer ptr, boolean compressed, int size, int bank)
@@ -121,6 +124,7 @@ public class RomReader {
 		MoveableDataRecord r = new MoveableDataRecord(data, pointers, bank, compressed);
 		moveableDataRecords.add(r);
 		moveableDataRecordAccesses.add(1);
+		r.setMoveable(pointer != null);
 		return r;
 	}
 	// This function will only take effect when called as many times as the record in question has been
@@ -350,9 +354,41 @@ public class RomReader {
 			free[addr+i] = false;
 		}
 	}
+
+	boolean[] packedBanks;
+
+	public void packBank(int bank) {
+		if (packedBank(bank))
+			return;
+		logger.fine("Packing bank " + RomReader.toHexString(bank, 2));
+
+		packedBanks[bank] = true;
+
+		ArrayList<MoveableDataRecord> records = new ArrayList<MoveableDataRecord>();
+
+		for (MoveableDataRecord r : moveableDataRecords) {
+			if (r.requiredBank == bank) {
+				records.add(r);
+				r.detachFromOriginalSpace();
+			}
+		}
+
+		for (MoveableDataRecord r : records) {
+			// Some of these records may have been iterated through already in the save() function.
+			// So, they must all be saved in this function.
+			r.save();
+			if (saveFail)
+				return;
+		}
+	}
+
+	public boolean packedBank(int bank) {
+		return packedBanks[bank];
+	}
 	
 	public void save()
 	{
+		packedBanks = new boolean[256];
 		saveFail = false;
 
 		// Iterate through all records and delete those which we can, to free up space
@@ -382,7 +418,7 @@ public class RomReader {
 			else
 				joinedRecords.get(i).save();
 		}
-		for (int i=0; i<moveableDataRecords.size(); i++) {
+		for (int i=0; i<moveableDataRecords.size() && !saveFail; i++) {
 			MoveableDataRecord r = moveableDataRecords.get(i);
 			r.save();
 		}

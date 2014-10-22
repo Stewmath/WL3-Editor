@@ -5,7 +5,10 @@ import java.util.*;
 
 public abstract class Record {
 	int addr;
+	// originalAddr should ONLY be used as a reference...
+	// don't use it for checking free space at its original position or stuff like that
 	int originalAddr;
+
 	// Note: even if modified is false, remember to check the pointers!
 	public boolean modified = false;
 

@@ -182,7 +182,7 @@ public class EnemySet {
 					}
 
 					gfxDataRecords[i].setRequiredBank(getBaseGfxBank()+i);
-					gfxDataRecords[i].isMoveable = true;
+					gfxDataRecords[i].setMoveable(true);
 
 					String name = ValueFileParser.getEnemyGfxFile().getSection(""+Integer.toHexString(getBaseGfxBank()+i)).getName(RomReader.toGbPtr(gfxDataRecords[i].getAddr()));
 

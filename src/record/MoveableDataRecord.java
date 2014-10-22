@@ -26,8 +26,7 @@ public class MoveableDataRecord extends Record
 	public boolean belongsToJoinedRecord=false;
 
 	// isMoveable: if false, we won't attempt to move this record around when it's time to save.
-	// However, even if false, invoking "moveAddr" will force it to move to the specified address.
-	public boolean isMoveable=true;
+	boolean isMoveable=true;
 
 	RomReader rom;
 	
@@ -70,7 +69,7 @@ public class MoveableDataRecord extends Record
 			originalSize = decompressedData.size();
 		}
 
-		rom.lock(originalAddr, originalSize);
+		rom.lock(addr, originalSize);
 	}
 	MoveableDataRecord(byte[] data, ArrayList<RomPointer> pointers, int b, boolean compressed) {
 		// This is a newly created record - previously non-existent in the rom - so it must be saved.
@@ -136,7 +135,7 @@ public class MoveableDataRecord extends Record
 		if (requiredBank >= 0 && addr/0x4000 != requiredBank)
 			return false;
 
-		int originalSlotSize = originalSize+rom.getFreeSpaceLength(originalAddr+originalSize);
+		int originalSlotSize = originalSize+rom.getFreeSpaceLength(addr+originalSize);
 		if (type != RECORD_COMPRESSED) {
 			return decompressedData.size() <= originalSlotSize;
 		}
@@ -145,6 +144,17 @@ public class MoveableDataRecord extends Record
 			compressedData = rom.convertToRLE(decompressedData);
 			return compressedData.size() <= originalSlotSize;
 		}
+	}
+	public void detachFromOriginalSpace() {
+		if (addr >= 0) {
+			rom.clear(addr, originalSize);
+			addr = -1;
+			originalSize = 0;
+			modified = true;
+		}
+	}
+	public void setMoveable(boolean joe) {
+		isMoveable = joe;
 	}
 	// Read u8
 	public int read(int i)
@@ -264,15 +274,19 @@ public class MoveableDataRecord extends Record
 	}
 
 	public void save() {
+		if (addr < 0)
+			modified = true;
+
 		if (isNull()) {
 			System.out.println("null record " + getDescription());
-			if (originalAddr >= 0) {
-				rom.clear(originalAddr, originalSize);
+			if (addr >= 0) {
+				rom.clear(addr, originalSize);
 			}
 			addr = -1;
 			originalAddr = -1;
 			return;
 		}
+
 		if (!modified) {
 			savePtrs();
 			return;
@@ -282,9 +296,9 @@ public class MoveableDataRecord extends Record
 			compressedData = rom.convertToRLE(decompressedData);
 		
 		// Clear location of original data
-		if (originalAddr >= 0) {
+		if (addr >= 0) {
 			// Remember to lock the memory after writing it back
-			rom.clear(originalAddr, originalSize);
+			rom.clear(addr, originalSize);
 		}
 
 		// Condition for moving data
@@ -301,8 +315,14 @@ public class MoveableDataRecord extends Record
 				return;
 			}
 			// Find a new spot for the data
-			if (requiredBank >= 0)
+			if (requiredBank >= 0) {
 				addr = rom.findFreeSpace(getSize(), requiredBank, true);
+				if (addr < 0 && !rom.packedBank(requiredBank)) {
+					// packBank() will invoke save() on this record, so return
+					rom.packBank(requiredBank);
+					return;
+				}
+			}
 			else
 				addr = rom.findFreeSpace(getSize(), true);
 			if (addr < 0) {
@@ -318,24 +338,8 @@ public class MoveableDataRecord extends Record
 				return;
 			}
 
-			String moveInfoString;
-			if (originalAddr == -1)
-				moveInfoString = "New data will be inserted to address 0x" + RomReader.toHexString(addr) + ".\n";
-			else
-				moveInfoString = "Data will be moved from 0x" + RomReader.toHexString(originalAddr) + " to 0x" + RomReader.toHexString(addr) + ".\n";
-			if (description == null || description == "")
-				moveInfoString += "Data has no description.\n";
-			else
-				moveInfoString += "Data description: \"" + description + "\"\n";
-
-			// On second thought, don't display warnings for newly created records.
-			// It gets kinda ridiculous when creating a new set of warp data.
-			if (originalAddr != -1) {
-				JOptionPane.showMessageDialog(null,
-						moveInfoString,
-						"Warning",
-						JOptionPane.WARNING_MESSAGE);
-			}
+			log.fine("Moving data \"" + getDescription() + "\" from " +
+					RomReader.toHexString(originalAddr) + " to " + RomReader.toHexString(addr));
 		}
 		
 		int size;

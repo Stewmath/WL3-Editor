@@ -8,11 +8,13 @@ public class ObjectSet {
 	// This means each entry is 4 bytes long.
 	final static int objectTbl = RomReader.BANK(0x5009, 0x19);
 
-	public static int lastObjectSet = 0x91;
-	static ObjectSet[] objectSets = new ObjectSet[lastObjectSet+1];
+	static MoveableDataRecord objectTblRecord;
+
+	public static int NUM_OBJECT_SETS = 0x92;
+	static ObjectSet[] objectSets = new ObjectSet[NUM_OBJECT_SETS];
 
 	public static ObjectSet getObjectSet(int id) {
-		if (id > lastObjectSet)
+		if (id >= NUM_OBJECT_SETS)
 			return null;
 		return objectSets[id];
 	}
@@ -20,7 +22,8 @@ public class ObjectSet {
 	// This function is called the first time from MainFrame.java.
 	// All object sets should be loaded, so that enemy sets can be safely moved around.
 	public static void reloadObjectSets() {
-		for (int i=0; i<=lastObjectSet; i++) {
+		objectTblRecord = RomReader.rom.getMoveableDataRecord(objectTbl, null, false, NUM_OBJECT_SETS*4);
+		for (int i=0; i<NUM_OBJECT_SETS; i++) {
 			objectSets[i] = new ObjectSet(i);
 		}
 	}
@@ -31,8 +34,6 @@ public class ObjectSet {
 	RomReader rom;
 	int id;
 
-	MoveableDataRecord itemSetRecord;
-
 	public EnemySet enemySet;
 
 	private ObjectSet(int _id)
@@ -40,8 +41,8 @@ public class ObjectSet {
 		rom = RomReader.rom;
 		
 		id = _id;
-		setItemSetAddr(rom.read16(objectTbl+id*4));
-		setEnemySetAddr(rom.read16(objectTbl+id*4+2));
+		setItemSetAddr(objectTblRecord.read16(id*4));
+		setEnemySetAddr(objectTblRecord.read16(id*4+2));
 	}
 	
 	public int getId()
@@ -51,21 +52,16 @@ public class ObjectSet {
 
 	public int getItemSetAddr()
 	{
-		return RomReader.toGbPtr(itemSetRecord.getAddr());
+		return objectTblRecord.read16(id*4);
 	}
 	public void setItemSetAddr(int addr)
 	{
-		RomPointer itemSetPointer = new RomPointer(objectTbl+id*4);
-		if (itemSetRecord != null)
-			itemSetRecord.removePtr(itemSetPointer);
-		itemSetRecord = rom.getMoveableDataRecord(RomReader.BANK(addr, 0x19), itemSetPointer, false, 4);
-		itemSetRecord.setDescription("'" + ValueFileParser.getItemSetFile().getName(itemSetRecord.getAddr()) + "' item set");
-//		itemSetRecord.deleteWithNoPtr = false;
+		objectTblRecord.writePtr(id*4, addr);
 	}
 	
 	public void setEnemySetAddr(int addr)
 	{
-		RomPointer enemySetPointer = new RomPointer(objectTbl+id*4+2);
+		RomPointer enemySetPointer = new RomPointer(objectTblRecord, id*4+2);
 		if (enemySet != null)
 			enemySet.removePtr(enemySetPointer);
 		enemySet = EnemySet.getEnemySet(addr);

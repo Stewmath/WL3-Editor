@@ -137,6 +137,7 @@ public class RegionRecord extends Record
 		warpRecords[i].addPtr(warpDataPointer);
 		warpRecords[i].deleteWithNoPtr = true;
 		warpRecords[i].setDescription("Warp data");
+		warpRecords[i].setMoveable(true);
 
 		Region r = new Region(warpRecords[i].toArray());
 		int b1 = warpRecords[i].read(0)&0xff;
@@ -287,6 +288,7 @@ public class RegionRecord extends Record
 							warpRecords[i] = rom.getMoveableDataRecord(data, warpDataPointer, warpDataBank, false);
 							warpRecords[i].deleteWithNoPtr = true;
 							warpRecords[i].setDescription("Warp data");
+							warpRecords[i].setMoveable(true);
 						}
 						warpRecords[i].setData(data);
 					}
