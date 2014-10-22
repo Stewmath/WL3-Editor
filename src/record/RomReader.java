@@ -367,7 +367,7 @@ public class RomReader {
 		ArrayList<MoveableDataRecord> records = new ArrayList<MoveableDataRecord>();
 
 		for (MoveableDataRecord r : moveableDataRecords) {
-			if (r.requiredBank == bank) {
+			if (r.isMoveable && r.requiredBank == bank) {
 				records.add(r);
 				r.detachFromOriginalSpace();
 			}

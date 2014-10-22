@@ -146,6 +146,11 @@ public class MoveableDataRecord extends Record
 		}
 	}
 	public void detachFromOriginalSpace() {
+		if (!isMoveable) {
+			log.warning("Tried to detach unmoveable record: " + getDescription());
+			return;
+		}
+
 		if (addr >= 0) {
 			rom.clear(addr, originalSize);
 			addr = -1;
