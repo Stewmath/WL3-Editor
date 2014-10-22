@@ -283,6 +283,9 @@ public class ExportDialog extends JDialog {
 					TileSet.getGfxData1Record(index).setData(buf);
 					index = readInt(in);
 				}
+
+				TileSet.invalidateAllImages();
+
 				return true;
 			}
 		},

@@ -12,25 +12,6 @@ import record.*;
 
 public class TileSet {
 
-	public static RomReader rom;
-	static TileSet[] loadedTileSets = new TileSet[256];
-	
-	public static TileSet getTileSet(int id)
-	{
-		if (loadedTileSets[id] == null)
-			loadedTileSets[id] = new TileSet(id);
-		return loadedTileSets[id];
-	}
-
-	// It's not necessary to have all tilesets loaded.
-	// The only thing that is compressed is the flags, and all pointers to the flags are
-	// in the flag table. So they can be moved around safely.
-	public static void reloadTileSets() {
-		for (int i=0; i<loadedTileSets.length; i++) {
-			loadedTileSets[i] = null;
-		}
-	}
-	
 	final static int tileSetDataTbl = RomReader.BANK(0x44c5, 0x30);
 	
 	final static int effectTbl =		RomReader.BANK(0x4000, 0x32);
@@ -39,6 +20,51 @@ public class TileSet {
 	final static int gfxData0Tbl = 		RomReader.BANK(0x4a95, 0x30);
 	final static int gfxData1Tbl =		RomReader.BANK(0x4af7, 0x30);
 	final static int paletteDataTbl =	RomReader.BANK(0x4b1b, 0x30);
+
+	final static int NUM_TILESETS = 0x9B; // There is room enough for a few more tilesets after this
+	final static int NUM_POSSIBLE_TILESETS = 0xA3;
+
+	final static int NUM_METATILE_INDICES = 0x59;
+	final static int NUM_POSSIBLE_METATILE_INDICES = 0x62; // Also reflected in the effect table
+	// Flags have same values as metatiles
+
+	final static int NUM_GFX0_INDICES = 0x28;
+	final static int NUM_POSSIBLE_GFX0_INDICES = 0x31;
+
+	final static int NUM_GFX1_INDICES = 0x09;
+	final static int NUM_POSSIBLE_GFX1_INDICES = 0x12;
+
+	final static int NUM_PALETTE_INDICES = 0x92;
+	final static int NUM_POSSIBLE_PALETTE_INDICES = 0x9b;
+
+
+
+	public static RomReader rom;
+	static TileSet[] loadedTileSets = new TileSet[256];
+	
+	public static TileSet getTileSet(int id)
+	{
+		if (id >= NUM_TILESETS)
+			return null;
+		if (loadedTileSets[id] == null)
+			loadedTileSets[id] = new TileSet(id);
+		return loadedTileSets[id];
+	}
+
+	public static void reloadTileSets() {
+		// Lock space we could potentially use for more tileset data
+		rom.lock(tileSetDataTbl, NUM_POSSIBLE_TILESETS*2);
+		rom.lock(metaTileTbl, NUM_POSSIBLE_METATILE_INDICES*2);
+		rom.lock(effectTbl, NUM_POSSIBLE_METATILE_INDICES*2);
+		rom.lock(flagTbl, NUM_POSSIBLE_METATILE_INDICES*2);
+		rom.lock(gfxData0Tbl, NUM_POSSIBLE_GFX0_INDICES*2);
+		rom.lock(gfxData1Tbl, NUM_POSSIBLE_GFX1_INDICES*2);
+		rom.lock(paletteDataTbl, NUM_POSSIBLE_PALETTE_INDICES*2);
+
+		for (int i=0; i<NUM_TILESETS; i++) {
+			loadedTileSets[i] = new TileSet(i);
+		}
+	}
 
 	// I set pointers for all of these records, but it's kind of pointless except for flagRecord
 	public static MoveableDataRecord getMetaTileRecord(int metaTileIndex) {
@@ -90,6 +116,13 @@ public class TileSet {
 				false, 2*4*8, 0x33);
 	}
 
+	public static void invalidateAllImages() {
+		for (int i=0; i<256; i++) {
+			if (loadedTileSets[i] != null)
+				loadedTileSets[i].invalidateImages();
+		}
+	}
+
 
 	
 	// It looks like metaTileIndex and flagIndex should always be the same.
@@ -105,7 +138,7 @@ public class TileSet {
 	MoveableDataRecord tileSetDataRecord;
 	MoveableDataRecord metaTileRecord, flagRecord, gfxData0Record, gfxData1Record, paletteDataRecord, effectRecord;
 
-	BufferedImage[] tileImages = new BufferedImage[128];
+	BufferedImage[] tileImages;
 	int[][] paletteColors = new int[8][4];
 	
 	public TileSet(int setId)
@@ -121,10 +154,6 @@ public class TileSet {
 		setGfxData0Index(tileSetDataRecord.read(2));
 		setGfxData1Index(tileSetDataRecord.read(3));
 		setPaletteDataIndex(tileSetDataRecord.read(4));
-
-		
-		
-		generateTiles();
 	}
 
 	public int getId() {
@@ -214,6 +243,8 @@ public class TileSet {
 
 	public BufferedImage getTileImage(int tileIndex)
 	{
+		if (tileImages == null)
+			generateTiles();
 		return tileImages[tileIndex];
 	}
 
@@ -266,30 +297,14 @@ public class TileSet {
 	}
 
 	public final BufferedImage[] getTileImages() {
+		if (tileImages == null)
+			generateTiles();
 		return tileImages;
 	}
 
-	public void generateTiles()
+	void generateTiles()
 	{
-		// Generate palettes first
-		/*
-		for (int i=0; i<8; i++)
-		{
-			for (int c=0; c<4; c++)
-			{
-				int index = i*8 + c*2;
-				int b1 = paletteDataRecord.read(index);
-				int b2 = paletteDataRecord.read(index+1);
-				int by = b1 | b2<<8;
-
-				int r = by&0x1f;
-				int g = (by>>5)&0x1f;
-				int b = (by>>10)&0x1f;
-
-				paletteColors[i][c] = Drawing.rgbToInt(r*8, g*8, b*8);
-			}
-		}
-		*/
+		tileImages = new BufferedImage[128];
 		paletteColors = RomReader.binToPalettes(paletteDataRecord.toArray());
 
 		// Generate the actual tiles now.
@@ -340,6 +355,9 @@ public class TileSet {
 			}
 		}
 
+	}
+
+	public void invalidateImages() {
 	}
 
 	public int getFlagIndex() {
