@@ -44,7 +44,7 @@ public class TileSet {
 	
 	public static TileSet getTileSet(int id)
 	{
-		if (id >= NUM_TILESETS)
+		if (id == 0 || id >= NUM_TILESETS)
 			return null;
 		if (loadedTileSets[id] == null)
 			loadedTileSets[id] = new TileSet(id);
@@ -74,7 +74,7 @@ public class TileSet {
 		for (int i=0; i<NUM_PALETTE_INDICES; i++)
 			getPaletteDataRecord(i);
 
-		for (int i=0; i<NUM_TILESETS; i++) {
+		for (int i=1; i<NUM_TILESETS; i++) {
 			loadedTileSets[i] = new TileSet(i);
 		}
 	}
