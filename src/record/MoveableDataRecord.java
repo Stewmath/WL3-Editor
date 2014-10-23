@@ -262,7 +262,7 @@ public class MoveableDataRecord extends Record
 		}
 
 		if (lastSize != decompressedData.size()) {
-			log.fine("Changing data size to " + decompressedData.size() + ": " + getDescription());
+			log.warning("Changing data size to " + decompressedData.size() + ": " + getDescription());
 		}
 	}
 	public void setData(ArrayList<Byte> data) {

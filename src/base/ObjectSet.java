@@ -67,6 +67,14 @@ public class ObjectSet {
 		enemySet = EnemySet.getEnemySet(addr);
 		enemySet.addPtr(enemySetPointer);
 	}
+
+	public void setEnemySet(EnemySet e) {
+		RomPointer enemySetPointer = new RomPointer(objectTblRecord, id*4+2);
+		if (enemySet != null)
+			enemySet.removePtr(enemySetPointer);
+		enemySet = e;
+		enemySet.addPtr(enemySetPointer);
+	}
 	
 	public EnemySet getEnemySet() {
 		return enemySet;

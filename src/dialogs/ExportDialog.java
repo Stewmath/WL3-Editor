@@ -289,6 +289,51 @@ public class ExportDialog extends JDialog {
 				return true;
 			}
 		},
+		new ExportableData() {
+			String name = "ObjectSet Data";
+
+			public int exportData(ByteArrayOutputStream out) throws IOException {
+				Set<ObjectSet> objectSets = new HashSet<ObjectSet>();
+
+				for (Level level : levelsToExport) {
+					RegionRecord r = level.getRegionDataRecord();
+					for (int i=0; i<r.getNumRegions(); i++) {
+						int objectSet = r.getRegion(i).objectSetId;
+						objectSets.add(ObjectSet.getObjectSet(objectSet));
+					}
+				}
+
+				for (ObjectSet objectSet : objectSets) {
+					writeInt(out, objectSet.getId());
+					writeInt(out, objectSet.getItemSetAddr());
+					writeString(out, objectSet.getEnemySet().getName());
+				}
+				writeInt(out, -1);
+
+				return 0;
+			}
+			public boolean importData(byte[] data, int offset) {
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+
+				int index = readInt(in);
+				while (index != -1) {
+					int itemSetAddr = readInt(in);
+					String enemySetName = readString(in);
+
+					ObjectSet objectSet = ObjectSet.getObjectSet(index);
+					objectSet.setItemSetAddr(itemSetAddr);
+					EnemySet e = EnemySet.getEnemySet(enemySetName);
+					if (e == null) {
+						logger.warning("Null enemy set import");
+					}
+					else {
+						objectSet.setEnemySet(e);
+					}
+				}
+
+				return true;
+			}
+		},
 	};
 
 
@@ -351,12 +396,17 @@ public class ExportDialog extends JDialog {
 		pack();
 	}
 
-	int writeInt(ByteArrayOutputStream out, int val) {
+	void writeInt(ByteArrayOutputStream out, int val) {
 		out.write(val&0xff);
 		out.write((val>>8)&0xff);
 		out.write((val>>16)&0xff);
 		out.write((val>>24)&0xff);
-		return 4;
+	}
+
+	void writeString(ByteArrayOutputStream out, String s) throws IOException {
+		byte[] data = s.getBytes(StandardCharsets.US_ASCII);
+		out.write(data);
+		out.write(0);
 	}
 
 	int readInt(byte[] data, int i) throws ArrayIndexOutOfBoundsException {
@@ -366,6 +416,17 @@ public class ExportDialog extends JDialog {
 		byte[] data = new byte[4];
 		in.read(data, 0, 4);
 		return (data[0]&0xff) | (data[1]&0xff)<<8 | (data[2]&0xff)<<16 | (data[3]&0xff)<<24;
+	}
+
+	String readString(ByteArrayInputStream in) {
+		ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+		int b = in.read();
+		while (b != 0) {
+			data.write(b);
+			b = in.read();
+		}
+		return new String(data.toByteArray(), StandardCharsets.US_ASCII);
 	}
 
 	void writeHeader(ByteArrayOutputStream out) throws IOException {

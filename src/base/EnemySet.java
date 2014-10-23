@@ -21,6 +21,13 @@ public class EnemySet {
 		// TODO: handling enemySets in unexpected places? Probably necessary once I allow them to be moved.
 		return null;
 	}
+	public static EnemySet getEnemySet(String name) {
+		for (EnemySet e : enemySets) {
+			if (e.getName().equals(name))
+				return e;
+		}
+		return null;
+	}
 
 	// All enemy sets should be loaded at once, so enemy graphics can be moved freely.
 	public static void reloadEnemySets() {
