@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 
 public class MoveableDataRecord extends Record
 {
-	final static Logger log = Logger.getLogger(Record.class.getName());
+	final static Logger logger = Logger.getLogger(Record.class.getName());
 
 	final static int RECORD_NORMAL = 0;
 	final static int RECORD_COMPRESSED = 1;
@@ -147,7 +147,7 @@ public class MoveableDataRecord extends Record
 	}
 	public void detachFromOriginalSpace() {
 		if (!isMoveable) {
-			log.warning("Tried to detach unmoveable record: " + getDescription());
+			logger.warning("Tried to detach unmoveable record: " + getDescription());
 			return;
 		}
 
@@ -262,7 +262,7 @@ public class MoveableDataRecord extends Record
 		}
 
 		if (lastSize != decompressedData.size()) {
-			log.warning("Changing data size to " + decompressedData.size() + ": " + getDescription());
+			logger.warning("Changing data size to " + decompressedData.size() + ": " + getDescription());
 		}
 	}
 	public void setData(ArrayList<Byte> data) {
@@ -283,7 +283,7 @@ public class MoveableDataRecord extends Record
 			modified = true;
 
 		if (isNull()) {
-			System.out.println("null record " + getDescription());
+			logger.fine("null record " + getDescription());
 			if (addr >= 0) {
 				rom.clear(addr, originalSize);
 			}
@@ -343,7 +343,7 @@ public class MoveableDataRecord extends Record
 				return;
 			}
 
-			log.fine("Moving data \"" + getDescription() + "\" from " +
+			logger.fine("Moving data \"" + getDescription() + "\" from " +
 					RomReader.toHexString(originalAddr) + " to " + RomReader.toHexString(addr));
 		}
 		

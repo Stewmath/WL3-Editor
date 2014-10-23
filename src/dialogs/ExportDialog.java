@@ -313,7 +313,7 @@ public class ExportDialog extends JDialog {
 				return 0;
 			}
 			public boolean importData(byte[] data, int offset) {
-				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				ByteArrayInputStream in = new ByteArrayInputStream(data, offset, data.length-offset);
 
 				int index = readInt(in);
 				while (index != -1) {
@@ -329,6 +329,8 @@ public class ExportDialog extends JDialog {
 					else {
 						objectSet.setEnemySet(e);
 					}
+
+					index = readInt(in);
 				}
 
 				return true;

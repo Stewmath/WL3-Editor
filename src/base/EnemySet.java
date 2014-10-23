@@ -56,6 +56,8 @@ public class EnemySet {
 	EnemySet(int addr, String name) {
 		rom = RomReader.rom;
 
+		this.name = name;
+
 		int recordStart=RomReader.BANK(addr, 0x19);
 		int recordEnd=recordStart+1+8+1;
 

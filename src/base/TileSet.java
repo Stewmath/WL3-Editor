@@ -380,6 +380,7 @@ public class TileSet {
 	}
 
 	public void invalidateImages() {
+		tileImages = null;
 	}
 
 	public int getFlagIndex() {
