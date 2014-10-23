@@ -115,7 +115,7 @@ public class MainFrame extends JFrame
 				MetaTileEditor editor = new MetaTileEditor(itself, tileSetViewer.getTileSet());
 				// Refresh the tileSet
 				levelViewer.level.generateImage();
-				tileSetViewer.generateImage();
+				tileSetViewer.setTileSet(tileSetViewer.tileSet);
 				levelViewer.repaint();
 			}
 		});
@@ -345,7 +345,7 @@ public class MainFrame extends JFrame
 							Region r = new Region(bytes);
 							levelViewer.level.getRegionDataRecord().addRegion(r);
 							levelViewer.level.generateImage();
-							levelViewer.selectedRegion = r;
+							levelViewer.setSelectedRegion(r);
 							// disableRegionListener makes sure the fields' action listeners
 							// aren't called while being updated.
 							levelViewer.refreshRegionFields();

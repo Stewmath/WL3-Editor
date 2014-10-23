@@ -59,8 +59,7 @@ public class LevelViewer extends JPanel  {
 					{
 						Region newRegion = level.getRegion(cursorPos.x, cursorPos.y);
 						if (newRegion != null) {
-							selectedRegion = newRegion;
-							tileSetViewer.setTileSet(selectedRegion.getTileSet());
+							setSelectedRegion(newRegion);
 						}
 						changedRegion = true;
 					}
@@ -150,6 +149,11 @@ public class LevelViewer extends JPanel  {
 		level = null;
 		
 		cursorPos = new Point(0, 0);
+	}
+
+	public void setSelectedRegion(Region r) {
+		selectedRegion = r;
+		tileSetViewer.setTileSet(selectedRegion.getTileSet());
 	}
 
 	public void setTile(int x, int y, int tile) {
