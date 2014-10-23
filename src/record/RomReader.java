@@ -69,8 +69,10 @@ public class RomReader {
 	// Parallel arrayList, counting the number of times the record has been accessed.
 	ArrayList<Integer> moveableDataRecordAccesses = new ArrayList<Integer>();
 
-	ArrayList<JoinedRecord> joinedRecords = new ArrayList<JoinedRecord>();
+	HashMap<Integer, MoveableDataRecord> recordLookupMap = new HashMap<Integer, MoveableDataRecord>();
 	
+	ArrayList<JoinedRecord> joinedRecords = new ArrayList<JoinedRecord>();
+
 	public MoveableDataRecord moveableDataRecordExists(int addr) {
 		for (int i=0; i<moveableDataRecords.size(); i++) {
 			MoveableDataRecord r = moveableDataRecords.get(i);
@@ -85,29 +87,28 @@ public class RomReader {
 		if (addr < 0) {
 			System.out.println("getMoveableDataRecord negative addr");
 		}
-		MoveableDataRecord r;
-		for (int i=0; i<moveableDataRecords.size(); i++)
-		{
-			r = moveableDataRecords.get(i);
-			if (r.getAddr() == addr)
-			{
-				if (ptr != null)
-					r.addPtr(ptr);
-				moveableDataRecordAccesses.set(i, moveableDataRecordAccesses.get(i)+1);
-				return r;
-			}
+
+		MoveableDataRecord r = recordLookupMap.get(addr);
+		if (r != null) {
+			int i = moveableDataRecords.indexOf(r);
+			if (ptr != null)
+				r.addPtr(ptr);
+			moveableDataRecordAccesses.set(i, moveableDataRecordAccesses.get(i)+1);
+			return r;
 		}
-		
-		ArrayList<RomPointer> pointers = new ArrayList<RomPointer>();
-		if (ptr != null)
-			pointers.add(ptr);
-		r = new MoveableDataRecord(addr, pointers, compressed, size);
-		moveableDataRecords.add(r);
-		moveableDataRecordAccesses.add(1);
+		else {
+			ArrayList<RomPointer> pointers = new ArrayList<RomPointer>();
+			if (ptr != null)
+				pointers.add(ptr);
+			r = new MoveableDataRecord(addr, pointers, compressed, size);
+			moveableDataRecords.add(r);
+			moveableDataRecordAccesses.add(1);
+			recordLookupMap.put(addr, r);
 
-		r.setMoveable(ptr != null);
+			r.setMoveable(ptr != null);
 
-		return r;
+			return r;
+		}
 	}
 	public MoveableDataRecord getMoveableDataRecord(int addr, RomPointer ptr, boolean compressed, int size, int bank)
 	{
@@ -127,6 +128,16 @@ public class RomReader {
 		r.setMoveable(pointer != null);
 		return r;
 	}
+
+	void updateRecordLookupMap() {
+		recordLookupMap = new HashMap<Integer, MoveableDataRecord>();
+		for (MoveableDataRecord r : moveableDataRecords) {
+			if (r.addr >= 0) {
+				recordLookupMap.put(r.addr, r);
+			}
+		}
+	}
+
 	// This function will only take effect when called as many times as the record in question has been
 	// accessed from getMoveableDataRecord().
 	// So basically, everything which has accessed the record has to "agree" to delete it.
@@ -158,6 +169,7 @@ public class RomReader {
 		joinedRecords = new ArrayList<JoinedRecord>();
 		moveableDataRecords = new ArrayList<MoveableDataRecord>();
 		moveableDataRecordAccesses = new ArrayList<Integer>();
+		recordLookupMap = new HashMap<Integer, MoveableDataRecord>();
 	}
 	
 	public int read(int addr)
@@ -422,6 +434,8 @@ public class RomReader {
 			MoveableDataRecord r = moveableDataRecords.get(i);
 			r.save();
 		}
+
+		updateRecordLookupMap();
 		
 		if (saveFail) {
 			return;
