@@ -70,6 +70,16 @@ public class EnemySet {
 		loadGfxRecords();
 	}
 
+	public void setData(byte[] data) {
+		enemySetRecord.setData(data);
+
+		loadGfxRecords();
+	}
+
+	public byte[] getData() {
+		return enemySetRecord.toArray();
+	}
+
 	public String getName() {
 		return name;
 	}

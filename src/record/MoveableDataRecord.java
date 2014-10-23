@@ -373,6 +373,7 @@ public class MoveableDataRecord extends Record
 	{
 		// A potential problem with having trimPtrs() here is that it may remove pointers prematurely.
 		// To prevent this, data which has "deleteWithNoPtr" set should have their pointers updated asap.
+		// Or just never call this function until it's time to save.
 		if (deleteWithNoPtr) {
 			trimPtrs();
 			if (ptrs.size() == 0)

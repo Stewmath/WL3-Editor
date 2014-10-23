@@ -336,6 +336,51 @@ public class ExportDialog extends JDialog {
 				return true;
 			}
 		},
+		new ExportableData() {
+			String name = "EnemySet Data";
+
+			public int exportData(ByteArrayOutputStream out) throws IOException {
+				Set<EnemySet> enemySets = new HashSet<EnemySet>();
+
+				for (Level level : levelsToExport) {
+					RegionRecord r = level.getRegionDataRecord();
+					for (int i=0; i<r.getNumRegions(); i++) {
+						int objectSet = r.getRegion(i).objectSetId;
+						enemySets.add(ObjectSet.getObjectSet(objectSet).getEnemySet());
+					}
+				}
+
+				for (EnemySet enemySet : enemySets) {
+					byte[] data = enemySet.getData();
+
+					writeString(out, enemySet.getName());
+					writeInt(out, data.length);
+					out.write(data);
+				}
+				writeString(out, "");
+
+				return 0;
+			}
+			public boolean importData(byte[] data, int offset) {
+				ByteArrayInputStream in = new ByteArrayInputStream(data, offset, data.length-offset);
+
+				String name = readString(in);
+				while (!name.isEmpty()) {
+					logger.finer("Importing enemy set " + name);
+
+					int dataSize = readInt(in);
+					byte[] enemySetData = new byte[dataSize];
+					in.read(enemySetData, 0, dataSize);
+
+					EnemySet enemySet = EnemySet.getEnemySet(name);
+					enemySet.setData(enemySetData);
+
+					name = readString(in);
+				}
+
+				return true;
+			}
+		},
 	};
 
 
