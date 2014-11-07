@@ -4,6 +4,8 @@ import java.awt.Dialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,6 +23,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import base.*;
+
+import graphics.CheckBoxList;
 import record.*;
 
 import java.util.*;
@@ -31,22 +35,32 @@ import record.RomReader;
 
 // TODO: enforce data sizes when exporting
 
-public class ExportDialog extends JDialog {
-	static Logger logger = Logger.getLogger(ExportDialog.class.getName());
+public class ImportExportDialog {
+	static Logger logger = Logger.getLogger(ImportExportDialog.class.getName());
 
 	public static final int EXPORT_VERSION = 1;
 	public static final int HEADER_SIZE = 0x40;
 
 
 	abstract class ExportableData {
-		String name;
+		boolean enabled = true;
+		void setEnabled(boolean val) {
+			enabled = val;
+		}
+		boolean isEnabled() {
+			return enabled;
+		}
+
+		abstract String getName();
 		abstract int exportData(ByteArrayOutputStream out) throws IOException;
 		abstract boolean importData(byte[] data, int offset);
 	}
 
 	ExportableData[] exportableData = new ExportableData[] {
 		new ExportableData() {
-			String name = "Level Data";
+			String getName() {
+				return "Level Data";
+			}
 
 			int exportData(ByteArrayOutputStream out) throws IOException {
 				// Keeps track of which leveldata has been written already
@@ -149,7 +163,9 @@ public class ExportDialog extends JDialog {
 			}
 		},
 		new ExportableData() {
-			String name = "Tileset Data";
+			String getName() {
+				return "Tileset Data";
+			}
 
 			int exportData(ByteArrayOutputStream out) throws IOException {
 				Set<TileSet> tileSets = new HashSet<TileSet>();
@@ -278,9 +294,11 @@ public class ExportDialog extends JDialog {
 				logger.finer("Importing gfx bank 1 data");
 				index = readInt(in);
 				while (index != -1) {
-					byte[] buf = new byte[128*16];
-					in.read(buf, 0, 128*16);
-					TileSet.getGfxData1Record(index).setData(buf);
+					if (bank1CheckBox.isSelected()) {
+						byte[] buf = new byte[128*16];
+						in.read(buf, 0, 128*16);
+						TileSet.getGfxData1Record(index).setData(buf);
+					}
 					index = readInt(in);
 				}
 
@@ -290,7 +308,9 @@ public class ExportDialog extends JDialog {
 			}
 		},
 		new ExportableData() {
-			String name = "ObjectSet Data";
+			String getName() {
+				return "ObjectSet Data";
+			}
 
 			public int exportData(ByteArrayOutputStream out) throws IOException {
 				Set<ObjectSet> objectSets = new HashSet<ObjectSet>();
@@ -337,7 +357,9 @@ public class ExportDialog extends JDialog {
 			}
 		},
 		new ExportableData() {
-			String name = "EnemySet Data";
+			String getName() {
+				return "EnemySet Data";
+			}
 
 			public int exportData(ByteArrayOutputStream out) throws IOException {
 				Set<EnemySet> enemySets = new HashSet<EnemySet>();
@@ -385,62 +407,84 @@ public class ExportDialog extends JDialog {
 
 
 
-	ComboBoxFromFile comboBox;
-
 	Set<Level> levelsToExport;
 
-	public ExportDialog() {
-		super(null, "Export Level", Dialog.ModalityType.APPLICATION_MODAL);
+	JDialog dialog;
 
-		JPanel contentPanel = new JPanel();
-		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+	JCheckBox[] checkBoxes;
+	JCheckBox bank1CheckBox;
 
-		comboBox = new ComboBoxFromFile(this, ValueFileParser.getLevelFile());
-		contentPanel.add(comboBox);
 
-		JButton exportButton = new JButton("Export");
-		exportButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int levelIndex = comboBox.getAddr();
-				levelsToExport = new HashSet<Level>();
-				for (int i=levelIndex/8*8; i<(levelIndex/8+1)*8; i++) {
-					levelsToExport.add(Level.getLevel(i));
-				}
-
-				ByteArrayOutputStream data = new ByteArrayOutputStream();
-
-				try {
-					writeHeader(data);
-
-					RomReader.exportData(data.toByteArray(),
-							"Export Level",
-							new FileNameExtensionFilter("WL3 Archive File (.wl3)", "wl3"));
-				}
-				catch (IOException ex) {
-				}
-
-				setVisible(false);
+	// Kind of silly to make this a dialog, I don't use it as one
+	public ImportExportDialog(boolean export, int baseLevel) {
+		if (export) {
+			levelsToExport = new HashSet<Level>();
+			for (int i=baseLevel/8*8; i<(baseLevel/8+1)*8; i++) {
+				levelsToExport.add(Level.getLevel(i));
 			}
-		});
-		contentPanel.add(exportButton);
 
-		JButton importButton = new JButton("Import");
-		importButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				byte[] data = RomReader.importData("Import Level",
+			ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+			try {
+				writeHeader(data);
+
+				RomReader.exportData(data.toByteArray(),
+						"Export Level",
 						new FileNameExtensionFilter("WL3 Archive File (.wl3)", "wl3"));
-
-				if (!readHeader(data)) {
-					logger.warning("Import error");
-				}
-
-				setVisible(false);
 			}
-		});
-		contentPanel.add(importButton);
+			catch (IOException ex) {
+			}
+		}
+		else { // Import
+			dialog = new JDialog(null, "Import Level", Dialog.ModalityType.APPLICATION_MODAL);
+			JPanel contentPanel = new JPanel();
+			contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-		add(contentPanel);
-		pack();
+			checkBoxes = new JCheckBox[exportableData.length];
+			for (int i=0; i<exportableData.length; i++) {
+				ExportableData data = exportableData[i];
+
+				checkBoxes[i] = new JCheckBox(data.getName());
+				checkBoxes[i].addItemListener(new ItemListener() {
+					public void itemStateChanged(ItemEvent e) {
+						int j;
+						for (j=0;; j++) {
+							if (e.getSource() == checkBoxes[j])
+								break;
+						}
+						exportableData[j].setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+					}
+				});
+				checkBoxes[i].setSelected(true);
+
+				contentPanel.add(checkBoxes[i]);
+			}
+			bank1CheckBox = new JCheckBox("Bank 1 gfx");
+			bank1CheckBox.setSelected(false);
+			contentPanel.add(bank1CheckBox);
+
+			JButton importButton = new JButton("Import");
+			importButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					byte[] data = RomReader.importData("Import Level",
+							new FileNameExtensionFilter("WL3 Archive File (.wl3)", "wl3"));
+
+					if (data != null) {
+						if (!readHeader(data)) {
+							logger.warning("Import error");
+						}
+					}
+
+					dialog.setVisible(false);
+				}
+			});
+
+			contentPanel.add(importButton);
+
+			dialog.add(contentPanel);
+			dialog.pack();
+			dialog.setVisible(true);
+		}
 	}
 
 	void writeInt(ByteArrayOutputStream out, int val) {
@@ -515,7 +559,8 @@ public class ExportDialog extends JDialog {
 			int headerPos = 8;
 			for (ExportableData importer : exportableData) {
 				int pointer = readInt(data, headerPos);
-				importer.importData(data, pointer);
+				if (importer.isEnabled())
+					importer.importData(data, pointer);
 				headerPos += 4;
 			}
 		}

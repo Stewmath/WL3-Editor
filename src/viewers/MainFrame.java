@@ -372,6 +372,7 @@ public class MainFrame extends JFrame
 				}
 			}
 		});
+		levelMenu.add(mntm_addRegion);
 		
 		JMenuItem mntm_compare = new JMenuItem("Compare...");
 		mntm_compare.addActionListener(new ActionListener() {
@@ -400,9 +401,25 @@ public class MainFrame extends JFrame
 				}
 			}
 		});
-		
-		levelMenu.add(mntm_addRegion);
 		levelMenu.add(mntm_compare);
+
+		JMenuItem exportLevelButton = new JMenuItem("Export Level");
+		exportLevelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				ImportExportDialog d = new ImportExportDialog(true, levelViewer.level.getId());
+			}
+		});
+		levelMenu.add(exportLevelButton);
+		JMenuItem importLevelButton = new JMenuItem("Import Level");
+		importLevelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				ImportExportDialog d = new ImportExportDialog(false, 0);
+				levelViewer.setLevel(levelViewer.level);
+			}
+		});
+		levelMenu.add(importLevelButton);
 		
 		JMenu miscMenu = new JMenu("Other");
 
@@ -442,17 +459,6 @@ public class MainFrame extends JFrame
 			}
 		});
 		miscMenu.add(creditEditorButton);
-
-		JMenuItem exportLevelButton = new JMenuItem("Export Data");
-		exportLevelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e)
-			{
-				ExportDialog d = new ExportDialog();
-				d.setVisible(true);
-				levelViewer.setLevel(levelViewer.level);
-			}
-		});
-		miscMenu.add(exportLevelButton);
 
 		
 		menuBar_1.add(fileMenu);
