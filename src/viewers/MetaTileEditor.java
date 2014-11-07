@@ -299,20 +299,38 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 
 		palettePanel = new PaletteEditorPanel(tileSet.getPalettes(), true, this);
 		
-		JButton subTileEditorButton = new JButton("Edit Subtiles");
-		subTileEditorButton.addActionListener(new ActionListener() {
+		JButton subTileEditorButton0 = new JButton("Edit Subtiles 0");
+		subTileEditorButton0.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TileEditor editor = new TileEditor(tileSet.getSubTileData(), tileSet.getPalettes());
-				editor.setOffsetText("Bank 0 Tiles: 0x" + RomReader.toHexString(tileSet.getGfxData0Record().getAddr()) + "\n" +
-					"Bank 1 Tiles: 0x" + RomReader.toHexString(tileSet.getGfxData1Record().getAddr()));
+				TileEditor editor = new TileEditor(tileSet.getSubTileData0(), tileSet.getPalettes());
+				editor.setOffsetText("0x" + RomReader.toHexString(tileSet.getGfxData0Record().getAddr()));
 				editor.setVisible(true);
 				if (editor.clickedOk()) {
-					tileSet.setSubTileData(editor.getTileData());
+					tileSet.setSubTileData0(editor.getTileData());
 					tileSet.setPalettes(editor.getPalettes());
 					refreshTileSet();
 				}
 			}
 		});
+		JButton subTileEditorButton1 = new JButton("Edit Subtiles 1");
+		subTileEditorButton1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TileEditor editor = new TileEditor(tileSet.getSubTileData1(), tileSet.getPalettes());
+				editor.setOffsetText("0x" + RomReader.toHexString(tileSet.getGfxData1Record().getAddr()));
+				editor.setVisible(true);
+				if (editor.clickedOk()) {
+					tileSet.setSubTileData1(editor.getTileData());
+					tileSet.setPalettes(editor.getPalettes());
+					refreshTileSet();
+				}
+			}
+		});
+
+		JPanel subTilePanel = new JPanel();
+		subTilePanel.setLayout(new BoxLayout(subTilePanel, BoxLayout.X_AXIS));
+		subTilePanel.add(subTileEditorButton0);
+		subTilePanel.add(subTileEditorButton1);
+
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -328,7 +346,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 
 		contentPane.add(propertyPanel);
 		contentPane.add(topPanel);
-		contentPane.add(subTileEditorButton);
+		contentPane.add(subTilePanel);
 		contentPane.add(tileEditPanel);
 		contentPane.add(buttonPanel);
 

@@ -313,9 +313,23 @@ public class TileSet {
 		return retArray;
 	}
 
+	public byte[] getSubTileData0() {
+		return gfxData0Record.toArray();
+	}
+	public byte[] getSubTileData1() {
+		return gfxData1Record.toArray();
+	}
+
 	public void setSubTileData(byte[] data) {
 		gfxData0Record.setData(Arrays.copyOfRange(data, 0, gfxData0Record.getDataSize()));
 		gfxData1Record.setData(Arrays.copyOfRange(data, gfxData0Record.getDataSize(), data.length));
+	}
+
+	public void setSubTileData0(byte[] data) {
+		gfxData0Record.setData(data);
+	}
+	public void setSubTileData1(byte[] data) {
+		gfxData1Record.setData(data);
 	}
 
 	public final BufferedImage[] getTileImages() {
