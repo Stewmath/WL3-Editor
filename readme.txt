@@ -29,16 +29,19 @@ level from the drop-down menu or change the number in brackets to select a
 level. Note that hexadecimal is used almost exclusively in this editor, so if
 you see a number or entry field, assume it's in hex!
 
-    Editing the tile data of the level is fairly simple. First select "Edit
-level" on the left panel. Click on the tile you want to use from the tileset
-viewer on the left, and left-click on the level viewer on the right to place it.
-Alternatively, right-click on a tile in the level viewer to select it. If
-"view->objects" is selected, you can also move objects, which are keys, chests,
-music coins, and enemies. They are represented by blue boxes with a number in
-them. A chest is "1", a key is "2", a musical coin is "3". Further numbers are
-usually enemies. There is no easy way to tell what the rest of the numbers
-represent without being familiar with the game, unless it's been specified in
-enemySet.txt - which, odds are, it hasn't.
+Usage:
+- Left click on the tileset or object viewers (left) to select a tile or an object
+- Or, right click on a tile in the level viewer (right) to select a tile
+- Left click and drag in the level viewer to place tiles or objects
+- Ctrl+Left click to fill the area in a rectangle with the selected tile
+- Ctrl+Z to undo
+- Ctrl+Y to redo
+
+	If "view->objects" is selected, you can also move objects, which are keys, 
+chests, music coins, and enemies. They are represented by blue boxes with a 
+number in them. A chest is "1", a key is "2", a musical coin is "3". Further 
+numbers are usually enemies. You can check which enemies are which in the
+object editor.
 
 EDITING WARPS
 
@@ -138,11 +141,12 @@ sprite priority bit displays 3 of their 4 colors in front of sprites rather than
 behind. The bank bit is put there for completeness, but it is handled
 automatically - no need to change it.
 
-    A long but incomplete list of tile effects is included. Most are self-
+    A long list of tile effects is included. Most are self-
 explanitory. There are many which involve breaking into a different metatile.
-They look something like, for instance, "H breaks to T 7a", which means it is a
-hard, breakable tile which turns into tile 7a when broken. Only tiles 78-7f can
-be used as the new identity of a breakable tile.
+They look something like, for instance, "Hard breaks (78)", which means it is a
+hard, breakable tile which turns into tile 7a when broken. Only tiles 78-7f (the 
+last 8 tiles in the tileset) can be used as the new identity of a breakable 
+tile.
 
 EDITING OBJECT SETS
 

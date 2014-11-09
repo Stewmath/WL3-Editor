@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
 
 public class LevelViewer extends JPanel  {
 
-	final static int UNDO_LENGTH = 3;
+	final static int UNDO_LENGTH = 50;
 
 	// Values for editMode
 	final static int EDIT_LEVEL=1;
