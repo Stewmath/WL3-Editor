@@ -1,5 +1,7 @@
 package viewers;
 
+import java.util.ArrayList;
+
 import graphics.Drawing;
 
 import javax.swing.BorderFactory;
@@ -18,6 +20,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 public class LevelViewer extends JPanel  {
+
+	final static int UNDO_LENGTH = 3;
 
 	// Values for editMode
 	final static int EDIT_LEVEL=1;
@@ -47,6 +51,12 @@ public class LevelViewer extends JPanel  {
 	int draggingObject=0; // For moving an object
 
 	boolean ctrlPressed=false;
+
+	// Undo buffers
+	ArrayList<byte[]> tileBuffer;
+	ArrayList<byte[]> objectBuffer;
+
+	int undoBufferPos;
 	
 	public LevelViewer(MainFrame f)
 	{
@@ -155,16 +165,20 @@ public class LevelViewer extends JPanel  {
 								}
 							}
 
+							saveBuffer();
+
 							repaint();
 						}
 					}
-
-					dragging = false;
-
-					if (draggingObject != 0)
-					{
+					else if (dragging) {
+						dragging = false;
+						saveBuffer();
+					}
+					else if (draggingObject != 0) {
 						level.setObject(cursorPos.x, cursorPos.y, draggingObject);
 						draggingObject = 0;
+
+						saveBuffer();
 					}
 				}
 			}
@@ -215,6 +229,14 @@ public class LevelViewer extends JPanel  {
 					case KeyEvent.VK_CONTROL:
 						ctrlPressed = false;
 						break;
+					case KeyEvent.VK_Z:
+						if (ctrlPressed)
+							undo();
+						break;
+					case KeyEvent.VK_Y:
+						if (ctrlPressed)
+							redo();
+						break;
 				}
 			}
 		});
@@ -227,6 +249,58 @@ public class LevelViewer extends JPanel  {
 		setFocusable(true);
 		requestFocus();
 	}
+
+	public void undo() {
+		if (undoBufferPos > 0) {
+			undoBufferPos--;
+			byte[] tiles = tileBuffer.get(undoBufferPos);
+			byte[] objects = objectBuffer.get(undoBufferPos);
+
+			level.getTileDataRecord().setData(tiles);
+			level.getObjectDataRecord().setData(objects);
+
+			level.generateImage();
+			repaint();
+		}
+	}
+
+	public void redo() {
+		if (undoBufferPos+1 < tileBuffer.size()) {
+			undoBufferPos++;
+
+			byte[] tiles = tileBuffer.get(undoBufferPos);
+			byte[] objects = objectBuffer.get(undoBufferPos);
+
+			level.getTileDataRecord().setData(tiles);
+			level.getObjectDataRecord().setData(objects);
+
+			level.generateImage();
+			repaint();
+		}
+	}
+
+	// Add state to undo buffer
+	public void saveBuffer() {
+		// Remove anything from the "redo" end of the buffer
+		while (undoBufferPos+1 < tileBuffer.size()) {
+			tileBuffer.remove(undoBufferPos+1);
+			objectBuffer.remove(undoBufferPos+1);
+		}
+
+		if (undoBufferPos >= UNDO_LENGTH) {
+			tileBuffer.remove(0);
+			objectBuffer.remove(0);
+			undoBufferPos--;
+		}
+
+		byte[] tiles = level.getTileDataRecord().toArray();
+		byte[] objects = level.getObjectDataRecord().toArray();
+
+		tileBuffer.add(tiles);
+		objectBuffer.add(objects);
+		undoBufferPos++;
+	}
+
 
 	public void setSelectedRegion(Region r) {
 		selectedRegion = r;
@@ -363,6 +437,11 @@ public class LevelViewer extends JPanel  {
 			tileSetViewer.setTileSet(selectedRegion.getTileSet());
 			mainFrame.musicField.setSelected(level.getMusicId());
 			mainFrame.levelField.setSelected(level.getId());
+
+			tileBuffer = new ArrayList<byte[]>();
+			objectBuffer = new ArrayList<byte[]>();
+			undoBufferPos = -1;
+			saveBuffer();
 		}
 		repaint();
 	}
