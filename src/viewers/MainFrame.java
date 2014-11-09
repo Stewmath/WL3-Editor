@@ -783,7 +783,7 @@ public class MainFrame extends JFrame
 	// from TileSetViewerClient
 	public void tileSelectionChanged(int tile)
 	{
-		levelViewer.placingTile = true;
+		levelViewer.tileMode = true;
 		objectSetViewer.selectedObject = -1;
 		objectSetViewer.repaint();
 	}
@@ -798,7 +798,7 @@ public class MainFrame extends JFrame
 			viewObjectCheckBox.setSelected(true);
 			levelViewer.repaint();
 		}
-		levelViewer.placingTile = false;
+		levelViewer.tileMode = false;
 		tileSetViewer.selectedTile = -1;
 		tileSetViewer.repaint();
 	}

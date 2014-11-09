@@ -36,11 +36,17 @@ public class LevelViewer extends JPanel  {
 	public Level level;
 	
 	public Point cursorPos;
-	boolean dragging=false;
-	int draggingObject=0;
-	
+
 	// If false, objects are added instead
-	boolean placingTile=true;
+	boolean tileMode=true;
+
+	boolean dragging=false; // For holding the left mouse button down
+	boolean rectangleMode=false;
+	Point rectangleStart = new Point();
+
+	int draggingObject=0; // For moving an object
+
+	boolean ctrlPressed=false;
 	
 	public LevelViewer(MainFrame f)
 	{
@@ -52,7 +58,13 @@ public class LevelViewer extends JPanel  {
 			{
 				if (level != null)
 				{
-					cursorPos = new Point(e.getX()/16, e.getY()/16);
+					Point newCursorPos = new Point(e.getX()/16, e.getY()/16);
+
+					if (newCursorPos.x >= 0xa0 || newCursorPos.x < 0 ||
+							newCursorPos.y >= 0x30 || newCursorPos.y < 0)
+						return;
+
+					cursorPos = newCursorPos;
 
 					boolean changedRegion = false;
 					if ((editMode == EDIT_LEVEL || editMode == EDIT_WARPS) && level.getRegion(cursorPos.x, cursorPos.y) != selectedRegion)
@@ -71,7 +83,7 @@ public class LevelViewer extends JPanel  {
 					
 					if (e.getButton() == MouseEvent.BUTTON1)
 					{
-						if (viewObjects && (placingTile || mainFrame.objectSetViewer.selectedObject != 0 || editMode == EDIT_WARPS)
+						if (viewObjects && (mainFrame.objectSetViewer.selectedObject != 0)
 							&& level.getObject(cursorPos.x, cursorPos.y) != 0)
 						{
 							draggingObject = level.getObject(cursorPos.x, cursorPos.y);
@@ -79,10 +91,17 @@ public class LevelViewer extends JPanel  {
 						}
 						else if (editMode == EDIT_LEVEL && !changedRegion)
 						{
-							if (placingTile)
+							if (tileMode)
 							{
-								dragging = true;
-								setTile(cursorPos.x, cursorPos.y, tileSetViewer.selectedTile);
+								if (ctrlPressed) {
+									rectangleMode = true;
+									rectangleStart.x = cursorPos.x;
+									rectangleStart.y = cursorPos.y;
+								}
+								else {
+									dragging = true;
+									setTile(cursorPos.x, cursorPos.y, tileSetViewer.selectedTile);
+								}
 							}
 							else
 							{
@@ -94,11 +113,17 @@ public class LevelViewer extends JPanel  {
 					}
 					else if (e.getButton() == MouseEvent.BUTTON3)
 					{
-						int obj = level.getObject(cursorPos.x, cursorPos.y);
-						if (viewObjects && obj != 0)
-							mainFrame.objectSetViewer.setSelectedObject(obj);
-						else
-							tileSetViewer.setSelectedTile(level.getTile(cursorPos.x, cursorPos.y));
+						if (rectangleMode) {
+							rectangleMode = false;
+						}
+						else {
+							// Copy tile or object into currently selected tile
+							int obj = level.getObject(cursorPos.x, cursorPos.y);
+							if (viewObjects && obj != 0)
+								mainFrame.objectSetViewer.setSelectedObject(obj);
+							else
+								tileSetViewer.setSelectedTile(level.getTile(cursorPos.x, cursorPos.y));
+						}
 					}
 
 					repaint();
@@ -108,7 +133,34 @@ public class LevelViewer extends JPanel  {
 			{
 				if (level != null)
 				{
+					if (rectangleMode) {
+						rectangleMode = false;
+
+						if (cursorPos.x != -1) {
+							Point rectangleEnd = new Point(cursorPos);
+							if (rectangleStart.x > rectangleEnd.x) {
+								int tmp = rectangleEnd.x;
+								rectangleEnd.x = rectangleStart.x;
+								rectangleStart.x = tmp;
+							}
+							if (rectangleStart.y > rectangleEnd.y) {
+								int tmp = rectangleEnd.y;
+								rectangleEnd.y = rectangleStart.y;
+								rectangleStart.y = tmp;
+							}
+
+							for (int x=rectangleStart.x; x<=rectangleEnd.x; x++) {
+								for (int y=rectangleStart.y; y<=rectangleEnd.y; y++) {
+									setTile(x, y, tileSetViewer.selectedTile);
+								}
+							}
+
+							repaint();
+						}
+					}
+
 					dragging = false;
+
 					if (draggingObject != 0)
 					{
 						level.setObject(cursorPos.x, cursorPos.y, draggingObject);
@@ -125,10 +177,16 @@ public class LevelViewer extends JPanel  {
 			public void mouseMoved(MouseEvent e)
 			{
 				Point p = e.getPoint();
-				Point oldPos = cursorPos;
-				cursorPos = new Point(p.x/16, p.y/16);
-				if (oldPos.x != cursorPos.x || oldPos.y != cursorPos.y)
+				Point newPos = new Point(p.x/16, p.y/16);
+
+				if (newPos.x >= 0xa0 || newPos.x < 0 ||
+						newPos.y >= 0x30 || newPos.y < 0)
+					return;
+
+				if (cursorPos.x != newPos.x || cursorPos.y != newPos.y)
 					repaint();
+
+				cursorPos = newPos;
 			}
 			public void mouseDragged(MouseEvent e)
 			{
@@ -136,7 +194,7 @@ public class LevelViewer extends JPanel  {
 				cursorPos = new Point(p.x/16, p.y/16);
 				if (dragging)
 				{
-					if (placingTile)
+					if (tileMode)
 						setTile(cursorPos.x, cursorPos.y, tileSetViewer.selectedTile);
 					else
 						level.setObject(cursorPos.x, cursorPos.y, mainFrame.objectSetViewer.selectedObject);
@@ -144,11 +202,30 @@ public class LevelViewer extends JPanel  {
 				repaint();
 			}
 		});
+		addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_CONTROL:
+						ctrlPressed = true;
+						break;
+				}
+			}
+			public void keyReleased(KeyEvent e) {
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_CONTROL:
+						ctrlPressed = false;
+						break;
+				}
+			}
+		});
 		
 		
 		level = null;
 		
 		cursorPos = new Point(0, 0);
+
+		setFocusable(true);
+		requestFocus();
 	}
 
 	public void setSelectedRegion(Region r) {
@@ -158,7 +235,7 @@ public class LevelViewer extends JPanel  {
 	}
 
 	public void setTile(int x, int y, int tile) {
-		level.setTile(cursorPos.x, cursorPos.y, tileSetViewer.selectedTile);
+		level.setTile(x, y, tileSetViewer.selectedTile);
 	}
 	
 	public void setRegionSector(int sector)
@@ -246,6 +323,8 @@ public class LevelViewer extends JPanel  {
 		mainFrame.sectorEditor.setBorder(BorderFactory.createTitledBorder("Sector " + Integer.toHexString(selectedSector).toUpperCase()));
 		mainFrame.sectorDestinationField.setText(Integer.toHexString(level.getRegionDataRecord().getSectorDestination(selectedSector)).toUpperCase());
 		mainFrame.disableRegionListener = false;
+
+		requestFocus();
 	}
 	public void setSectorDestination(int dest)
 	{
@@ -358,7 +437,17 @@ public class LevelViewer extends JPanel  {
 			
 			// Draw cursor
 			g.setColor(Color.red);
-			Drawing.drawSquare(g, 2, cursorPos.x*16, cursorPos.y*16, 16);
+			if (rectangleMode) {
+				int startX = (rectangleStart.x < cursorPos.x ? rectangleStart.x : cursorPos.x);
+				int startY = (rectangleStart.y < cursorPos.y ? rectangleStart.y : cursorPos.y);
+				int endX = (rectangleStart.x >= cursorPos.x ? rectangleStart.x : cursorPos.x);
+				int endY = (rectangleStart.y >= cursorPos.y ? rectangleStart.y : cursorPos.y);
+				Drawing.drawRect(g, 2, startX*16, startY*16,
+						(endX-startX+1)*16,
+						(endY-startY+1)*16);
+			}
+			else
+				Drawing.drawSquare(g, 2, cursorPos.x*16, cursorPos.y*16, 16);
 		}
 	}
 	
