@@ -458,10 +458,10 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 	void refreshTileSet() {
 		tileSet.invalidateImages();
 
+		metaTileImage = tileSet.getTileImage(metaTile);
 		palettePanel.setPalettes(tileSet.getPalettes());
 		subTileViewer.setTileSet(tileSet);
 		tileSetViewer.setTileSet(tileSet);
-		metaTileImage = tileSet.getTileImage(metaTile);
 		repaint();
 	}
 	void setMetaTile(int tile) {
