@@ -66,10 +66,6 @@ public class CompareLevelDialog extends JDialog {
 				public void actionPerformed(ActionEvent e)
 				{
 					l1.makeNewLevelData();
-				//	l1.tileLayout = rom.getMoveableDataRecord(l2.tileLayout.toArray(), levelDataAddr, levelDataAddr+2, true);
-				//	l1.objectLayout = rom.getMoveableDataRecord(l2.objectLayout.toArray(), levelDataAddr+3, levelDataAddr+2, true);
-				//	l1.layoutRecord = rom.getJoinedRecord(l1.tileLayout, l1.objectLayout);
-				//	l1.save();
 					setVisible(false);
 				}
 			});
@@ -112,6 +108,14 @@ public class CompareLevelDialog extends JDialog {
 			warpButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e)
 				{
+					if (l1.getId()/0x64 != l2.getId()/0x64) {
+						JOptionPane.showMessageDialog(null,
+								"Can't merge these regions (banks differ).",
+								"Error",
+								JOptionPane.ERROR_MESSAGE);
+						setVisible(false);
+						return;
+					}
 					l1.setRegionDataRecord(l2.getRegionDataRecord());
 					setVisible(false);
 				}
