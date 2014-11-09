@@ -15,8 +15,8 @@
 ;   bank (hex):             The bank number (if bankAddress is unspecified)
 
 ; Notes:
-; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise.
 ; - 'absolute' and the palettes aren't implemented yet.
+; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise.
 ; - Some things (like golf tilesets) must be in the same bank
 
 

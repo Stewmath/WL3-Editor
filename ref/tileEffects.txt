@@ -1,4 +1,4 @@
-; This is a list of tile effects. It is not complete but it covers the basics.
+; This is a list of tile effects.
 
 ; Every number in here is a pointer to code in bank 6 executed when wario
 ; or an enemy collide with a tile of that type.
@@ -21,8 +21,10 @@ Underwater platform=        423f
 Enemy-only platform=        4262
 Switch=                     428c
 Ladder body=                42c3
+Platform (Wario), Solid (Enemy)=42dc
 Ladder top=                 42e5
 Ladder warp tile=           42fe
+Warp Tile (?)=              431a
 Spike=                      4336
 Spike (more rigid)=         439c
 Underwater spike=           4402
@@ -32,25 +34,80 @@ Down-facing pipe (L)=       44fc
 Down-facing pipe (R)=       4533
 Door=                       45cb
 Golf door=                  45fa
+Door (?)=                   4624
+Door (??)=                  464e
 Underwater door=            46f9
+Underwater door (?)=        4727
+Underwater door (??)=       4755
 Exit door=                  477e
 Warp tile=                  47b0
+Warp tile (??)=             47c7
 Water warp tile=            47de
+Warp tile (???)=            47f5
+Cure invisibility=          480c
 Light/Garlic=               4821
 Quicksand=                  484c
+Solid for Vampire Wario=    4868
 Impassable by enemies=      48ba
+Swamp Water=                48c4
 Fire=                       48e0
 Rope/Vine=                  4934
+Updraft=                    494d
 Slippery=                   4997
 Slippery platform=          49ae
-Breaks to T 78 w/ coin=     49fb
-Breaks to T 79 w/ coin=     49ff
-Breaks to T 7a w/ coin=     4a03
-Breaks to T 7b w/ coin=     4a07
-Breaks to T 7c w/ coin=     4a0b
-Breaks to T 7d w/ coin=     4a0f
-Breaks to T 7e w/ coin=     4a13
-Breaks to T 7f w/ coin=     4a17
+Usually a platform (?)=     49c5
+Impassable by Wario=        49df
+Wario-only platform=        49f1
+
+Breaks w/ coin (78)=        49fb
+Breaks w/ coin (79)=        49ff
+Breaks w/ coin (7a)=        4a03
+Breaks w/ coin (7b)=        4a07
+Breaks w/ coin (7c)=        4a0b
+Breaks w/ coin (7d)=        4a0f
+Breaks w/ coin (7e)=        4a13
+Breaks w/ coin (7f)=        4a17
+
+Snow breakable 2x2 (BL) (79)= 4a9a
+Snow breakable 2x2 (BL) (7a)= 4a9e
+Snow breakable 2x2 (BL) (7b)= 4aa2
+Snow breakable 2x2 (BL) (78)= 4aa6
+
+Snow breakable 2x2 (BR) (79)= 4ade
+Snow breakable 2x2 (BR) (7a)= 4ae2
+Snow breakable 2x2 (BR) (7b)= 4ae6
+Snow breakable 2x2 (BR) (78)= 4aea
+
+Snow breakable 2x2 (TR) (79)= 4b1f
+Snow breakable 2x2 (TR) (7a)= 4b23
+Snow breakable 2x2 (TR) (7b)= 4b27
+Snow breakable 2x2 (TR) (78)= 4b2b
+
+Snow breakable 2x2 (TL) (79)= 4b63
+Snow breakable 2x2 (TL) (7a)= 4b67
+Snow breakable 2x2 (TL) (7b)= 4b6b
+Snow breakable 2x2 (TL) (78)= 4b6f
+
+Big snow breakable 2x2 (BL) (79)= 4ba7
+Big snow breakable 2x2 (BL) (7a)= 4bab
+Big snow breakable 2x2 (BL) (7b)= 4baf
+Big snow breakable 2x2 (BL) (78)= 4bb3
+
+Big snow breakable 2x2 (BR) (79)= 4beb
+Big snow breakable 2x2 (BR) (7a)= 4bef
+Big snow breakable 2x2 (BR) (7b)= 4bf3
+Big snow breakable 2x2 (BR) (78)= 4bf7
+
+Big snow breakable 2x2 (TR) (79)= 4c2c
+Big snow breakable 2x2 (TR) (7a)= 4c30
+Big snow breakable 2x2 (TR) (7b)= 4c34
+Big snow breakable 2x2 (TR) (78)= 4c38
+
+Big snow breakable 2x2 (TL) (79)= 4c70
+Big snow breakable 2x2 (TL) (7a)= 4c74
+Big snow breakable 2x2 (TL) (7b)= 4c78
+Big snow breakable 2x2 (TL) (78)= 4c7c
+
 Breaks to tile 78=          4cb4
 Breaks to tile 79=          4cb8
 Breaks to tile 7a=          4cbc
@@ -59,45 +116,144 @@ Breaks to tile 7c=          4cc4
 Breaks to tile 7d=          4cc8
 Breaks to tile 7e=          4ccc
 Breaks to tile 7f=          4cd0
-Hard breaks to T 78=        4d60
-Hard breaks to T 79=        4d64
-Hard breaks to T 7a=        4d68
-Hard breaks to T 7b=        4d6c
-Hard breaks to T 7c=        4d70
-Hard breaks to T 7d=        4d74
-Hard breaks to T 7e=        4d78
-Hard breaks to T 7f=        4d7c
-2x2 breaks to T 78 (BL)=    4e2a
-2x2 breaks to T 78 (BR)=    4ebe
-2x2 breaks to T 79 (TR)=    4f5f
-2x2 breaks to T 78 (TR)=    4f7b
-2x2 breaks to T 79 (TL)=    4ff3
-2x2 breaks to T 78 (TL)=    500f
-H. 2x2 breaks to T 7b (BL)= 50e8
-H. 2x2 breaks to T 7b (BR)= 519d
-H. 2x2 breaks to T 7b (TR)= 527b
-H. 2x2 breaks to T 7b (TL)= 5330
-Throw breaks to T 78=       53fb
-Throw breaks to T 79=       53ff
-Throw breaks to T 7a=       5403
-Throw breaks to T 7b=       5407
-Throw breaks to T 7c=       540b
-Throw breaks to T 7d=       540f
-Throw breaks to T 7e=       5413
-Throw breaks to T 7f=       5417
-Fire breaks to T 78=        544b
-Fire breaks to T 79=        544f
-Fire breaks to T 7a=        5453
-Fire breaks to T 7b=        5457
-Fire breaks to T 7c=        545b
-Fire breaks to T 7d=        545f
-Fire breaks to T 7e=        5463
-Fire breaks to T 7f=        5467
-Fat breaks to T 78=         5497
-Fat breaks to T 79=         549b
-Fat breaks to T 7a=         549f
-Fat breaks to T 7b=         54a3
-Fat breaks to T 7c=         54a7
-Fat breaks to T 7d=         54ab
-Fat breaks to T 7e=         54af
-Fat breaks to T 7f=         54b3
+
+Hard breaks (78)=           4d60
+Hard breaks (79)=           4d64
+Hard breaks (7a)=           4d68
+Hard breaks (7b)=           4d6c
+Hard breaks (7c)=           4d70
+Hard breaks (7d)=           4d74
+Hard breaks (7e)=           4d78
+Hard breaks (7f)=           4d7c
+
+Breakable 2x2 (BL) (79)= 4e0e
+Breakable 2x2 (BL) (7a)= 4e12
+Breakable 2x2 (BL) (7b)= 4e16
+Breakable 2x2 (BL) (7c)= 4e1a
+Breakable 2x2 (BL) (7d)= 4e1e
+Breakable 2x2 (BL) (7e)= 4e22
+Breakable 2x2 (BL) (7f)= 4e26
+Breakable 2x2 (BL) (78)= 4e2a
+
+Breakable 2x2 (BR) (79)=    4ea2
+Breakable 2x2 (BR) (7a)=    4ea6
+Breakable 2x2 (BR) (7b)=    4eaa
+Breakable 2x2 (BR) (7c)=    4eae
+Breakable 2x2 (BR) (7d)=    4eb2
+Breakable 2x2 (BR) (7e)=    4eb6
+Breakable 2x2 (BR) (7f)=    4eba
+Breakable 2x2 (BR) (78)=    4ebe
+
+Breakable 2x2 (TR) (79)=    4f5f
+Breakable 2x2 (TR) (7a)=    4f63
+Breakable 2x2 (TR) (7b)=    4f67
+Breakable 2x2 (TR) (7c)=    4f6b
+Breakable 2x2 (TR) (7d)=    4f6f
+Breakable 2x2 (TR) (7e)=    4f73
+Breakable 2x2 (TR) (7f)=    4f77
+Breakable 2x2 (TR) (78)=    4f7b
+
+Breakable 2x2 (TL) (79)=    4ff3
+Breakable 2x2 (TL) (7a)=    4ff7
+Breakable 2x2 (TL) (7b)=    4ffb
+Breakable 2x2 (TL) (7c)=    4fff
+Breakable 2x2 (TL) (7d)=    5003
+Breakable 2x2 (TL) (7e)=    5007
+Breakable 2x2 (TL) (7f)=    500b
+Breakable 2x2 (TL) (78)=    500f
+
+H. breakable 2x2 (BL) (79)= 50e0
+H. breakable 2x2 (BL) (7a)= 50e4
+H. breakable 2x2 (BL) (7b)= 50e8
+H. breakable 2x2 (BL) (7c)= 50ec
+H. breakable 2x2 (BL) (7d)= 50f0
+H. breakable 2x2 (BL) (7e)= 50f4
+H. breakable 2x2 (BL) (7f)= 50f8
+H. breakable 2x2 (BL) (78)= 50fc
+
+H. breakable 2x2 (BR) (79)= 5195
+H. breakable 2x2 (BR) (7a)= 5199
+H. breakable 2x2 (BR) (7b)= 519d
+H. breakable 2x2 (BR) (7c)= 51a1
+H. breakable 2x2 (BR) (7d)= 51a5
+H. breakable 2x2 (BR) (7e)= 51a9
+H. breakable 2x2 (BR) (7f)= 51ad
+H. breakable 2x2 (BR) (78)= 51b1
+
+H. breakable 2x2 (TR) (79)= 5273
+H. breakable 2x2 (TR) (7a)= 5277
+H. breakable 2x2 (TR) (7b)= 527b
+H. breakable 2x2 (TR) (7c)= 527f
+H. breakable 2x2 (TR) (7d)= 5283
+H. breakable 2x2 (TR) (7e)= 5287
+H. breakable 2x2 (TR) (7f)= 528b
+H. breakable 2x2 (TR) (78)= 528f
+
+H. breakable 2x2 (TL) (79)= 5328
+H. breakable 2x2 (TL) (7a)= 532c
+H. breakable 2x2 (TL) (7b)= 5330
+H. breakable 2x2 (TL) (7c)= 5334
+H. breakable 2x2 (TL) (7d)= 5338
+H. breakable 2x2 (TL) (7e)= 533c
+H. breakable 2x2 (TL) (7f)= 5340
+H. breakable 2x2 (TL) (78)= 5344
+
+Throw breaks (78)=          53fb
+Throw breaks (79)=          53ff
+Throw breaks (7a)=          5403
+Throw breaks (7b)=          5407
+Throw breaks (7c)=          540b
+Throw breaks (7d)=          540f
+Throw breaks (7e)=          5413
+Throw breaks (7f)=          5417
+
+Fire breaks (78)=           544b
+Fire breaks (79)=           544f
+Fire breaks (7a)=           5453
+Fire breaks (7b)=           5457
+Fire breaks (7c)=           545b
+Fire breaks (7d)=           545f
+Fire breaks (7e)=           5463
+Fire breaks (7f)=           5467
+
+Fat breaks (78)=            5497
+Fat breaks (79)=            549b
+Fat breaks (7a)=            549f
+Fat breaks (7b)=            54a3
+Fat breaks (7c)=            54a7
+Fat breaks (7d)=            54ab
+Fat breaks (7e)=            54af
+
+Yarn breaks (78)=           54e4
+Yarn breaks (79)=           54e8
+Yarn breaks (7a)=           54ec
+Yarn breaks (7b)=           54f0
+Yarn breaks (7c)=           54f4
+Yarn breaks (7d)=           54f8
+Yarn breaks (7e)=           54fc
+Yarn breaks (7f)=           5500
+
+Yarn breakable 2x2 (BL) (79)=   5514
+Yarn breakable 2x2 (BL) (7a)=   5518
+Yarn breakable 2x2 (BL) (7b)=   551c
+Yarn breakable 2x2 (BL) (78)=   5520
+
+Yarn breakable 2x2 (BR) (79)=   5552
+Yarn breakable 2x2 (BR) (7a)=   5556
+Yarn breakable 2x2 (BR) (7b)=   555a
+Yarn breakable 2x2 (BR) (78)=   555e
+
+Yarn breakable 2x2 (TR) (79)=   558d
+Yarn breakable 2x2 (TR) (7a)=   5591
+Yarn breakable 2x2 (TR) (7b)=   5595
+Yarn breakable 2x2 (TR) (78)=   5599
+
+Yarn breakable 2x2 (TL) (79)=   55cb
+Yarn breakable 2x2 (TL) (7a)=   55cf
+Yarn breakable 2x2 (TL) (7b)=   55d3
+Yarn breakable 2x2 (TL) (78)=   55d7
+
+
+???=                        4064
+???=                        4078
+Empty 2=                    408c
