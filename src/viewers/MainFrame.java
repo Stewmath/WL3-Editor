@@ -346,9 +346,6 @@ public class MainFrame extends JFrame
 							levelViewer.level.getRegionDataRecord().addRegion(r);
 							levelViewer.level.generateImage();
 							levelViewer.setSelectedRegion(r);
-							// disableRegionListener makes sure the fields' action listeners
-							// aren't called while being updated.
-							levelViewer.refreshRegionFields();
 							levelViewer.repaint();
 						}
 						else if (n > 0x1D) {
@@ -373,6 +370,30 @@ public class MainFrame extends JFrame
 			}
 		});
 		levelMenu.add(mntm_addRegion);
+
+		JMenuItem deleteRegionButton = new JMenuItem("Delete Region");
+		deleteRegionButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				int option = JOptionPane.showOptionDialog(
+						itself,
+						"Delete the currently selected region?",
+						"Delete region",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.PLAIN_MESSAGE,
+						null,
+						null,
+						"");
+				if (option == JOptionPane.YES_OPTION) {
+					RegionRecord r = levelViewer.level.getRegionDataRecord();
+					r.deleteRegion(levelViewer.selectedRegion);
+
+					levelViewer.level.generateImage();
+					levelViewer.setSelectedRegion(r.getRegion(0));
+				}
+			}
+		});
+		levelMenu.add(deleteRegionButton);
 		
 		JMenuItem mntm_compare = new JMenuItem("Compare...");
 		mntm_compare.addActionListener(new ActionListener() {

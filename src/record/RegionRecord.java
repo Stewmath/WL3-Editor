@@ -222,6 +222,10 @@ public class RegionRecord extends Record
 		modified = true;
 	}
 
+	public void deleteRegion(Region r) {
+		regions.remove(r);
+	}
+
 	public int getSectorDestination(int i) {
 		return sectorDestinations[i];
 	}

@@ -154,6 +154,7 @@ public class LevelViewer extends JPanel  {
 	public void setSelectedRegion(Region r) {
 		selectedRegion = r;
 		tileSetViewer.setTileSet(selectedRegion.getTileSet());
+		refreshRegionFields();
 	}
 
 	public void setTile(int x, int y, int tile) {
@@ -278,9 +279,8 @@ public class LevelViewer extends JPanel  {
 		else
 		{
 			setPreferredSize(new Dimension(0xa00, 0x300));
-			selectedRegion = level.getRegionDataRecord().getRegion(0);
+			setSelectedRegion(level.getRegionDataRecord().getRegion(0));
 			selectedSector = 0;
-			refreshRegionFields();
 			tileSetViewer.setTileSet(selectedRegion.getTileSet());
 			mainFrame.musicField.setSelected(level.getMusicId());
 			mainFrame.levelField.setSelected(level.getId());

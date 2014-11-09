@@ -16,7 +16,7 @@
 
 ; Notes:
 ; - 'absolute' and the palettes aren't implemented yet.
-; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise.
+; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise, or edit the ROM directly.
 ; - Some things (like golf tilesets) must be in the same bank
 
 
