@@ -655,24 +655,9 @@ public class MainFrame extends JFrame
 				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 				if (rom != null && rom.isModified()) {
-					int option = JOptionPane.showOptionDialog(null,
-							"Save the rom before exiting?",
-							"Exit",
-							JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.PLAIN_MESSAGE,
-							null,
-							null,
-							null);
-					if (option == JOptionPane.CANCEL_OPTION)
+					int retval = savePrompt();
+					if (retval != 0) {
 						setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-					else if (option == JOptionPane.YES_OPTION) {
-						rom.save();
-						if (rom.savedSuccessfully()) {
-							ValueFileParser.saveMetadataFile();
-						}
-						else {
-							setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-						}
 					}
 				}
 			}
@@ -680,6 +665,34 @@ public class MainFrame extends JFrame
 		
 		disableFields();
 		pack();
+	}
+
+	int savePrompt() {
+		int option = JOptionPane.showOptionDialog(null,
+				"Save the rom before exiting?",
+				"Exit",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				null,
+				null);
+
+		if (option == JOptionPane.CANCEL_OPTION)
+			return 1;
+		else if (option == JOptionPane.YES_OPTION) {
+			rom.save();
+			if (rom.savedSuccessfully()) {
+				ValueFileParser.saveMetadataFile();
+				return 0;
+			}
+			else {
+				return 1;
+			}
+		}
+		else if (option == JOptionPane.NO_OPTION)
+			return 0;
+
+		return 1;
 	}
 
 	public void disableFields() {
@@ -771,8 +784,14 @@ public class MainFrame extends JFrame
 
 	void loadRom(File f)
 	{
-		if (rom != null)
+		if (rom != null) {
+			if (rom.isModified()) {
+				int retval = savePrompt();
+				if (retval != 0)
+					return;
+			}
 			rom.clearRecords();
+		}
 
 		rom = new RomReader(f);
 		TileSet.rom = rom;
