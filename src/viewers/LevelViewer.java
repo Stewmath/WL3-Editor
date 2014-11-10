@@ -68,6 +68,8 @@ public class LevelViewer extends JPanel  {
 			{
 				if (level != null)
 				{
+					requestFocus();
+
 					Point newCursorPos = new Point(e.getX()/16, e.getY()/16);
 
 					if (newCursorPos.x >= 0xa0 || newCursorPos.x < 0 ||
@@ -196,6 +198,8 @@ public class LevelViewer extends JPanel  {
 				if (newPos.x >= 0xa0 || newPos.x < 0 ||
 						newPos.y >= 0x30 || newPos.y < 0)
 					return;
+
+				requestFocus();
 
 				if (cursorPos.x != newPos.x || cursorPos.y != newPos.y)
 					repaint();

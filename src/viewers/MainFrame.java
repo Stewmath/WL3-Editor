@@ -113,6 +113,7 @@ public class MainFrame extends JFrame
 		tileSetViewer = new TileSetViewer(this);
 		tileSetEditorButton = new JButton("Edit...");
 		tileSetEditorButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		tileSetEditorButton.setFocusable(false);
 		tileSetEditorButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				MetaTileEditor editor = new MetaTileEditor(itself, tileSetViewer.getTileSet());
@@ -130,6 +131,7 @@ public class MainFrame extends JFrame
 		objectSetViewer = new ObjectSetViewer(this);
 		objectSetEditorButton = new JButton("Edit...");
 		objectSetEditorButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		objectSetEditorButton.setFocusable(false);
 		objectSetEditorButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
@@ -504,6 +506,7 @@ public class MainFrame extends JFrame
 		scrollPane.setPreferredSize(new Dimension(500, 500));
 		
 		levelEditButton = new JRadioButton("Edit level");
+		levelEditButton.setFocusable(false);
 		
 		levelEditButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
@@ -519,6 +522,7 @@ public class MainFrame extends JFrame
 			}
 		});
 		warpEditButton = new JRadioButton("Edit warps & regions");
+		warpEditButton.setFocusable(false);
 		warpEditButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
