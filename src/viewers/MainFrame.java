@@ -1,5 +1,8 @@
 package viewers;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -638,6 +641,35 @@ public class MainFrame extends JFrame
 					if (rom.savedSuccessfully()) {
 						ValueFileParser.saveMetadataFile();
 						ValueFileParser.reloadValueFiles();
+					}
+				}
+			}
+		});
+
+
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+				if (rom.isModified()) {
+					int option = JOptionPane.showOptionDialog(null,
+							"Save the rom before exiting?",
+							"Exit",
+							JOptionPane.YES_NO_CANCEL_OPTION,
+							JOptionPane.PLAIN_MESSAGE,
+							null,
+							null,
+							null);
+					if (option == JOptionPane.CANCEL_OPTION)
+						setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+					else if (option == JOptionPane.YES_OPTION) {
+						rom.save();
+						if (rom.savedSuccessfully()) {
+							ValueFileParser.saveMetadataFile();
+						}
+						else {
+							setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+						}
 					}
 				}
 			}

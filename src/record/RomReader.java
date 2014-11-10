@@ -62,6 +62,23 @@ public class RomReader {
 	public int getRomSize() {
 		return data.length;
 	}
+
+	// This doesn't catch all cases of modification,
+	// such as if the rom is written to directly (this shouldn't be done 
+	// typically),
+	// or if pointers are changed with the data remaining untouched.
+	public boolean isModified() {
+		for (MoveableDataRecord r : moveableDataRecords) {
+			if (r.modified) {
+				return true;
+			}
+		}
+		for (RegionRecord r : RegionRecord.regionRecords) {
+			if (r.modified)
+				return true;
+		}
+		return false;
+	}
 	
 	// I am not very cautious of records not synced with the rom.
 	// If records are overwritten in other areas, they will still be in this arraylist.

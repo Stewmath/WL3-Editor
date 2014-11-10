@@ -218,6 +218,8 @@ public class MoveableDataRecord extends Record
 	public void write(int i, byte val)
 	{
 		if (i < decompressedData.size()) {
+			if (decompressedData.get(i) == val)
+				return;
 			modified = true;
 			decompressedData.set(i, val);
 		}
@@ -228,16 +230,13 @@ public class MoveableDataRecord extends Record
 	{
 		int newVal = (val%0x4000)+0x4000;
 		
-		if (i+1 < decompressedData.size())
-		{
-			modified = true;
+		if (i+1 < decompressedData.size()) {
 			write(i, (byte)(newVal&0xff));
 			write(i+1, (byte)(newVal>>8));
 		}
 	}
 	public void write16(int i, int val) {
 		if (i+1 < decompressedData.size()) {
-			modified = true;
 			write(i, (byte)(val&0xff));
 			write(i+1, (byte)(val>>8));
 		}
