@@ -215,17 +215,31 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 		paletteField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String s = paletteField.getText();
+				boolean badText = false;
 				try {
 					int n = Integer.parseInt(s, 16);
 					setPalette(n);
-				} catch(NumberFormatException ex) {}
-				refreshFlagFields();
 
-                selectedSubTile = (selectedSubTile+1)%4;
+					selectedSubTile = selectedSubTile+1;
+					if (selectedSubTile == 4) {
+						selectedSubTile = 0;
+						tileSetViewer.setSelectedTile((metaTile+1)&0x7f);
+					}
+				}
+				catch(NumberFormatException ex) {
+					badText = true;
+				}
+
+				refreshFlagFields();
+				if (!badText)
+					paletteField.setText(s);
+				paletteField.requestFocus();
+
                 metaTilePanel.repaint();
 			}
 		});
 		flipXBox = new JCheckBox("Flip X");
+		flipXBox.setFocusable(false);
 		flipXBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
@@ -240,6 +254,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 			}
 		});
 		flipYBox = new JCheckBox("Flip Y");
+		flipYBox.setFocusable(false);
 		flipYBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
@@ -254,6 +269,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 			}
 		});
 		priorityBox = new JCheckBox("Sprite priority");
+		priorityBox.setFocusable(false);
 		priorityBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
@@ -267,6 +283,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 			}
 		});
 		bankBox = new JCheckBox("Bank (0/1)");
+		bankBox.setFocusable(false);
 		bankBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				int flagIndex = metaTile*4+selectedSubTile;
@@ -381,6 +398,14 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 					case KeyEvent.VK_LEFT:
 						newTile--;
 						break;
+				}
+				if (newTile >= 4) {
+					tileSetViewer.setSelectedTile((metaTile+1)&0x7f);
+					setSelectedSubTile(newTile-4);
+				}
+				else if (newTile < 0) {
+					tileSetViewer.setSelectedTile((metaTile-1)&0x7f);
+					setSelectedSubTile(newTile+4);
 				}
 				setSelectedSubTile(newTile);
 			}

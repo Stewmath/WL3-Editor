@@ -1,3 +1,6 @@
+; Pls don't edit this file, the names are used as identifiers when importing
+; and exporting levels.
+
 ; JEFFREY appears to be unused
 
 AAAAA=      5251
