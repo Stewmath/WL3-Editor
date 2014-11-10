@@ -15,9 +15,8 @@
 ;   bank (hex):             The bank number (if bankAddress is unspecified)
 
 ; Notes:
-; - 'absolute' and the palettes aren't implemented yet.
+; - Palette stuff isn't implemented yet.
 ; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise, or edit the ROM directly.
-; - Some things (like golf tilesets) must be in the same bank
 
 
 [Pause Screen]
@@ -77,3 +76,10 @@ compressed= true
 
 ptrAddress= 1c899e
 bank=       70
+
+[Common Sprites]
+addresstype=absolute
+compressed= false
+
+address=    c000
+size=       0800

@@ -94,8 +94,16 @@ public class MiscGfxDialog extends JDialog {
 					}
 
 					gfxRecord.setDescription("Graphics: " + subParser.getSectionName(0));
-					if (requiredBank >= 0)
+					if (requiredBank >= 0) {
 						gfxRecord.setRequiredBank(requiredBank);
+					}
+				}
+				else if (addressType.equals("absolute")) {
+					int address = subParser.getIntValue("address");
+					int size = 0;
+					if (!compressed)
+						size = subParser.getIntValue("size");
+					gfxRecord = rom.getMoveableDataRecord(address, null, false, size);
 				}
 			}
 			catch(NumberFormatException ex) {
