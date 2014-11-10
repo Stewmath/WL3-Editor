@@ -23,6 +23,7 @@ public class Level {
 	public final static int musicDataTbl = RomReader.BANK(0x7e40, 0xf);
 	
 	public final static int lastLevel = 0xc8;
+	public final static int NUM_LEVELS = 0xc9;
 	
 	public RomReader rom;
 	

@@ -2,6 +2,11 @@ package record;
 
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
+import base.Level;
+import base.Region;
+
 import graphics.Drawing;
 
 import java.util.Arrays;
@@ -417,6 +422,21 @@ public class RomReader {
 	
 	public void save()
 	{
+		for (int l=0; l<Level.NUM_LEVELS; l++) {
+			Level level = Level.getLevel(l);
+			Region r = level.getRegionDataRecord().checkUnsavableRegions();
+			if (r != null) {
+				JOptionPane.showMessageDialog(null,
+						"Warning: region in level " + RomReader.toHexString(level.getId(),2) +
+						" can't be saved.\n" +
+						"Region's top-left-sector: " + RomReader.toHexString(r.firstVSector*0xa+r.firstHSector) + "\n\n" +
+						"To fix this, make a sector destination point to a sector within this region.\n\n" +
+						"The rom will still be saved.",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+			}
+		}
+
 		packedBanks = new boolean[256];
 		saveFail = false;
 

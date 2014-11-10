@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.*;
 
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 import base.Region;
 import base.TileSet;
 
@@ -324,6 +326,7 @@ public class RegionRecord extends Record
 		return data;
 	}
 
+
 	// Returns a byte array of size NUM_SECTORS*8 containing warp data for each sector.
 	// If a sector has no warp data it's all 0xff's.
 	public byte[] getRawWarpData() {
@@ -340,8 +343,27 @@ public class RegionRecord extends Record
 		return data.toByteArray();
 	}
 
-	void setWarpRecordProperties(int i) {
+	// Returns first region found that is unsaveable
+	public Region checkUnsavableRegions() {
+		for (Region r : regions) {
+
+			boolean okay = false;
+			for (int i=0; i<NUM_SECTORS; i++) {
+				int x = sectorDestinations[i]%0xa;
+				int y = sectorDestinations[i]/0xa;
+				if (x >= r.firstHSector && x < r.lastHSector &&
+						y >= r.firstVSector && y < r.lastVSector) {
+					okay = true;
+					break;
+				}
+			}
+
+			if (!okay)
+				return r;
+		}
+		return null;
 	}
+
 
 	@Override
 	public int getAddr() {
