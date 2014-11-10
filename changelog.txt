@@ -36,3 +36,17 @@ graphics, and maybe other things in the future)
 - All files in the "ref" folder have been reformatted; please don't use old 
 files.
 - Bugfixes
+
+v0.5: November 10th, 2014
+
+- Levels are exportable and importable to and from files
+- New miscellaneous graphics editor allows for editing various compressed graphics
+- Improvements to free space management, fatal errors are less common
+(but they can still sometimes occur with the misc gfx feature, if too much is 
+added to the graphics)
+- Undo (Ctrl-Z) and Redo (Ctrl-Y) for changes to tiles and objects (not regions)
+- Rectangular fill tool (Ctrl+Left click)
+- More enemies can be added to enemy sets
+ - The metadata file keeps track of enemy sets which are moved because of this.
+- Save prompt on exit
+- Updated tileEffects.txt

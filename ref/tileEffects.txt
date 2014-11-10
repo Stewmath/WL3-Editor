@@ -223,6 +223,7 @@ Fat breaks (7b)=            54a3
 Fat breaks (7c)=            54a7
 Fat breaks (7d)=            54ab
 Fat breaks (7e)=            54af
+Fat breaks (7f)=            54b3
 
 Yarn breaks (78)=           54e4
 Yarn breaks (79)=           54e8

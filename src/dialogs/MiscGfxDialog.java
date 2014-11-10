@@ -38,6 +38,7 @@ public class MiscGfxDialog extends JDialog {
 		comboBox = new JComboBox<String>();
 		parser = ValueFileParser.getMiscGfxFile();
 
+		// Iterate through each graphic
 		for (int i=0; i<parser.getNumSections(); i++) {
 			ValueFileParser subParser = parser.getSection(i);
 
@@ -127,9 +128,44 @@ public class MiscGfxDialog extends JDialog {
 
 				TileEditor eddie = new TileEditor(gfxRecords.get(i).toArray(), null);
 
+				ValueFileParser subParser = parser.getSection(i);
+
+				// Check palettes
+				ArrayList<int[][]> paletteSets = new ArrayList<int[][]>();
+				ArrayList<MoveableDataRecord> paletteSetRecords = new ArrayList<MoveableDataRecord>();
+				int numPalettes = 8;
+
+				try {
+					if (subParser.hasEntry("numPalettes"))
+						numPalettes = subParser.getIntValue("numPalettes");
+
+					int paletteIndex = 1;
+
+					while (true) {
+						String index = RomReader.toHexString(paletteIndex);
+						String name = subParser.getValue("paletteName" + index);
+						int address = subParser.getIntValue("paletteAddress" + index);
+
+						MoveableDataRecord record = rom.getMoveableDataRecord(address, null, false, numPalettes*8);
+						int[][] palettes = RomReader.binToPalettes(record.toArray());
+
+						paletteSets.add(palettes);
+						paletteSetRecords.add(record);
+						eddie.addPaletteSet(name, palettes);
+
+						paletteIndex++;
+					}
+				}
+				catch (NumberFormatException ex) {}
+
 				eddie.setVisible(true);
 				if (eddie.clickedOk()) {
 					gfxRecords.get(i).setData(eddie.getTileData());
+					byte[] paletteData = eddie.getPaletteData();
+					for (int p=0; p<paletteSets.size(); p++) {
+						byte[] data = Arrays.copyOfRange(paletteData, p*numPalettes*8, (p+1)*numPalettes*8);
+						paletteSetRecords.get(p).setData(data);
+					}
 				}
 
 				setVisible(false);

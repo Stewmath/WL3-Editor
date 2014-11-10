@@ -1,5 +1,6 @@
 package viewers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -37,19 +38,32 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 	JRadioButton[] arrangementButtons;
 	JTextArea offsetLabel;
 	JLabel statusLabel;
+	JPanel offsetPanel;
+
+	JPanel palettePanel;
+	JPanel paletteEditSuperPanel;
+
+	// Sets of palettes (for bg, sprites, etc)
+	ArrayList<int[][]> paletteSets = new ArrayList<int[][]>();
+	ArrayList<String> paletteSetNames = new ArrayList<String>();
+	int numPaletteSets = 0;
+	int numPalettes; // Applies to all paletteSets
+	JPanel paletteSetPanel;
+	JRadioButton[] paletteSetButtons = new JRadioButton[20];
+	ButtonGroup paletteSetGroup = new ButtonGroup();
+
+	int selectedPaletteSet;
+	int selectedPalette;
 
 	JButton[] paletteEditButtons;
 
 	TileGridViewer tileGridViewer;
 
 	byte[] tileData;
-	int[][] palettes;
-	int numPalettes;
 	BufferedImage[] tileImages;
 
 	int selectedTile;
 	int selectedColor;
-	int selectedPalette;
 
 	int tileScale = 9;
 
@@ -59,17 +73,21 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 	public TileEditor(byte[] _tileData, int[][] _palettes) {
 		super(null, "Tile Editor", Dialog.ModalityType.APPLICATION_MODAL);
 		tileData = _tileData;
+		selectedPaletteSet = 0;
 		if (_palettes == null) {
+			paletteSets.add(Drawing.defaultPalette);
 			numPalettes = 0;
-			palettes = Drawing.defaultPalette;
 		}
 		else {
-			numPalettes=_palettes.length;
-			palettes = new int[numPalettes][4];
-			for (int i=0; i<numPalettes; i++) {
+			int[][] palettes = new int[_palettes.length][4];
+			for (int i=0; i<_palettes.length; i++) {
 				for (int j=0; j<4; j++)
 					palettes[i][j] = _palettes[i][j];
 			}
+
+			paletteSets.add(palettes);
+			numPalettes = _palettes.length;
+			numPaletteSets = 1;
 		}
 
 		JPanel centerPanel = new JPanel();
@@ -77,7 +95,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 
 		JPanel tileViewerPanel = new JPanel();
 
-		tileImages = RomReader.binToTiles(tileData, selectedPalette, palettes);
+		tileImages = RomReader.binToTiles(tileData, selectedPalette, paletteSets.get(selectedPaletteSet));
 		tileGridViewer = new TileGridViewer(tileImages, 16, 2, this);
 		tileGridViewer.setSelectionColor(Color.blue);
 		//tileGridViewer.setPreferredSize(new Dimension(16*16, 16*16+16));
@@ -150,7 +168,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		JPanel tileEditSuperSuperPanel = new JPanel();
 		tileEditSuperSuperPanel.add(tileEditSuperPanel);
 
-		JPanel offsetPanel = new JPanel();
+		offsetPanel = new JPanel();
 		offsetPanel.setLayout(new BoxLayout(offsetPanel, BoxLayout.Y_AXIS));
 		offsetPanel.setBorder(BorderFactory.createTitledBorder("Offsets (for Tile Layer Pro)"));
 		offsetPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -159,6 +177,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		offsetLabel.setBorder(null);
 		offsetLabel.setBackground(getBackground());
 		offsetPanel.add(offsetLabel);
+		offsetPanel.setVisible(false);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -212,8 +231,8 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			}
 		};
 		arrangementButtons = new JRadioButton[TileGridViewer.NUM_ARRANGEMENTS];
-		arrangementButtons[0] = new JRadioButton("8x8 (Tiles)");
-		arrangementButtons[1] = new JRadioButton("8x16 (Sprites)");
+		arrangementButtons[0] = new JRadioButton("Background (8x8)");
+		arrangementButtons[1] = new JRadioButton("Sprites (8x16)");
 		for (int i=0; i<TileGridViewer.NUM_ARRANGEMENTS; i++) {
 			arrangementButtons[i].addActionListener(arrangementActionListener);
 			arrangementGroup.add(arrangementButtons[i]);
@@ -223,10 +242,13 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		arrangementPanel.setBorder(BorderFactory.createTitledBorder("Arrangement"));
 		rightPanel.add(arrangementPanel);
 
-		if (numPalettes > 0) {
-			JPanel palettePanel = new JPanel();
+		paletteSetPanel = new JPanel();
+		paletteSetPanel.setLayout(new BoxLayout(paletteSetPanel, BoxLayout.Y_AXIS));
+		rightPanel.add(paletteSetPanel);
+
+			palettePanel = new JPanel();
 			palettePanel.setLayout(new BoxLayout(palettePanel, BoxLayout.Y_AXIS));
-			paletteButtons = new JRadioButton[numPalettes];
+			paletteButtons = new JRadioButton[8];
 			ButtonGroup paletteGroup = new ButtonGroup();
 			ActionListener paletteListener = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -248,7 +270,8 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			});
 			paletteGroup.add(blackWhiteButton);
 			palettePanel.add(blackWhiteButton);
-			for (int i=0; i<numPalettes; i++) {
+			int number = (numPalettes>0 ? numPalettes : 8);
+			for (int i=0; i<number; i++) {
 				paletteButtons[i] = new JRadioButton("Palette " + RomReader.toHexString(i));
 				paletteButtons[i].addActionListener(paletteListener);
 				paletteGroup.add(paletteButtons[i]);
@@ -268,7 +291,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 							button.setBackground(newColor);
 							for (int j=0; j<4; j++) {
 								if (paletteEditButtons[j] == button) {
-									palettes[selectedPalette][j] = newColor.getRGB();
+									paletteSets.get(selectedPaletteSet)[selectedPalette][j] = newColor.getRGB();
 									break;
 								}
 							}
@@ -291,7 +314,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			copyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					for (int j=0; j<4; j++) {
-						int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][j] : palettes[selectedPalette][j]);
+						int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][j] : paletteSets.get(selectedPaletteSet)[selectedPalette][j]);
 						PaletteEditorPanel.paletteBuffer[j] = color;
 					}
 				}
@@ -301,7 +324,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 				public void actionPerformed(ActionEvent e) {
 					for (int j=0; j<4; j++) {
 						if (selectedPalette != -1) {
-							palettes[selectedPalette][j] = PaletteEditorPanel.paletteBuffer[j];
+							paletteSets.get(selectedPaletteSet)[selectedPalette][j] = PaletteEditorPanel.paletteBuffer[j];
 							refreshPalettes();
 						}
 					}
@@ -310,11 +333,15 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			paletteEditButtonPanel.add(copyButton);
 			paletteEditButtonPanel.add(pasteButton);
 
-			JPanel paletteEditSuperPanel = new JPanel();
+			paletteEditSuperPanel = new JPanel();
 			paletteEditSuperPanel.setLayout(new BoxLayout(paletteEditSuperPanel, BoxLayout.X_AXIS));
 			paletteEditSuperPanel.add(paletteEditPanel, BorderLayout.WEST);
 			paletteEditSuperPanel.add(paletteEditButtonPanel);
 			rightPanel.add(paletteEditSuperPanel);
+
+		if (numPalettes == 0) {
+			palettePanel.setVisible(false);
+			paletteEditSuperPanel.setVisible(false);
 		}
 		setSelectedPalette(-1);
 
@@ -325,7 +352,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 						"Export Graphics",
 						new FileNameExtensionFilter("Binary file (.bin)", "bin"));
 				if (numPalettes > 0)
-					RomReader.exportData(RomReader.palettesToRGB24(palettes, numPalettes),
+					RomReader.exportData(RomReader.palettesToRGB24(paletteSets.get(selectedPaletteSet), numPalettes),
 							"Export Palettes",
 							new FileNameExtensionFilter("Palette file (.pal)", "pal"));
 			}
@@ -356,8 +383,55 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		pack();
 	}
 
+	public void addPaletteSet(String name, int[][] _palettes) {
+		if (numPaletteSets == 0)
+			paletteSets.clear();
+
+		numPalettes = _palettes.length;
+		int[][] palettes = new int[numPalettes][4];
+		for (int i=0; i<numPalettes; i++) {
+			for (int j=0; j<4; j++)
+				palettes[i][j] = _palettes[i][j];
+		}
+
+		palettePanel.setVisible(true);
+		paletteEditSuperPanel.setVisible(true);
+
+		paletteSetNames.add(name);
+		paletteSets.add(palettes);
+		
+		paletteSetPanel.setBorder(BorderFactory.createTitledBorder("Palette Set"));
+		paletteSetButtons[numPaletteSets] = new JRadioButton(name);
+		paletteSetButtons[numPaletteSets].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int i=0;
+				while (e.getSource() != paletteSetButtons[i]) i++;
+
+				selectedPaletteSet = i;
+				refreshPalettes();
+			}
+		});
+		paletteSetGroup.add(paletteSetButtons[numPaletteSets]);
+
+		if (numPaletteSets == 0)
+			paletteSetButtons[numPaletteSets].setSelected(true);
+		else
+			paletteSetButtons[numPaletteSets].setSelected(false);
+
+		paletteSetPanel.add(paletteSetButtons[numPaletteSets]);
+
+		numPaletteSets++;
+
+		refreshPalettes();
+
+		revalidate();
+		repaint();
+		pack();
+	}
+
 	public void setOffsetText(String s) {
 		offsetLabel.setText(s);
+		offsetPanel.setVisible(true);
 		pack();
 	}
 
@@ -395,7 +469,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		tileData[index] =  (byte)b1;
 		tileData[index+1] = (byte)b2;
 
-		int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][selectedColor] : palettes[selectedPalette][selectedColor]);
+		int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][selectedColor] : paletteSets.get(selectedPaletteSet)[selectedPalette][selectedColor]);
 		tileImages[selectedTile].setRGB(x, y, color);
 		repaint();
 	}
@@ -404,7 +478,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		if (selectedPalette == -1)
 			tileImages = RomReader.binToTiles(tileData, 0, Drawing.defaultPalette);
 		else
-			tileImages = RomReader.binToTiles(tileData, selectedPalette, palettes);
+			tileImages = RomReader.binToTiles(tileData, selectedPalette, paletteSets.get(selectedPaletteSet));
 		tileGridViewer.setTiles(tileImages, 16, 2);
 		repaint();
 	}
@@ -412,7 +486,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 	void refreshPalettes() {
 		refreshTiles();
 		for (int i=0; i<4; i++) {
-			int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][i] : palettes[selectedPalette][i]);
+			int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][i] : paletteSets.get(selectedPaletteSet)[selectedPalette][i]);
 			colorButtons[i].setBackground(new Color(color));
 			if (numPalettes > 0) {
 				paletteEditButtons[i].setBackground(new Color(color));
@@ -438,11 +512,19 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 	}
 
 	public byte[] getPaletteData() {
-		return RomReader.palettesToBin(palettes, numPalettes);
+		int[][] palettes = new int[numPaletteSets*numPalettes][4];
+		for (int i=0; i<numPaletteSets; i++) {
+			for (int j=0; j<numPalettes; j++) {
+				for (int k=0; k<4; k++) {
+					palettes[i*numPalettes+j][k] = paletteSets.get(i)[j][k];
+				}
+			}
+		}
+		return RomReader.palettesToBin(palettes);
 	}
 
 	public int[][] getPalettes() {
-		return palettes;
+		return RomReader.binToPalettes(getPaletteData());
 	}
 
 	public boolean clickedOk() {

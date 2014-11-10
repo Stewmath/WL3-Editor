@@ -2,22 +2,28 @@
 ;   addresstype (string):   'absolute' or 'pointer'.
 ;   compressed (bool):      true or false
 
-;   paletteAddress (hex):   Address of palette data
-;   numPalettes (hex):      Number of palettes
+;   paletteName[i]:         Name of the given set of palettes
+;   paletteAddress[i] (hex):Address of palette data
+;   numPalettes (hex):      Number of palettes in each set (usually 8)
 
 ;   size (hex):             Size of the data (if uncompressed)
 
 ;  For addresstype "absolute":
 ;   address (hex):          Address of the data
 ;  For addresstype "pointer":
-;   ptrAddress[i] (hex):       Address of the pointer(s)
-;   bankAddress[i] (hex):      Address of the bank number(s)
+;   ptrAddress[i] (hex):    Address of the pointer(s)
+;   bankAddress[i] (hex):   Address of the bank number(s)
 ;   bank (hex):             The bank number (if bankAddress is unspecified)
 
 ; Notes:
-; - Palette stuff isn't implemented yet.
 ; - 'pointer' is only useful if data is compressed. Use 'absolute' otherwise, or edit the ROM directly.
+; - I may not bother to list every uncompressed graphics type, because you can just use YY-CHR on the rom instead.
 
+
+; Extra wario icons can be found uncompressed at:
+; 0x1f57e1 (Owl)
+; 0x1f59e1 (Pulley)
+; 0x1f5be1 (Vampire)
 
 [Pause Screen]
 addresstype=pointer
@@ -25,6 +31,13 @@ compressed= true
 
 ptrAddress= 1f400e
 bank=       7d
+
+numPalettes=    8
+
+paletteName1=   Background
+paletteAddress1=1f4182
+paletteName2=   Sprites
+paletteAddress2=1f41C2
 
 
 [Results (Bank 0)]
@@ -34,6 +47,10 @@ compressed= true
 ptrAddress= 1e002b
 bank=       78
 
+paletteName1=   Background
+paletteAddress1=1e03f8
+paletteName2=   Sprites
+paletteAddress2=1e0438
 
 [Results (Bank 1)]
 addresstype=pointer
@@ -42,6 +59,10 @@ compressed= true
 ptrAddress= 1e001f
 bank=       78
 
+paletteName1=   Background
+paletteAddress1=1e03f8
+paletteName2=   Sprites
+paletteAddress2=1e0438
 
 ; Address = 35:5124
 [Golf/Results Menu]
@@ -52,6 +73,11 @@ ptrAddress1=d465f
 ptrAddress2=1c860d
 bank=       35
 
+paletteName1=   Background
+paletteAddress1=d50a4
+paletteName2=   Sprites
+paletteAddress2=d50e4
+
 
 ; Address = 71:4f0d
 [Golf Menu]
@@ -60,6 +86,22 @@ compressed= true
 
 ptrAddress= 1c80db
 bankAddress=1c80ce
+
+paletteName1=Background A
+paletteAddress1=1ca24f
+
+paletteName2=Background B
+paletteAddress2=1ca28f
+
+paletteName3=Background C
+paletteAddress3=1ca2cf
+
+paletteName4=Background D
+paletteAddress4=1ca30f
+
+paletteName5=Sprites
+paletteAddress5=1ca34f
+
 
 
 ; NOTE: both of the following golf tilesets must be in the same bank.
@@ -74,6 +116,21 @@ compressed= true
 ptrAddress= 1c89aa
 bank=       70
 
+paletteName1=Background A
+paletteAddress1=1ca090
+
+paletteName2=Background B
+paletteAddress2=1ca0d0
+
+paletteName3=Background C
+paletteAddress3=1ca110
+
+paletteName4=Background D
+paletteAddress4=1ca150
+
+paletteName5=Sprites
+paletteAddress5=1ca18f
+
 
 ; Address = 70:4c5f
 [Golf Tileset (Bank 1)]
@@ -83,13 +140,20 @@ compressed= true
 ptrAddress= 1c899e
 bank=       70
 
+paletteName1=Background A
+paletteAddress1=1ca090
 
-[Common Sprites]
-addresstype=absolute
-compressed= false
+paletteName2=Background B
+paletteAddress2=1ca0d0
 
-address=    c000
-size=       0800
+paletteName3=Background C
+paletteAddress3=1ca110
+
+paletteName4=Background D
+paletteAddress4=1ca150
+
+paletteName5=Sprites
+paletteAddress5=1ca18f
 
 
 ; Address = 1:635c
@@ -100,6 +164,11 @@ compressed=	true
 ptrAddress=	493c
 bank=		1
 
+paletteName1=   Background
+paletteAddress1=4f82
+paletteName2=   Sprites
+paletteAddress2=4fc2
+
 
 ; Address = 1:5082
 [Titlescreen]
@@ -108,3 +177,30 @@ compressed=	true
 
 ptrAddress=	4948
 bank=		1
+
+numPalettes=    8
+
+paletteName1=   Background
+paletteAddress1=5002
+paletteName2=   Sprites
+paletteAddress2=5042
+
+
+; Address = 7d:62cc
+[Save Screen]
+addresstype=pointer
+compressed= true
+
+ptrAddress= 1f4128
+bankAddress=1f412e
+
+paletteName1=   BG/Sprites
+paletteAddress1=1f628c
+
+
+[Common Sprites]
+addresstype=absolute
+compressed= false
+
+address=    c000
+size=       0800

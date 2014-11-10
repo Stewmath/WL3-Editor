@@ -310,6 +310,8 @@ public class LevelViewer extends JPanel  {
 		selectedRegion = r;
 		tileSetViewer.setTileSet(selectedRegion.getTileSet());
 		refreshRegionFields();
+
+		repaint();
 	}
 
 	public void setTile(int x, int y, int tile) {
@@ -401,8 +403,6 @@ public class LevelViewer extends JPanel  {
 		mainFrame.sectorEditor.setBorder(BorderFactory.createTitledBorder("Sector " + Integer.toHexString(selectedSector).toUpperCase()));
 		mainFrame.sectorDestinationField.setText(Integer.toHexString(level.getRegionDataRecord().getSectorDestination(selectedSector)).toUpperCase());
 		mainFrame.disableRegionListener = false;
-
-		requestFocus();
 	}
 	public void setSectorDestination(int dest)
 	{
