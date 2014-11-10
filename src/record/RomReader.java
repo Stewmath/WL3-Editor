@@ -175,6 +175,8 @@ public class RomReader {
 					" (0x" + RomReader.toHexString(moveableDataRecords.get(i).getAddr()) + ")");
 			moveableDataRecords.remove(i);
 			moveableDataRecordAccesses.remove(i);
+			if (record.addr >= 0)
+				recordLookupMap.remove(record.addr);
 			// Note: the record's memory won't be unlocked, I guess that's okay?
 			// Since this is probably a corrupt record I don't want to risk unlocking the memory.
 		}
@@ -448,6 +450,8 @@ public class RomReader {
 				r.save();
 				moveableDataRecords.remove(i);
 				moveableDataRecordAccesses.remove(i);
+				if (r.addr >= 0)
+					recordLookupMap.remove(r.addr);
 				i--;
 			}
 		}

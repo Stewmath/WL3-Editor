@@ -252,6 +252,8 @@ public class ObjectSetEditor extends JDialog {
 		itemSetBox.setSelected(RomReader.toGbPtr(objectSet.getItemSetAddr()));
 	}
 	void refreshEnemySet() {
+		disableListeners = true;
+
 		enemySetBox.setSelected(RomReader.toGbPtr(enemySet.getAddr()));
 
 		baseBankField.setText(RomReader.toHexString(enemySet.getBaseGfxBank()));
@@ -326,13 +328,19 @@ public class ObjectSetEditor extends JDialog {
 
 		palettePanel.setPalettes(enemySet.getPalettes());
 		pack();
+
+		disableListeners = false;
 	}
 	void refreshAll()
 	{
 		disableListeners = true;
 		objectSetField.setText(Integer.toHexString(objectSet.getId()).toUpperCase());
+
 		refreshItemSet();
+
+		disableListeners = true;
 		refreshEnemySet();
+
 		disableListeners = false;
 
 		repaint();

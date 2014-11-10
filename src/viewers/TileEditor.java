@@ -478,7 +478,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient, Palette
 		if (selection == -1)
 			statusLabel.setText("Selected tile: " + RomReader.toHexString(selectedTile, 2));
 		else
-			statusLabel.setText("Viewing tile:  " + RomReader.toHexString(selection, 2));
+			statusLabel.setText("Hovering tile:  " + RomReader.toHexString(selection, 2));
 	}
 
 	public byte[] getTileData() {

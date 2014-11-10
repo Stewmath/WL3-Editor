@@ -136,7 +136,7 @@ public class MetaTileEditor extends JDialog implements PaletteEditorClient {
 				if (selection == -1)
 					statusLabel.setText("Selected metatile: " + RomReader.toHexString(metaTile, 2));
 				else
-					statusLabel.setText("Viewing metatile:  " + RomReader.toHexString(selection, 2));
+					statusLabel.setText("Hovering metatile:  " + RomReader.toHexString(selection, 2));
 			}
 		});
 		tileSetViewer.setTileSet(tileSet);
