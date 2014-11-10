@@ -26,6 +26,7 @@ compressed= true
 ptrAddress= 1f400e
 bank=       7d
 
+
 [Results (Bank 0)]
 addresstype=pointer
 compressed= true
@@ -33,12 +34,14 @@ compressed= true
 ptrAddress= 1e002b
 bank=       78
 
+
 [Results (Bank 1)]
 addresstype=pointer
 compressed= true
 
 ptrAddress= 1e001f
 bank=       78
+
 
 ; Address = 35:5124
 [Golf/Results Menu]
@@ -49,6 +52,7 @@ ptrAddress1=d465f
 ptrAddress2=1c860d
 bank=       35
 
+
 ; Address = 71:4f0d
 [Golf Menu]
 addresstype=pointer
@@ -56,6 +60,7 @@ compressed= true
 
 ptrAddress= 1c80db
 bankAddress=1c80ce
+
 
 ; NOTE: both of the following golf tilesets must be in the same bank.
 ; The editor can't handle this yet, so I don't specify bankAddress at all.
@@ -69,6 +74,7 @@ compressed= true
 ptrAddress= 1c89aa
 bank=       70
 
+
 ; Address = 70:4c5f
 [Golf Tileset (Bank 1)]
 addresstype=pointer
@@ -77,9 +83,28 @@ compressed= true
 ptrAddress= 1c899e
 bank=       70
 
+
 [Common Sprites]
 addresstype=absolute
 compressed= false
 
 address=    c000
 size=       0800
+
+
+; Address = 1:635c
+[Wario's Plane]
+addresstype=pointer
+compressed=	true
+
+ptrAddress=	493c
+bank=		1
+
+
+; Address = 1:5082
+[Titlescreen]
+addresstype=pointer
+compressed=	true
+
+ptrAddress=	4948
+bank=		1
