@@ -307,9 +307,6 @@ public class LevelViewer extends JPanel  {
 
 
 	public void setSelectedRegion(Region r) {
-		if (selectedRegion != null) {
-			mainFrame.writeRegionFields();
-		}
 		selectedRegion = r;
 		tileSetViewer.setTileSet(selectedRegion.getTileSet());
 		refreshRegionFields();

@@ -141,7 +141,7 @@ public class EnemySet {
 		enemySetRecord.writePtr(9+i*2, value);
 	}
 	public void addEnemy() {
-		if (getNumEnemies() >= 0xe-3)
+		if (getNumEnemies() >= 0xe-4)
 			return;
 		byte[] paletteData = enemySetRecord.toArray(getPaletteOffset());
 		enemySetRecord.setDataSize(enemySetRecord.getDataSize()+2);
