@@ -24,7 +24,10 @@ public class MetaRomPointer extends RomPointer {
 		this.format = format;
 		this.name = name;
 		this.fileSection = fileSection;
-		this.section = section;
+		if (section == null)
+			this.section = "default";
+		else
+			this.section = section;
 	}
 
 	public void write(int newAddr, int newBank) {

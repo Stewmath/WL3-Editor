@@ -126,7 +126,7 @@ public class MoveableDataRecord extends Record
 		while (decompressedData.size() < size)
 			decompressedData.add((byte)0);
 		while (decompressedData.size() > size)
-			decompressedData.remove(size);
+			decompressedData.remove(size-1);
 	}
 	public boolean fitsInOriginalSpace()
 	{
@@ -245,7 +245,7 @@ public class MoveableDataRecord extends Record
 		if (data.length != 0 && i < getDataSize())
 			modified = true;
 		for (int j=0; j<data.length && j+i < getDataSize(); j++) {
-			decompressedData.set(j+i, data[i]);
+			decompressedData.set(j+i, data[j]);
 		}
 	}
 	public void write(byte[] data) {

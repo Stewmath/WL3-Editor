@@ -56,21 +56,25 @@ public class ValueFileParser {
 	}
 
 	public static void reloadValueFiles() {
-		musicFile = new ValueFileParser("ref/music.txt");
-		scrollFile = new ValueFileParser("ref/scrollModes.txt");
-		levelFile = new ValueFileParser("ref/level.txt");
-		tileEffectFile = new ValueFileParser("ref/tileEffects.txt");
-		itemSetFile = new ValueFileParser("ref/itemSet.txt");
-		enemySetFile = new ValueFileParser("ref/enemySet.txt");
-		textLocationFile = new ValueFileParser("ref/textLocations.txt");
-		enemyAiFile = new ValueFileParser("ref/enemyAis.txt");
-		miscGfxFile = new ValueFileParser("ref/miscGfx.txt");
-
-		if (metadataFile != null) {
-			enemyGfxFile = new ValueFileParser("ref/enemyGfx.txt");
-			enemyGfxFile.merge(metadataFile.getFileSection("enemyGfx.txt"));
-		}
+		musicFile = makeValueFile("music.txt");
+		scrollFile = makeValueFile("scrollModes.txt");
+		levelFile = makeValueFile("level.txt");
+		tileEffectFile = makeValueFile("tileEffects.txt");
+		itemSetFile = makeValueFile("itemSet.txt");
+		enemySetFile = makeValueFile("enemySet.txt");
+		textLocationFile = makeValueFile("textLocations.txt");
+		enemyAiFile = makeValueFile("enemyAis.txt");
+		miscGfxFile = makeValueFile("miscGfx.txt");
+		enemyGfxFile = makeValueFile("enemyGfx.txt");
 	}
+
+	static ValueFileParser makeValueFile(String name) {
+		ValueFileParser p = new ValueFileParser("ref/" + name);
+		if (metadataFile != null)
+			p.merge(metadataFile.getFileSection(name));
+		return p;
+	}
+
 
 	public static void reloadMetadataFile(String filename) {
 		metadataFile = new MetadataFileParser(filename);

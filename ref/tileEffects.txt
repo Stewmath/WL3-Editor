@@ -254,6 +254,6 @@ Yarn breakable 2x2 (TL) (7b)=   55d3
 Yarn breakable 2x2 (TL) (78)=   55d7
 
 
-???=                        4064
-???=                        4078
-Empty 2=                    408c
+Unknown 1=                  4064
+Unknown 2=                  4078
+Empty 2 (?)=                408c

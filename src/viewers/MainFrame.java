@@ -461,7 +461,6 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				MiscGfxDialog d = new MiscGfxDialog(itself);
-				levelViewer.setLevel(levelViewer.level);
 			}
 		});
 		miscMenu.add(miscGfxButton);
@@ -651,7 +650,7 @@ public class MainFrame extends JFrame
 			public void windowClosing(WindowEvent e) {
 				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-				if (rom.isModified()) {
+				if (rom != null && rom.isModified()) {
 					int option = JOptionPane.showOptionDialog(null,
 							"Save the rom before exiting?",
 							"Exit",

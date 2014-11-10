@@ -184,13 +184,41 @@ public class ObjectSetEditor extends JDialog {
 		}
 		enemySetPanel.add(row);
 
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+
+		JPanel enemyAddRemovePanel = new JPanel();
+		enemyAddRemovePanel.setLayout(new BoxLayout(enemyAddRemovePanel, BoxLayout.Y_AXIS));
+
+		JButton addEnemyButton = new JButton("Add enemy");
+		addEnemyButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enemySet.addEnemy();
+				refreshEnemySet();
+			}
+		});
+		JButton deleteEnemyButton = new JButton("Delete enemy");
+		deleteEnemyButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enemySet.deleteEnemy();
+				refreshEnemySet();
+			}
+		});
+
+		enemyAddRemovePanel.add(addEnemyButton);
+		enemyAddRemovePanel.add(deleteEnemyButton);
+
+		bottomPanel.add(enemyAddRemovePanel);
+
 		palettePanel = new PaletteEditorPanel(enemySet.getPalettes(), false, new PaletteEditorClient() {
 			public void setPalettes(int[][] palettes) {
 				enemySet.setPalettes(palettes);
 			}
 		});
 		palettePanel.setOrientation(true);
-		enemySetPanel.add(palettePanel);
+		bottomPanel.add(palettePanel);
+
+		enemySetPanel.add(bottomPanel);
 
 		enemySetPanel.setBorder(BorderFactory.createTitledBorder("Enemy Set"));
 

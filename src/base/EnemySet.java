@@ -2,9 +2,12 @@ package base;
 
 import java.util.ArrayList;
 
+import java.util.logging.Logger;
+
 import record.*;
 
 public class EnemySet {
+	final static Logger logger = Logger.getLogger(EnemySet.class.getName());
 
 	final static int GFX_DATA_SIZE = 0x400;
 	// Some sprites have a small size for whatever reason
@@ -12,14 +15,20 @@ public class EnemySet {
 
 	static ArrayList<EnemySet> enemySets = new ArrayList<EnemySet>();
 
+	static int unknownCount;
+
 	public static EnemySet getEnemySet(int ptr) {
 		int addr = RomReader.BANK(ptr, 0x19);
 		for (int i=0; i<enemySets.size(); i++) {
 			if (enemySets.get(i).enemySetRecord.getAddr() == addr)
 				return enemySets.get(i);
 		}
-		// TODO: handling enemySets in unexpected places? Probably necessary once I allow them to be moved.
-		return null;
+
+		logger.warning("Unexpected enemy set at " + RomReader.toHexString(ptr, 4) + ".");
+
+		EnemySet ret = new EnemySet(ptr, "Unknown " + (++unknownCount));
+		enemySets.add(ret);
+		return ret;
 	}
 	public static EnemySet getEnemySet(String name) {
 		for (EnemySet e : enemySets) {
@@ -31,6 +40,8 @@ public class EnemySet {
 
 	// All enemy sets should be loaded at once, so enemy graphics can be moved freely.
 	public static void reloadEnemySets() {
+		unknownCount = 0;
+
 		enemySets = new ArrayList<EnemySet>();
 
 		ValueFileParser file = ValueFileParser.getEnemySetFile();
@@ -38,6 +49,9 @@ public class EnemySet {
 		for (int i=0; i<entries; i++) {
 			int addr = file.indexToIntValue(i);
 			String name = file.indexToName(i);
+
+			if (name.length() >= 7 && name.substring(0, 7).equals("Unknown"))
+				unknownCount++;
 
 			EnemySet enemySet = new EnemySet(addr, name);
 			enemySets.add(enemySet);
@@ -64,8 +78,17 @@ public class EnemySet {
 		while (rom.read(recordEnd) != 0xff)
 			recordEnd+=2;
 
-		enemySetRecord = rom.getMoveableDataRecord(recordStart, null, false, recordEnd-recordStart+1+0x20);
+		// The pointer will be added separately with the "addPtr" function
+		enemySetRecord = rom.getMoveableDataRecord(recordStart, null, false, recordEnd-recordStart+1+0x20, 0x19);
 		enemySetRecord.setDescription("Enemy set '" + ValueFileParser.getEnemySetFile().getName(enemySetRecord.getAddr()) + "'");
+
+		// Since no pointer was passed in the constructor, set this manually
+		enemySetRecord.setMoveable(true);
+
+		// Metadata file will keep track of moved enemy sets
+		MetaRomPointer metaPointer = new MetaRomPointer(getName(), "enemySet.txt", null,
+				MetaRomPointer.FORMAT_GB_PTR);
+		enemySetRecord.addPtr(metaPointer);
 
 		loadGfxRecords();
 	}
@@ -118,17 +141,27 @@ public class EnemySet {
 		enemySetRecord.writePtr(9+i*2, value);
 	}
 	public void addEnemy() {
-		if (getNumEnemies() >= 0xf-4)
+		if (getNumEnemies() >= 0xe)
 			return;
-		byte[] paletteData = enemySetRecord.toArray(9+getNumEnemies()*2);
+		byte[] paletteData = enemySetRecord.toArray(getPaletteOffset());
 		enemySetRecord.setDataSize(enemySetRecord.getDataSize()+2);
 		// shift paletteData
 		enemySetRecord.write(getPaletteOffset(), paletteData);
 
-		enemySetRecord.write16(9+(getNumEnemies()-1)*2, 0x4000);
+		enemySetRecord.write16(9+(getNumEnemies()-1)*2, 0x43c3);
 		enemySetRecord.write16(9+(getNumEnemies()-0)*2, 0xffff);
 	}
 
+	public void deleteEnemy() {
+		if (getNumEnemies() == 0)
+			return;
+		byte[] paletteData = enemySetRecord.toArray(getPaletteOffset());
+		enemySetRecord.setDataSize(enemySetRecord.getDataSize()-2);
+		// shift paletteData
+		enemySetRecord.write(getPaletteOffset(), paletteData);
+
+		enemySetRecord.write16(9+getNumEnemies()*2, 0xffff);
+	}
 
 	public int getPaletteOffset() {
 		return 9+getNumEnemies()*2+2;
