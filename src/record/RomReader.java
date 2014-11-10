@@ -565,7 +565,7 @@ public class RomReader {
 	public static BufferedImage binToTile(byte[] data, int flags, int[][] palette) {
 		if (palette == null)
 			palette = Drawing.defaultPalette;
-		// TODO: implement palette & flags
+
 		BufferedImage image = new BufferedImage(8, 8, BufferedImage.TYPE_USHORT_555_RGB);
 
 		int p = flags&7;
@@ -674,6 +674,18 @@ public class RomReader {
 			}
 		}
 		return output;
+	}
+
+	public static int[][] RGB24ToPalette(byte[] data) {
+		int numPalettes = data.length/(4*3);
+		int[][] palettes = new int[numPalettes][4];
+		for (int p=0; p<numPalettes; p++) {
+			for (int i=0; i<4; i++) {
+				int pos = p*4*3+i*3;
+				palettes[p][i] = new Color(data[pos]&0xff, data[pos+1]&0xff, data[pos+2]&0xff).getRGB();
+			}
+		}
+		return palettes;
 	}
 
 	public static String getWorkingDirectory() {

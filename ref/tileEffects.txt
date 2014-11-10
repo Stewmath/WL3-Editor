@@ -56,7 +56,7 @@ Updraft=                    494d
 Slippery=                   4997
 Slippery platform=          49ae
 Usually a platform (?)=     49c5
-Impassable by Wario=        49df
+Impassable by Wario (unless flat)=49df
 Wario-only platform=        49f1
 
 Breaks w/ coin (78)=        49fb

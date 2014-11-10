@@ -28,7 +28,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
 
-public class TileEditor extends JDialog implements TileGridViewerClient {
+public class TileEditor extends JDialog implements TileGridViewerClient, PaletteEditorClient {
 	TileEditor itself = this;
 	
 	JPanel tileEditPanel;
@@ -42,6 +42,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 
 	JPanel palettePanel;
 	JPanel paletteEditSuperPanel;
+	PaletteEditorPanel paletteEditorPanel;
 
 	// Sets of palettes (for bg, sprites, etc)
 	ArrayList<int[][]> paletteSets = new ArrayList<int[][]>();
@@ -54,8 +55,6 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 
 	int selectedPaletteSet;
 	int selectedPalette;
-
-	JButton[] paletteEditButtons;
 
 	TileGridViewer tileGridViewer;
 
@@ -74,6 +73,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		super(null, "Tile Editor", Dialog.ModalityType.APPLICATION_MODAL);
 		tileData = _tileData;
 		selectedPaletteSet = 0;
+		selectedPalette = 0;
 		if (_palettes == null) {
 			paletteSets.add(Drawing.defaultPalette);
 			numPalettes = 0;
@@ -214,8 +214,13 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		centerPanel.add(offsetPanel);
 		centerPanel.add(buttonPanel);
 
+		JPanel rightPanel2 = new JPanel();
+		rightPanel2.setLayout(new BorderLayout());
+
 		JPanel rightPanel = new JPanel();
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+
+		rightPanel2.add(rightPanel, BorderLayout.CENTER);
 
 		JPanel arrangementPanel = new JPanel();
 		arrangementPanel.setLayout(new BoxLayout(arrangementPanel, BoxLayout.Y_AXIS));
@@ -280,64 +285,12 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			palettePanel.setBorder(BorderFactory.createTitledBorder("View with.."));
 			rightPanel.add(palettePanel);
 
-			JPanel paletteEditPanel = new JPanel();
-			paletteEditPanel.setLayout(new BoxLayout(paletteEditPanel, BoxLayout.Y_AXIS));
-			ActionListener paletteEditListener = new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if (numPalettes > 0) {
-						JButton button = (JButton)e.getSource();
-						Color newColor = JColorChooser.showDialog(itself, "Choose a color", button.getBackground());
-						if (newColor != null) {
-							button.setBackground(newColor);
-							for (int j=0; j<4; j++) {
-								if (paletteEditButtons[j] == button) {
-									paletteSets.get(selectedPaletteSet)[selectedPalette][j] = newColor.getRGB();
-									break;
-								}
-							}
-							refreshPalettes();
-						}
-					}
-				}
-			};
-			paletteEditButtons = new JButton[4];
-			for (int j=0; j<4; j++) {
-				paletteEditButtons[j] = new JButton();
-				paletteEditButtons[j].addActionListener(paletteEditListener);
-				//paletteEditButtons[j].setAlignmentX(java.awt.Component.RIGHT_ALIGNMENT);
-				//paletteButton.setPreferredSize(new Dimension(32, 32));
-				paletteEditPanel.add(paletteEditButtons[j]);
-			}
-			JPanel paletteEditButtonPanel = new JPanel();
-			paletteEditButtonPanel.setLayout(new BoxLayout(paletteEditButtonPanel, BoxLayout.Y_AXIS));
-			JButton copyButton = new JButton("Copy");
-			copyButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					for (int j=0; j<4; j++) {
-						int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][j] : paletteSets.get(selectedPaletteSet)[selectedPalette][j]);
-						PaletteEditorPanel.paletteBuffer[j] = color;
-					}
-				}
-			});
-			JButton pasteButton = new JButton("Paste");
-			pasteButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					for (int j=0; j<4; j++) {
-						if (selectedPalette != -1) {
-							paletteSets.get(selectedPaletteSet)[selectedPalette][j] = PaletteEditorPanel.paletteBuffer[j];
-							refreshPalettes();
-						}
-					}
-				}
-			});
-			paletteEditButtonPanel.add(copyButton);
-			paletteEditButtonPanel.add(pasteButton);
+			paletteEditorPanel = new PaletteEditorPanel(paletteSets.get(selectedPaletteSet), false, this);
 
 			paletteEditSuperPanel = new JPanel();
 			paletteEditSuperPanel.setLayout(new BoxLayout(paletteEditSuperPanel, BoxLayout.X_AXIS));
-			paletteEditSuperPanel.add(paletteEditPanel, BorderLayout.WEST);
-			paletteEditSuperPanel.add(paletteEditButtonPanel);
-			rightPanel.add(paletteEditSuperPanel);
+			paletteEditSuperPanel.add(paletteEditorPanel);
+			rightPanel2.add(paletteEditSuperPanel, BorderLayout.EAST);
 
 		if (numPalettes == 0) {
 			palettePanel.setVisible(false);
@@ -359,23 +312,44 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		});
 		rightPanel.add(exportButton);
 
-		JButton importButton = new JButton("Import...");
-		importButton.addActionListener(new ActionListener() {
+		JButton importTilesButton = new JButton("Import Tiles...");
+		importTilesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				byte[] data = RomReader.importData("Import Graphics",
-						new FileNameExtensionFilter("Binary file", "bin"));
+						new FileNameExtensionFilter("Binary file (.bin)", "bin"));
 				if (data != null) {
 					tileData = Arrays.copyOf(data, tileData.length);
 					refreshTiles();
 				}
 			}
 		});
-		rightPanel.add(importButton);
+		JButton importPalettesButton = new JButton("Import Palettes...");
+		importPalettesButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (numPaletteSets != 0) {
+					byte[] data = RomReader.importData("Import Palettes",
+							new FileNameExtensionFilter("Palette file (.pal)", "pal"));
+					if (data != null) {
+						int[][] palettes = RomReader.RGB24ToPalette(data);
+						System.out.println(palettes.length);
+						for (int i=0; i/numPalettes<numPaletteSets && i<palettes.length; i++) {
+							for (int j=0; j<4; j++) {
+								paletteSets.get(i/numPalettes)[i%numPalettes][j] = palettes[i][j];
+							}
+						}
+						paletteEditorPanel.setPalettes(paletteSets.get(selectedPaletteSet));
+						refreshPalettes();
+					}
+				}
+			}
+		});
+		rightPanel.add(importTilesButton);
+		rightPanel.add(importPalettesButton);
 
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(centerPanel, BorderLayout.CENTER);
-		contentPane.add(rightPanel, BorderLayout.EAST);
+		contentPane.add(rightPanel2, BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
 		add(contentPane, BorderLayout.CENTER);
@@ -408,6 +382,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 				while (e.getSource() != paletteSetButtons[i]) i++;
 
 				selectedPaletteSet = i;
+				paletteEditorPanel.setPalettes(paletteSets.get(selectedPaletteSet));
 				refreshPalettes();
 			}
 		});
@@ -419,6 +394,9 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 			paletteSetButtons[numPaletteSets].setSelected(false);
 
 		paletteSetPanel.add(paletteSetButtons[numPaletteSets]);
+
+		if (selectedPaletteSet == numPaletteSets)
+			paletteEditorPanel.setPalettes(paletteSets.get(selectedPaletteSet));
 
 		numPaletteSets++;
 
@@ -439,8 +417,7 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		disableListeners = true;
 		if (p == -1) {
 			selectedPalette = p;
-			if (numPalettes != 0)
-				blackWhiteButton.setSelected(true);
+			blackWhiteButton.setSelected(true);
 		}
 		else if (p < numPalettes) {
 			selectedPalette = p;
@@ -488,9 +465,6 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 		for (int i=0; i<4; i++) {
 			int color = (selectedPalette==-1 ? Drawing.defaultPalette[0][i] : paletteSets.get(selectedPaletteSet)[selectedPalette][i]);
 			colorButtons[i].setBackground(new Color(color));
-			if (numPalettes > 0) {
-				paletteEditButtons[i].setBackground(new Color(color));
-			}
 		}
 	}
 
@@ -530,4 +504,10 @@ public class TileEditor extends JDialog implements TileGridViewerClient {
 	public boolean clickedOk() {
 		return ok;
 	}
+
+	// PaletteEditorClient
+	public void setPalettes(int[][] palettes) {
+		refreshPalettes();
+	}
+
 }

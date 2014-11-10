@@ -143,10 +143,7 @@ public class PaletteEditorPanel extends JPanel {
 		return palettes;
 	}
 	public void setPalettes(int[][] _palettes) {
-		for (int i=0; i<Math.min(numPalettes, palettes.length); i++) {
-			for (int j=0; j<4; j++)
-				palettes[i][j] = _palettes[i][j];
-		}
+		palettes = _palettes;
 		refreshPaletteButtons();
 	}
 	void refreshPaletteButtons() {
