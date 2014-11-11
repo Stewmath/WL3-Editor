@@ -16,7 +16,7 @@ TABLE OF CONTENTS
 
 ABOUT
 
-	This is an editor for Wario Land 3, written by Drenn. This is version 0.4. 
+	This is an editor for Wario Land 3, written by Drenn.
 	Source code is on github:
 		https://github.com/Drenn1/WL3-Editor
 
@@ -236,10 +236,13 @@ ABOUT THE "REF" FOLDER
 
     All the files in the "ref" folder are processed by this program for various
 reasons. You can add lines to these files if you have some idea what you're
-doing - most usefully, you can modify "tileEffects.txt" to add any tile effects
+doing - for instance, you can modify "tileEffects.txt" to add any tile effects
 I may have missed. Formatting is important though: make sure that any 2 values
-on the same line are separated by an equals sign or a tab; and comments must 
-begin the line with a semicolon.
+on the same line are separated by an equals sign; and comments must begin the 
+line with a semicolon.
+
+    In particular, you can modify miscGfx.txt in order to add a graphic to the 
+editor's drop-down menu for miscellaneous graphics.
 
 CONTACT ME
 
